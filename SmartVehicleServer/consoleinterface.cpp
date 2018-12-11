@@ -38,6 +38,9 @@ void ConsoleInterface::listen() {
         cout->flush();
         QString command = cin->readLine();
 
+        while (command.endsWith(' '))
+            command.chop(1);
+
         if (command == Commands::EXIT)  {
             print("Closing application...");
             print("If this window still open plz push any button. I don't know why it don't want to closing :(");
@@ -66,8 +69,9 @@ void ConsoleInterface::listen() {
             continue;
         }
 
-        if (command.startsWith(Commands::SENDALL))  {
-
+        if (command.startsWith(Commands::SENDALL + ' '))  {
+            QString message = command.section(' ', 1);
+            emit signalConsoleSend(message);
             continue;
         }
 

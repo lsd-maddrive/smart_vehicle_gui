@@ -2,8 +2,7 @@
 
 
 SVServer::SVServer(ConsoleInterface *console)   {
-    server = new QTcpServer();
-    connect(server, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
+    server = new QTcpServer(this);
     if (console)
         setConsole(console);
 }
@@ -37,7 +36,9 @@ bool SVServer::start(QHostAddress const& adress, quint16 port)   {
         bool ready = server->listen(adress, port);
         if (ready)  {
             print("Starting server...");
-            print("Server is listening.");
+            connect(server, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
+            connect(server, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));
+            print("Server is listening on adress " + adress.toString() + " and port " + QString::number(port));
         }   else
             print("Error. Cannor start server :(");
         return ready;
@@ -67,20 +68,25 @@ void SVServer::slotNewConnection()  {
     connections.insert(newConnection->socketDescriptor(), newConnection);
     connect(newConnection, SIGNAL(disconnected()), this, SLOT(slotClientDisconnected()));
     connect(newConnection, SIGNAL(readyRead()),this, SLOT(slotReadyRead()));
+    sendTo(newConnection, "greetings");
 }
 
 void SVServer::slotAcceptError(QAbstractSocket::SocketError error)    {
-    print("Slot error.");
+    print("Server error. Something went wrong :(");
 }
 
 void SVServer::sendAll(QString const& data)    {
-    print("Sending data(" + data + ") to all...");
-    if (!server->hasPendingConnections())   {
-        return;
-    }
+    if (server->isListening())   {
+        print("Sending data(" + data + ") to all...");
+        if (!server->hasPendingConnections())   {
+            return;
+        }
 
-    foreach (QTcpSocket* socket, connections)  {
-        sendTo(socket, data);
+        foreach (QTcpSocket* socket, connections)  {
+            sendTo(socket, data);
+        }
+    }   else    {
+        print("Warning! Server is disabled.");
     }
 }
 
@@ -100,6 +106,13 @@ void SVServer::slotClientDisconnected() {
 
 void SVServer::slotReadyRead()  {
     print("Incomming data.");
+    QTcpSocket* client = dynamic_cast<QTcpSocket*>(sender());
+    QDataStream in(client);
+    if (client->bytesAvailable())   {
+        QString message;
+        in >> message;
+        print("Data: " + message);
+    }
 }
 
 void SVServer::slotConsoleStart() {

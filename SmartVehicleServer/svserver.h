@@ -28,7 +28,7 @@ public:
     ~SVServer();
     void setConsole(ConsoleInterface *console);
 
-    bool start(QHostAddress const& adress = QHostAddress::Any, quint16 port = 80);
+    bool start(QHostAddress const& adress = QHostAddress::LocalHost, quint16 port = 80);
     void stop();
 
     void sendAll(QString const& data);
