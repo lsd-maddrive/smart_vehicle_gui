@@ -2,7 +2,7 @@
 
 const char AuthPackage::authRequest[10] = {'k', 'o', 'n', 'n', 'i', 'c', 'h', 'i', 'w', 'a'};
 
-AuthPackage::AuthPackage() {}
+AuthPackage::AuthPackage()  {}
 
 QByteArray AuthPackage::toBytes() const {
     QByteArray bytes;
@@ -97,7 +97,11 @@ QByteArray DataPackage::toBytes() const   {
     QByteArray bytes;
     bytes.append(packageType);
     bytes.append(stateType);
-    bytes.append(static_cast<quint32>(QTime::currentTime().second()));
+    int msec = QTime::currentTime().msec();
+    bytes.append(msec >> 24 & 0xFF);
+    bytes.append(msec >> 16 & 0xFF);
+    bytes.append(msec >> 8 & 0xFF);
+    bytes.append(msec & 0xFF);
     bytes.append(dataBlockSize);
     for (std::pair<quint8, quint32> const& value : data) {
         bytes.append(value.first);

@@ -11,6 +11,8 @@
 #include <QDebug>
 #include <QThread>
 #include <QTime>
+#include <QQueue>
+#include "datapackage.h"
 
 class SVServer : public QObject
 {
@@ -24,31 +26,45 @@ private:
      * все активные подключения хранятся в Map контейнере
      * в качестве ключа используется socket->socketDescriptor()
      */
+    AuthPackage validAuthPackage;
+    QQueue<quint8> coiQueue;
 
     void sendTo(QTcpSocket* socket, QString const& data);
-    void log(QString const& message);
+    void sendTo(QTcpSocket* socket, QByteArray const& data);
+    void sendTo(QTcpSocket* socket, AnswerPackage const& answer);
+    void sendTo(QTcpSocket* socket, DataPackage const& data);
+    void sendTo(QTcpSocket* socket, AuthAnswerPackage const& answer);
+
+    void log(QString message);
+    void log(AnswerPackage answer);
+    void log(DataPackage data);
 public:
     SVServer();
     ~SVServer();
-
 
     bool start(QHostAddress const& adress = QHostAddress::AnyIPv4 , quint16 port = 80);
     void stop();
 
     void sendAll(QString const& data);
+    void sendAll(QByteArray const& data);
+    void sendAll(AnswerPackage const& answer);
+    void sendAll(DataPackage const& data);
 
     QHostAddress getHostAdress() const;
     quint16 getPort() const;
     bool isListening() const;
-public slots:
+private slots:
     void slotNewConnection();
     void slotAcceptError(QAbstractSocket::SocketError error);
     void slotClientDisconnected();
     void slotReadyRead();
-
+public slots:
     void slotUIStart(QString adress, quint16 port);
     void slotUIStop();
-    void slotUISend(QString message);
+    void slotUISendAll(QString message);
+    void slotUITestSend(QString command);
+
+    void slotTaskDone(quint8 answerType);
 signals:
     void signalUILog(QString message);
     void signalUIChangeState(bool listening);

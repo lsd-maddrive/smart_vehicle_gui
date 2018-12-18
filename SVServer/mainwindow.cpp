@@ -45,10 +45,16 @@ MainWindow::MainWindow(QWidget *parent)
 
                 messageLine = new QLineEdit();
                 messageLine->setPlaceholderText("Enter message here...");
-                serverLayout->addWidget(messageLine, 0, 0);
+                serverLayout->addWidget(messageLine, 0, 0, 1, 1);
 
                 sendButton = new QPushButton("Send");
-                serverLayout->addWidget(sendButton, 0, 1);
+                serverLayout->addWidget(sendButton, 0, 1, 1, 1);
+
+                answerButton = new QPushButton("Send answer");
+                serverLayout->addWidget(answerButton, 1, 0, 1, 2);
+
+                dataButton = new QPushButton("Send data");
+                serverLayout->addWidget(dataButton, 2, 0, 1, 2);
             }
             serverBox->setLayout(serverLayout);
         }
@@ -63,6 +69,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(connectButton, SIGNAL(clicked()), this, SLOT(slotConnectButton()));
     connect(sendButton, SIGNAL(clicked()), this, SLOT(slotSendButton()));
+    connect(answerButton, SIGNAL(clicked()), this, SLOT(slotAnswerButton()));
+    connect(dataButton, SIGNAL(clicked()), this, SLOT(slotDataButton()));
 
     slotServerChangeState(false);
 }
@@ -90,6 +98,14 @@ void MainWindow::slotSendButton()   {
     //validate
     emit signalServerSendAll(data);
     messageLine->clear();
+}
+
+void MainWindow::slotAnswerButton() {
+    emit signalServerTestSend("Answer");
+}
+
+void MainWindow::slotDataButton()   {
+    emit signalServerTestSend("Data");
 }
 
 void MainWindow::slotLog(QString message)   {

@@ -28,12 +28,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     svclient.cpp \
-    connectionwindow.cpp
+    connectionwindow.cpp \
+    datapackage.cpp
 
 HEADERS += \
         mainwindow.h \
     svclient.h \
-    connectionwindow.h
+    connectionwindow.h \
+    datapackage.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

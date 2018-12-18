@@ -5,6 +5,7 @@ ConnectionWindow::ConnectionWindow(QWidget *parent) : QWidget(parent)
     qDebug() << "Init connection window";
     setWindowTitle("Connection options");
     setAcceptDrops(true);
+    setFixedSize(250, 100);
 
     layout = new QGridLayout();
 

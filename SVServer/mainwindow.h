@@ -32,6 +32,8 @@ private:
             QGridLayout *serverLayout;
                 QLineEdit *messageLine;
                 QPushButton *sendButton;
+                QPushButton *answerButton;
+                QPushButton *dataButton;
 
     QPlainTextEdit *log;
     QStatusBar *statusBar;
@@ -46,6 +48,8 @@ public:
 private slots:
     void slotConnectButton();
     void slotSendButton();
+    void slotAnswerButton();
+    void slotDataButton();
 public slots:
     void slotLog(QString message);
     void slotServerChangeState(bool state);
@@ -54,6 +58,7 @@ signals:
     void signalServerStart(QString adress = "0.0.0.0", quint16 port = 80);
     void signalServerStop();
     void signalServerSendAll(QString data);
+    void signalServerTestSend(QString command);
 };
 
 #endif // MAINWINDOW_H

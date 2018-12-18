@@ -5,6 +5,8 @@
 #include <QTcpSocket>
 #include <QDebug>
 #include <QDataStream>
+#include <QTime>
+#include "datapackage.h"
 
 class SVClient : public QObject
 {
@@ -20,6 +22,8 @@ public:
     void disconnectFromHost();
 
     void sendData(QString data);
+    void sendData(QByteArray data);
+    void sendAuthPackage();
     bool isConnected() const;
 
 private slots:

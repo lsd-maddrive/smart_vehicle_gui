@@ -31,13 +31,44 @@ void SVClient::disconnectFromHost() {
 }
 
 void SVClient::sendData(QString data)   {
-    qDebug() << "sending " + data + "...";
-
     if (connected)  {
+        qDebug() << "sending " + data + "...";
+
+        char *bytes = new char[(size_t) data.length() + 2];
+        bytes[0] = (char)data.length();
+        for (int i = 0; i < data.length(); i++)    {
+            bytes[i + 1] = (char) data.data()[i].toLatin1();
+        }
+        bytes[data.length() + 1] = '\0';
+        socket->write(bytes);
+        delete[] bytes;
 
     }   else {
-
+        qDebug() << "there is no active connections";
     }
+}
+
+void SVClient::sendData(QByteArray data)    {
+    if (connected)  {
+        qDebug() << "sending " + data + "...";
+
+        char *bytes = new char[(size_t) data.length() + 2];
+        bytes[0] = (char)data.length();
+        for (int i = 0; i < data.length(); i++)    {
+            bytes[i + 1] = (char) data.data()[i];
+        }
+        bytes[data.length() + 1] = '\0';
+        socket->write(bytes);
+        delete[] bytes;
+
+    }   else {
+        qDebug() << "there is no active connections";
+    }
+}
+
+void SVClient::sendAuthPackage()    {
+    AuthPackage authPackage;
+    sendData(authPackage.toBytes());
 }
 
 bool SVClient::isConnected() const    {
@@ -47,6 +78,7 @@ bool SVClient::isConnected() const    {
 void SVClient::slotConnected()  {
     qDebug() << "Connected";
     connected = true;
+    sendAuthPackage();
     emit signalUIConnected();
 }
 
@@ -64,16 +96,40 @@ void SVClient::slotReadyRead()  {
     qDebug() << "Incomming data...";
     if (socket->bytesAvailable())   {
         socket->flush();
-        QByteArray bytes;
         char size = 0;
         socket->read(&size, 1);
-        bytes = socket->readAll();
+        QByteArray bytes = socket->readAll();
         QString message(bytes);
 
         if (message.endsWith("\r\n"))
             message.chop(2);
 
         qDebug() << "Data(" << (int)size << "): " << message;
+
+        if (message[0] == AuthAnswerPackage::packageType && size == 4)    {
+            qDebug() << "Valid answer code.";
+            qDebug() << "Device type: " << QString::number(bytes[1]);
+            qDebug() << "Device id: " << QString::number(bytes[2]);
+            qDebug() << "State: " << QString::number(bytes[3]);
+        }
+        if (message[0] == AnswerPackage::packageType && size == 3)   {
+            qDebug() << "Task #" << QString::number(bytes[1]) << " has been done.";
+            qDebug() << "Answer code: " << QString::number(bytes[2]);
+        }
+        if (message[0] == DataPackage::packageType && size >= 12) {
+            for (int i = 0; i < size; i++)
+                qDebug() << QString::number(bytes[i]);
+
+            qDebug() << "Data package: ";
+            qDebug() << "State: " << QString::number(bytes[1]);
+            int msec = bytes[2] + bytes[3] * 255 + bytes[4] * 255 * 255 + bytes[5] * 255 * 255 * 255;
+            qDebug() << "Sending time: " << QTime::fromMSecsSinceStartOfDay(msec).toString();
+            int dataBlockSize = bytes[6];
+            for (int i = 0; i < dataBlockSize; i++) {
+                qDebug() << "Data type: " << bytes[7 + i * 5];
+                qDebug() << "Value: " << (bytes[11 + i * 5] + bytes[10 + i * 5] * 255 + bytes[9 + i * 5] * 255 * 255 + bytes[8 + i * 5] * 255 * 255 * 255);
+            }
+        }
     }
 
 }

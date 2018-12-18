@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[15];
-    char stringdata0[177];
+    QByteArrayData data[19];
+    char stringdata0[238];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -39,20 +39,26 @@ QT_MOC_LITERAL(4, 37, 4), // "port"
 QT_MOC_LITERAL(5, 42, 16), // "signalServerStop"
 QT_MOC_LITERAL(6, 59, 19), // "signalServerSendAll"
 QT_MOC_LITERAL(7, 79, 4), // "data"
-QT_MOC_LITERAL(8, 84, 17), // "slotConnectButton"
-QT_MOC_LITERAL(9, 102, 14), // "slotSendButton"
-QT_MOC_LITERAL(10, 117, 7), // "slotLog"
-QT_MOC_LITERAL(11, 125, 7), // "message"
-QT_MOC_LITERAL(12, 133, 21), // "slotServerChangeState"
-QT_MOC_LITERAL(13, 155, 5), // "state"
-QT_MOC_LITERAL(14, 161, 15) // "slotRefreshData"
+QT_MOC_LITERAL(8, 84, 20), // "signalServerTestSend"
+QT_MOC_LITERAL(9, 105, 7), // "command"
+QT_MOC_LITERAL(10, 113, 17), // "slotConnectButton"
+QT_MOC_LITERAL(11, 131, 14), // "slotSendButton"
+QT_MOC_LITERAL(12, 146, 16), // "slotAnswerButton"
+QT_MOC_LITERAL(13, 163, 14), // "slotDataButton"
+QT_MOC_LITERAL(14, 178, 7), // "slotLog"
+QT_MOC_LITERAL(15, 186, 7), // "message"
+QT_MOC_LITERAL(16, 194, 21), // "slotServerChangeState"
+QT_MOC_LITERAL(17, 216, 5), // "state"
+QT_MOC_LITERAL(18, 222, 15) // "slotRefreshData"
 
     },
     "MainWindow\0signalServerStart\0\0adress\0"
     "port\0signalServerStop\0signalServerSendAll\0"
-    "data\0slotConnectButton\0slotSendButton\0"
-    "slotLog\0message\0slotServerChangeState\0"
-    "state\0slotRefreshData"
+    "data\0signalServerTestSend\0command\0"
+    "slotConnectButton\0slotSendButton\0"
+    "slotAnswerButton\0slotDataButton\0slotLog\0"
+    "message\0slotServerChangeState\0state\0"
+    "slotRefreshData"
 };
 #undef QT_MOC_LITERAL
 
@@ -62,26 +68,29 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      10,   14, // methods
+      13,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       5,       // signalCount
+       6,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    2,   64,    2, 0x06 /* Public */,
-       1,    1,   69,    2, 0x26 /* Public | MethodCloned */,
-       1,    0,   72,    2, 0x26 /* Public | MethodCloned */,
-       5,    0,   73,    2, 0x06 /* Public */,
-       6,    1,   74,    2, 0x06 /* Public */,
+       1,    2,   79,    2, 0x06 /* Public */,
+       1,    1,   84,    2, 0x26 /* Public | MethodCloned */,
+       1,    0,   87,    2, 0x26 /* Public | MethodCloned */,
+       5,    0,   88,    2, 0x06 /* Public */,
+       6,    1,   89,    2, 0x06 /* Public */,
+       8,    1,   92,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       8,    0,   77,    2, 0x08 /* Private */,
-       9,    0,   78,    2, 0x08 /* Private */,
-      10,    1,   79,    2, 0x0a /* Public */,
-      12,    1,   82,    2, 0x0a /* Public */,
-      14,    0,   85,    2, 0x0a /* Public */,
+      10,    0,   95,    2, 0x08 /* Private */,
+      11,    0,   96,    2, 0x08 /* Private */,
+      12,    0,   97,    2, 0x08 /* Private */,
+      13,    0,   98,    2, 0x08 /* Private */,
+      14,    1,   99,    2, 0x0a /* Public */,
+      16,    1,  102,    2, 0x0a /* Public */,
+      18,    0,  105,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::QString, QMetaType::UShort,    3,    4,
@@ -89,12 +98,15 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::QString,    7,
+    QMetaType::Void, QMetaType::QString,    9,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::QString,   11,
-    QMetaType::Void, QMetaType::Bool,   13,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::QString,   15,
+    QMetaType::Void, QMetaType::Bool,   17,
     QMetaType::Void,
 
        0        // eod
@@ -111,11 +123,14 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 2: _t->signalServerStart(); break;
         case 3: _t->signalServerStop(); break;
         case 4: _t->signalServerSendAll((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 5: _t->slotConnectButton(); break;
-        case 6: _t->slotSendButton(); break;
-        case 7: _t->slotLog((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 8: _t->slotServerChangeState((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 9: _t->slotRefreshData(); break;
+        case 5: _t->signalServerTestSend((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 6: _t->slotConnectButton(); break;
+        case 7: _t->slotSendButton(); break;
+        case 8: _t->slotAnswerButton(); break;
+        case 9: _t->slotDataButton(); break;
+        case 10: _t->slotLog((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 11: _t->slotServerChangeState((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 12: _t->slotRefreshData(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -138,6 +153,13 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
             using _t = void (MainWindow::*)(QString );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MainWindow::signalServerSendAll)) {
                 *result = 4;
+                return;
+            }
+        }
+        {
+            using _t = void (MainWindow::*)(QString );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MainWindow::signalServerTestSend)) {
+                *result = 5;
                 return;
             }
         }
@@ -169,13 +191,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 10)
+        if (_id < 13)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 10;
+        _id -= 13;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 10)
+        if (_id < 13)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 10;
+        _id -= 13;
     }
     return _id;
 }
@@ -198,6 +220,13 @@ void MainWindow::signalServerSendAll(QString _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 4, _a);
+}
+
+// SIGNAL 5
+void MainWindow::signalServerTestSend(QString _t1)
+{
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 5, _a);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE
