@@ -15,7 +15,7 @@ size_t AuthPackage::size() const    {
     return 11;
 }
 
-AuthAnswerPackage::AuthAnswerPackage(quint8 deviceType, quint8 deviceID, quint8 stateType) :
+AuthAnswerPackage::AuthAnswerPackage(qint8 deviceType, qint8 deviceID, qint8 stateType) :
     deviceType(deviceType), deviceID(deviceID), stateType(stateType)   {}
 
 QByteArray AuthAnswerPackage::toBytes() const   {
@@ -31,8 +31,8 @@ size_t AuthAnswerPackage::size() const  {
     return 4;
 }
 
-TaskPackage::TaskPackage(quint8 COI, quint8 taskType, QVector<quint32> params) :
-    COI(COI), taskType(taskType), paramBlockSize(static_cast<quint8>(params.size())), params(params)    {}
+TaskPackage::TaskPackage(qint8 COI, qint8 taskType, QVector<qint32> params) :
+    COI(COI), taskType(taskType), paramBlockSize(static_cast<qint8>(params.size())), params(params)    {}
 
 QByteArray TaskPackage::toBytes() const   {
     QByteArray bytes;
@@ -40,11 +40,11 @@ QByteArray TaskPackage::toBytes() const   {
     bytes.append(COI);
     bytes.append(taskType);
     bytes.append(paramBlockSize);
-    foreach (quint32 const& param, params) {
-        bytes.append(param >> 24 & 0xFF);
-        bytes.append(param >> 16 & 0xFF);
-        bytes.append(param >> 8 & 0xFF);
-        bytes.append(param & 0xFF);
+    foreach (qint32 const& param, params) {
+        bytes.append(param & 0x000000FF);
+        bytes.append((param & 0x0000FF00) >> 8);
+        bytes.append((param & 0x00FF0000) >> 16);
+        bytes.append((param & 0xFF000000) >> 24);
     }
     return bytes;
 }
@@ -53,20 +53,20 @@ size_t TaskPackage::size() const    {
     return static_cast<size_t>(4 + 4 * params.size());
 }
 
-SetPackage::SetPackage(quint8 COI, QVector<std::pair<quint8, quint32>> params) :
-    COI(COI), paramBlockSize(static_cast<quint8>(params.size())), params(params) {}
+SetPackage::SetPackage(qint8 COI, QVector<std::pair<qint8, qint32>> params) :
+    COI(COI), paramBlockSize(static_cast<qint8>(params.size())), params(params) {}
 
 QByteArray SetPackage::toBytes() const    {
     QByteArray bytes;
     bytes.append(packageType);
     bytes.append(COI);
     bytes.append(paramBlockSize);
-    for (std::pair<quint8, quint32> const& param : params) {
+    for (std::pair<qint8, qint32> const& param : params) {
         bytes.append(param.first);
-        bytes.append(param.second >> 24 & 0xFF);
-        bytes.append(param.second >> 16 & 0xFF);
-        bytes.append(param.second >> 8 & 0xFF);
-        bytes.append(param.second & 0xFF);
+        bytes.append(param.second & 0x000000FF);
+        bytes.append((param.second & 0x0000FF00) >> 8);
+        bytes.append((param.second & 0x00FF0000) >> 16);
+        bytes.append((param.second & 0xFF000000) >> 24);
     }
     return bytes;
 }
@@ -75,7 +75,7 @@ size_t SetPackage::size() const {
     return static_cast<size_t>(3 + 5 * params.size());
 }
 
-AnswerPackage::AnswerPackage(quint8 COI, quint8 answerType) :
+AnswerPackage::AnswerPackage(qint8 COI, qint8 answerType) :
     COI(COI), answerType(answerType) {}
 
 QByteArray AnswerPackage::toBytes() const {
@@ -90,21 +90,26 @@ size_t AnswerPackage::size() const  {
     return 3;
 }
 
-DataPackage::DataPackage(quint8 stateType, QVector<std::pair<quint8, quint32>> data) :
-    stateType(stateType), dataBlockSize(static_cast<quint8>(data.size())), data(data)   {}
+DataPackage::DataPackage(qint8 stateType, QVector<std::pair<qint8, qint32>> data) :
+    stateType(stateType), dataBlockSize(static_cast<qint8>(data.size())), data(data)   {}
 
 QByteArray DataPackage::toBytes() const   {
     QByteArray bytes;
+
     bytes.append(packageType);
     bytes.append(stateType);
-    bytes.append(static_cast<quint32>(QTime::currentTime().second()));
+    int msec = QTime::currentTime().msecsSinceStartOfDay();
+    bytes.append(msec & 0x000000ff);
+    bytes.append((msec & 0x0000ff00) >> 8);
+    bytes.append((msec & 0x00ff0000) >> 16);
+    bytes.append((msec & 0xff000000) >> 24);
     bytes.append(dataBlockSize);
-    for (std::pair<quint8, quint32> const& value : data) {
+    for (std::pair<qint8, qint32> const& value : data) {
         bytes.append(value.first);
-        bytes.append(value.second >> 24 & 0xFF);
-        bytes.append(value.second >> 16 & 0xFF);
-        bytes.append(value.second >> 8 & 0xFF);
-        bytes.append(value.second & 0xFF);
+        bytes.append(value.second & 0x000000FF);
+        bytes.append((value.second & 0x0000FF00) >> 8);
+        bytes.append((value.second & 0x00FF0000) >> 16);
+        bytes.append((value.second & 0xFF000000) >> 24);
     }
     return bytes;
 }

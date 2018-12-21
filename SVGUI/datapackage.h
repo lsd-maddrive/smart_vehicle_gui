@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QTime>
 #include <QDebug>
+#include <QDataStream>
 
 struct Package
 {
@@ -16,7 +17,7 @@ struct Package
 //todo
 struct AuthPackage : public Package
 {
-    static const quint8 packageType = 1;
+    static const qint8 packageType = 1;
     static const char authRequest[10];
 
     explicit AuthPackage();
@@ -26,60 +27,60 @@ struct AuthPackage : public Package
 
 struct AuthAnswerPackage : public Package
 {
-    static const quint8 packageType = 2;
-    quint8 deviceType;
-    quint8 deviceID;
-    quint8 stateType;
+    static const qint8 packageType = 2;
+    qint8 deviceType;
+    qint8 deviceID;
+    qint8 stateType;
 
-    explicit AuthAnswerPackage(quint8 deviceType = 0, quint8 deviceID = 0, quint8 stateType = 0);
+    explicit AuthAnswerPackage(qint8 deviceType = 0, qint8 deviceID = 0, qint8 stateType = 0);
     QByteArray toBytes() const;
     size_t size() const;
 };
 
 struct TaskPackage : public Package
 {
-    static const quint8 packageType = 3;
-    quint8 COI;
-    quint8 taskType;
-    quint8 paramBlockSize;
-    QVector<quint32> params;
+    static const qint8 packageType = 3;
+    qint8 COI;
+    qint8 taskType;
+    qint8 paramBlockSize;
+    QVector<qint32> params;
 
-    explicit TaskPackage(quint8 COI = 0, quint8 taskType = 0, QVector<quint32> params = QVector<quint32>());
+    explicit TaskPackage(qint8 COI = 0, qint8 taskType = 0, QVector<qint32> params = QVector<qint32>());
     QByteArray toBytes() const;
     size_t size() const;
 };
 
 struct SetPackage : public Package
 {
-    static const quint8 packageType = 4;
-    quint8 COI;
-    quint8 paramBlockSize;
-    QVector<std::pair<quint8, quint32>> params;
+    static const qint8 packageType = 4;
+    qint8 COI;
+    qint8 paramBlockSize;
+    QVector<std::pair<qint8, qint32>> params;
 
-    explicit SetPackage(quint8 COI = 0, QVector<std::pair<quint8, quint32>> params = QVector<std::pair<quint8, quint32>>());
+    explicit SetPackage(qint8 COI = 0, QVector<std::pair<qint8, qint32>> params = QVector<std::pair<qint8, qint32>>());
     QByteArray toBytes() const;
     size_t size() const;
 };
 
 struct AnswerPackage : public Package
 {
-    static const quint8 packageType = 5;
-    quint8 COI;
-    quint8 answerType;
+    static const qint8 packageType = 5;
+    qint8 COI;
+    qint8 answerType;
 
-    explicit AnswerPackage(quint8 COI = 0, quint8 answerType = 0);
+    explicit AnswerPackage(qint8 COI = 0, qint8 answerType = 0);
     QByteArray toBytes() const;
     size_t size() const;
 };
 
 struct DataPackage : public Package
 {
-    static const quint8 packageType = 6;
-    quint8 stateType;
-    quint8 dataBlockSize;
-    QVector<std::pair<quint8, quint32>> data;
+    static const qint8 packageType = 6;
+    qint8 stateType;
+    qint8 dataBlockSize;
+    QVector<std::pair<qint8, qint32>> data;
 
-    explicit DataPackage(quint8 stateType = 0, QVector<std::pair<quint8, quint32>> data = QVector<std::pair<quint8, quint32>>());
+    explicit DataPackage(qint8 stateType = 0, QVector<std::pair<qint8, qint32>> data = QVector<std::pair<qint8, qint32>>());
     QByteArray toBytes() const;
     size_t size() const;
 };

@@ -8,12 +8,19 @@
 #include <QTime>
 #include "datapackage.h"
 
+union BI // byte / int conversion
+{
+    unsigned char bytes[4];
+    unsigned  int I;
+};
+
 class SVClient : public QObject
 {
     Q_OBJECT
 private:
     QTcpSocket* socket;
     bool connected;
+    char blockSize = 0;
 public:
     SVClient();
     ~SVClient();

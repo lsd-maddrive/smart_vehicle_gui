@@ -95,41 +95,49 @@ void SVClient::slotError(QAbstractSocket::SocketError socketError)  {
 void SVClient::slotReadyRead()  {
     qDebug() << "Incomming data...";
     if (socket->bytesAvailable())   {
-        socket->flush();
-        char size = 0;
-        socket->read(&size, 1);
-        QByteArray bytes = socket->readAll();
-        QString message(bytes);
+        //socket->flush();
 
+        socket->read(&blockSize, 1);
+
+        QByteArray bytes = socket->readAll();
+        QDataStream in(bytes);
+
+        /*
         if (message.endsWith("\r\n"))
             message.chop(2);
+        */
+        for (int i = 0; i < blockSize; i++)
+            qDebug() << QString::number(bytes[i]);
+        qDebug() << "Data(" << (int)blockSize << "): " << QString(bytes);
 
-        qDebug() << "Data(" << (int)size << "): " << message;
-
-        if (message[0] == AuthAnswerPackage::packageType && size == 4)    {
+        if (bytes.at(0) == AuthAnswerPackage::packageType && blockSize == 4)    {
             qDebug() << "Valid answer code.";
+
             qDebug() << "Device type: " << QString::number(bytes[1]);
             qDebug() << "Device id: " << QString::number(bytes[2]);
             qDebug() << "State: " << QString::number(bytes[3]);
         }
-        if (message[0] == AnswerPackage::packageType && size == 3)   {
+        if (bytes.at(0) == AnswerPackage::packageType && blockSize == 3)   {
             qDebug() << "Task #" << QString::number(bytes[1]) << " has been done.";
             qDebug() << "Answer code: " << QString::number(bytes[2]);
         }
-        if (message[0] == DataPackage::packageType && size >= 12) {
-            for (int i = 0; i < size; i++)
-                qDebug() << QString::number(bytes[i]);
-
+        if (bytes.at(0) == DataPackage::packageType && blockSize >= 12) {
             qDebug() << "Data package: ";
             qDebug() << "State: " << QString::number(bytes[1]);
-            int msec = bytes[2] + bytes[3] * 255 + bytes[4] * 255 * 255 + bytes[5] * 255 * 255 * 255;
+            BI bi = {(unsigned char) bytes[2], (unsigned char) bytes[3],
+                     (unsigned char) bytes[4], (unsigned char) bytes[5]};
+            qint32 msec = bi.I;
             qDebug() << "Sending time: " << QTime::fromMSecsSinceStartOfDay(msec).toString();
             int dataBlockSize = bytes[6];
             for (int i = 0; i < dataBlockSize; i++) {
-                qDebug() << "Data type: " << bytes[7 + i * 5];
-                qDebug() << "Value: " << (bytes[11 + i * 5] + bytes[10 + i * 5] * 255 + bytes[9 + i * 5] * 255 * 255 + bytes[8 + i * 5] * 255 * 255 * 255);
+                qDebug() << "Data type: " << QString::number(bytes[7 + i * 5]);
+                bi = {(unsigned char) bytes[8 + i * 5], (unsigned char) bytes[9 + i * 5],
+                      (unsigned char) bytes[10 + i * 5], (unsigned char) bytes[11 + i * 5]};
+                qDebug() << "Value: " << bi.I;
             }
         }
+
+        blockSize = 0;
     }
 
 }

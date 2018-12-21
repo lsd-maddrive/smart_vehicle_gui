@@ -124,24 +124,25 @@ void SVServer::sendAll(DataPackage const &data) {
 }
 
 void SVServer::sendTo(QTcpSocket* socket, QString const& data)   {
-    char *bytes = new char[(size_t) data.length() + 2];
-    bytes[0] = (char)data.length();
-    for (int i = 0; i < data.length(); i++)    {
+    char *bytes = new char[(size_t) data.size() + 2];
+    bytes[0] = (char)data.size();
+    for (int i = 0; i < data.size(); i++)    {
         bytes[i + 1] = (char) data.data()[i].toLatin1();
     }
-    bytes[data.length() + 1] = '\0';
+    bytes[data.size() + 1] = '\0';
     socket->write(bytes);
     log(bytes);
+
     delete[] bytes;
 }
 
 void SVServer::sendTo(QTcpSocket *socket, QByteArray const &data)   {
-    char *bytes = new char[(size_t) data.length() + 2];
-    bytes[0] = (char)data.length();
-    for (int i = 0; i < data.length(); i++)    {
-        bytes[i + 1] = (char) data.data()[i];
+    char *bytes = new char[(size_t) data.size() + 2];
+    bytes[0] = (char)data.size();
+    for (int i = 0; i < data.size(); i++)    {
+        bytes[i + 1] = data.data()[i];
     }
-    bytes[data.length() + 1] = '\0';
+    bytes[data.size() + 1] = '\0';
     socket->write(bytes);
     log(bytes);
     delete[] bytes;
@@ -209,7 +210,7 @@ void SVServer::slotReadyRead()  {
         if (message[0] == AuthPackage::packageType && size == 11)    {
             if (message.endsWith(validAuthPackage.authRequest)) {
                 log("Valid GUI device connected.");
-                sendTo(client, AuthAnswerPackage());
+                sendTo(client, AuthAnswerPackage(1, 2, 3));
             }
         }
         if (message[0] == TaskPackage::packageType)    {
@@ -235,7 +236,7 @@ void SVServer::slotUISendAll(QString message) {
 
 void SVServer::slotUITestSend(QString command)  {
     if (command == "Answer")    {
-        sendAll(AnswerPackage(0, 0));
+        sendAll(AnswerPackage(5, 1));
     }
     if (command == "Data")  {
         sendAll(DataPackage(1, {{1, 10}, {2, 30}, {3, 500000}}));
