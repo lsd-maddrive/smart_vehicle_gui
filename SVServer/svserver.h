@@ -14,6 +14,12 @@
 #include <QQueue>
 #include "datapackage.h"
 
+union BI // byte / int conversion
+{
+    unsigned char bytes[4];
+    unsigned  int I;
+};
+
 class SVServer : public QObject
 {
     Q_OBJECT
@@ -42,6 +48,8 @@ public:
     SVServer();
     ~SVServer();
 
+    void setUI(QObject const *UI);
+
     bool start(QHostAddress const& adress = QHostAddress::AnyIPv4 , quint16 port = 80);
     void stop();
 
@@ -65,9 +73,13 @@ public slots:
     void slotUITestSend(QString command);
 
     void slotTaskDone(quint8 answerType);
+    void slotSendData(DataPackage data);
 signals:
     void signalUILog(QString message);
     void signalUIChangeState(bool listening);
+
+    void signalTask(TaskPackage task);
+    void signalSet(SetPackage set);
 };
 
 #endif // SVSERVER_H

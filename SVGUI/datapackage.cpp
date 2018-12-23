@@ -42,9 +42,9 @@ QByteArray TaskPackage::toBytes() const   {
     bytes.append(paramBlockSize);
     foreach (qint32 const& param, params) {
         bytes.append(param & 0x000000FF);
-        bytes.append(param & 0x0000FF00 >> 8);
-        bytes.append(param & 0x00FF0000 >> 16);
-        bytes.append(param & 0xFF000000 >> 24);
+        bytes.append((param & 0x0000FF00) >> 8);
+        bytes.append((param & 0x00FF0000) >> 16);
+        bytes.append((param & 0xFF000000) >> 24);
     }
     return bytes;
 }
@@ -64,9 +64,9 @@ QByteArray SetPackage::toBytes() const    {
     for (std::pair<qint8, qint32> const& param : params) {
         bytes.append(param.first);
         bytes.append(param.second & 0x000000FF);
-        bytes.append(param.second & 0x0000FF00 >> 8);
-        bytes.append(param.second & 0x00FF0000 >> 16);
-        bytes.append(param.second & 0xFF000000 >> 24);
+        bytes.append((param.second & 0x0000FF00) >> 8);
+        bytes.append((param.second & 0x00FF0000) >> 16);
+        bytes.append((param.second & 0xFF000000) >> 24);
     }
     return bytes;
 }
@@ -100,16 +100,16 @@ QByteArray DataPackage::toBytes() const   {
     bytes.append(stateType);
     int msec = QTime::currentTime().msecsSinceStartOfDay();
     bytes.append(msec & 0x000000ff);
-    bytes.append(msec & 0x0000ff00 >> 8);
-    bytes.append(msec & 0x00ff0000 >> 16);
-    bytes.append(msec & 0xff000000 >> 24);
+    bytes.append((msec & 0x0000ff00) >> 8);
+    bytes.append((msec & 0x00ff0000) >> 16);
+    bytes.append((msec & 0xff000000) >> 24);
     bytes.append(dataBlockSize);
     for (std::pair<qint8, qint32> const& value : data) {
         bytes.append(value.first);
         bytes.append(value.second & 0x000000FF);
-        bytes.append(value.second & 0x0000FF00 >> 8);
-        bytes.append(value.second & 0x00FF0000 >> 16);
-        bytes.append(value.second & 0xFF000000 >> 24);
+        bytes.append((value.second & 0x0000FF00) >> 8);
+        bytes.append((value.second & 0x00FF0000) >> 16);
+        bytes.append((value.second & 0xFF000000) >> 24);
     }
     return bytes;
 }

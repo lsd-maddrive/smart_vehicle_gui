@@ -20,7 +20,6 @@ class SVClient : public QObject
 private:
     QTcpSocket* socket;
     bool connected;
-    char blockSize = 0;
 public:
     SVClient();
     ~SVClient();

@@ -51,15 +51,8 @@ void SVClient::sendData(QString data)   {
 void SVClient::sendData(QByteArray data)    {
     if (connected)  {
         qDebug() << "sending " + data + "...";
-
-        char *bytes = new char[(size_t) data.length() + 2];
-        bytes[0] = (char)data.length();
-        for (int i = 0; i < data.length(); i++)    {
-            bytes[i + 1] = (char) data.data()[i];
-        }
-        bytes[data.length() + 1] = '\0';
-        socket->write(bytes);
-        delete[] bytes;
+        data.push_front(static_cast<char>(data.size()));
+        socket->write(data);
 
     }   else {
         qDebug() << "there is no active connections";
@@ -79,6 +72,7 @@ void SVClient::slotConnected()  {
     qDebug() << "Connected";
     connected = true;
     sendAuthPackage();
+
     emit signalUIConnected();
 }
 
@@ -93,21 +87,16 @@ void SVClient::slotError(QAbstractSocket::SocketError socketError)  {
 }
 
 void SVClient::slotReadyRead()  {
+    qDebug() << "----------------------------------------------------------------------";
     qDebug() << "Incomming data...";
     if (socket->bytesAvailable())   {
-        //socket->flush();
 
+        char blockSize = 0;
         socket->read(&blockSize, 1);
 
         QByteArray bytes = socket->readAll();
         QDataStream in(bytes);
 
-        /*
-        if (message.endsWith("\r\n"))
-            message.chop(2);
-        */
-        for (int i = 0; i < blockSize; i++)
-            qDebug() << QString::number(bytes[i]);
         qDebug() << "Data(" << (int)blockSize << "): " << QString(bytes);
 
         if (bytes.at(0) == AuthAnswerPackage::packageType && blockSize == 4)    {
@@ -136,8 +125,9 @@ void SVClient::slotReadyRead()  {
                 qDebug() << "Value: " << bi.I;
             }
         }
-
-        blockSize = 0;
+        qDebug() << "----------------------------------------------------------------------";
+    }   else {
+        qDebug() << "Nothing to read.";
     }
 
 }

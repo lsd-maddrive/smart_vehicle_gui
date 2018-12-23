@@ -6,6 +6,7 @@ SVServer::SVServer()   {
     server = new QTcpServer(this);
     connect(server, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
     connect(server, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));
+    log("Server is ready.");
 }
 
 SVServer::~SVServer()   {
@@ -15,6 +16,17 @@ SVServer::~SVServer()   {
         socket->close();
         delete socket;
     }
+}
+
+void SVServer::setUI(QObject const *UI)   {
+    log("Setting UI");
+    QObject::connect(this, SIGNAL(signalUILog(QString)), UI, SLOT(slotLog(QString)));
+    QObject::connect(this, SIGNAL(signalUIChangeState(bool)), UI, SLOT(slotServerChangeState(bool)));
+    QObject::connect(UI, SIGNAL(signalServerStart(QString, quint16)), this, SLOT(slotUIStart(QString, quint16)));
+    QObject::connect(UI, SIGNAL(signalServerStop()), this, SLOT(slotUIStop()));
+    QObject::connect(UI, SIGNAL(signalServerSendAll(QString)), this, SLOT(slotUISendAll(QString)));
+    QObject::connect(UI, SIGNAL(signalServerTestSend(QString)), this, SLOT(slotUITestSend(QString)));
+    log("Done. UI for server is ready.");
 }
 
 void SVServer::log(QString message) {
@@ -91,7 +103,7 @@ void SVServer::stop()   {
 
 void SVServer::sendAll(QString const& data)    {
     if (server->isListening())   {
-        log("Sending data [" + data + "] to all...");
+        log("Sending data [" + data + "] to all... (number of clients: " + QString::number(connections.size()) + ")");
         foreach (QTcpSocket* socket, connections)  {
             sendTo(socket, data);
         }
@@ -103,7 +115,7 @@ void SVServer::sendAll(QString const& data)    {
 
 void SVServer::sendAll(QByteArray const& data)    {
     if (server->isListening())   {
-        log("Sending data [" + QString(data)+ "] to all...");
+        log("Sending data [" + QString(data) + "] to all...  (number of clients: " + QString::number(connections.size()) + ")");
         foreach (QTcpSocket* socket, connections)  {
             sendTo(socket, data);
         }
@@ -131,21 +143,17 @@ void SVServer::sendTo(QTcpSocket* socket, QString const& data)   {
     }
     bytes[data.size() + 1] = '\0';
     socket->write(bytes);
-    log(bytes);
+    //log(bytes);
 
     delete[] bytes;
 }
 
 void SVServer::sendTo(QTcpSocket *socket, QByteArray const &data)   {
-    char *bytes = new char[(size_t) data.size() + 2];
-    bytes[0] = (char)data.size();
-    for (int i = 0; i < data.size(); i++)    {
-        bytes[i + 1] = data.data()[i];
-    }
-    bytes[data.size() + 1] = '\0';
+    QByteArray bytes;
+    bytes.append(static_cast<char>(data.size()));
+    bytes.append(data);
     socket->write(bytes);
-    log(bytes);
-    delete[] bytes;
+    //log(bytes);
 }
 
 void SVServer::sendTo(QTcpSocket *socket, AnswerPackage const &answer)  {
@@ -207,17 +215,49 @@ void SVServer::slotReadyRead()  {
 
         log("Data[" + QString::number(size) + "]: " + message);
 
-        if (message[0] == AuthPackage::packageType && size == 11)    {
+        if (bytes.at(0) == AuthPackage::packageType && size == 11)    {
             if (message.endsWith(validAuthPackage.authRequest)) {
                 log("Valid GUI device connected.");
                 sendTo(client, AuthAnswerPackage(1, 2, 3));
             }
         }
-        if (message[0] == TaskPackage::packageType)    {
+        if (bytes.at(0) == TaskPackage::packageType)    {
+            TaskPackage task;
+            task.COI = bytes.at(1);
+            task.taskType = bytes.at(2);
+            task.paramBlockSize = bytes.at(3);
+            for (int i = 0; i < task.paramBlockSize; i++)   {
+                BI bi = {(unsigned char) bytes.at(4 + i * 4), (unsigned char) bytes.at(5 + i * 4),
+                         (unsigned char) bytes.at(6 + i * 4), (unsigned char) bytes.at(7 + i * 4)};
+                task.params.push_back(static_cast<qint32>(bi.I));
+            }
 
+            log("Task package:");
+            log("COI: " + QString::number(task.COI) + "; TaskType: " + QString::number(task.taskType) + "; Parameters:");
+            for (qint32 const& param : task.params)
+                log(QString::number(param));
+
+            emit signalTask(task);
         }
-        if (message[0] == SetPackage::packageType)  {
+        if (bytes.at(0) == SetPackage::packageType)  {
+            SetPackage set;
+            set.COI = bytes.at(1);
+            set.paramBlockSize = bytes.at(2);
+            for (int i = 0; i < set.paramBlockSize; i++)   {
+                std::pair<qint8, qint32> pair;
+                pair.first = bytes.at(3 + i * 5);
+                BI bi = {(unsigned char) bytes.at(4 + i * 5), (unsigned char) bytes.at(5 + i * 5),
+                         (unsigned char) bytes.at(6 + i * 5), (unsigned char) bytes.at(7 + i * 5)};
+                pair.second = bi.I;
+                set.params.push_back(pair);
+            }
 
+            log("Set package:");
+            log("COI: " + QString::number(set.COI) + "; Parameters:");
+            for (std::pair<qint8, qint32> const& pair : set.params)
+                log("Type: " + QString::number(pair.first) + "; Value: " + QString::number(pair.second) + ";");
+
+            emit signalSet(set);
         }
     }
 }
@@ -245,4 +285,8 @@ void SVServer::slotUITestSend(QString command)  {
 
 void SVServer::slotTaskDone(quint8 answerType)   {
     sendAll(AnswerPackage(coiQueue.dequeue(), answerType));
+}
+
+void SVServer::slotSendData(DataPackage data)   {
+    sendAll(data);
 }
