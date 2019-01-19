@@ -53,8 +53,24 @@ MainWindow::MainWindow(QWidget *parent)
                 answerButton = new QPushButton("Send answer");
                 serverLayout->addWidget(answerButton, 1, 0, 1, 2);
 
+                encoderLabel = new QLabel("Encoder value");
+                serverLayout->addWidget(encoderLabel, 2, 0, 1, 1);
+
+                potentiometerLabel = new QLabel("Potentiometer value");
+                serverLayout->addWidget(potentiometerLabel, 2, 1, 1, 1);
+
+                encoderSpin = new QSpinBox();
+                encoderSpin->setRange(-std::numeric_limits<qint32>::max(), std::numeric_limits<qint32>::max());
+                encoderSpin->setValue(0);
+                serverLayout->addWidget(encoderSpin, 3, 0, 1, 1);
+
+                potentiometerSpin = new QSpinBox();
+                potentiometerSpin->setRange(-std::numeric_limits<qint32>::max(), std::numeric_limits<qint32>::max());
+                potentiometerSpin->setValue(0);
+                serverLayout->addWidget(potentiometerSpin, 3, 1, 1, 1);
+
                 dataButton = new QPushButton("Send data");
-                serverLayout->addWidget(dataButton, 2, 0, 1, 2);
+                serverLayout->addWidget(dataButton, 4, 0, 1, 2);
             }
             serverBox->setLayout(serverLayout);
         }
@@ -83,7 +99,7 @@ MainWindow::~MainWindow()
 void MainWindow::slotConnectButton()    {
     if (addressLine->isEnabled())    {
         QString address = addressLine->text();
-        quint16 port = (quint16) portLine->text().toInt();
+        quint16 port = static_cast<quint16>(portLine->text().toInt());
         if (!AddressValidator::isFull(address))
             QMessageBox::critical(nullptr, "Error", "Incorrect server address.");
         else
@@ -101,11 +117,11 @@ void MainWindow::slotSendButton()   {
 }
 
 void MainWindow::slotAnswerButton() {
-    emit signalServerTestSend("Answer");
+    emit signalServerTestAnswer();
 }
 
 void MainWindow::slotDataButton()   {
-    emit signalServerTestSend("Data");
+    emit signalServerTestData(encoderSpin->value(), potentiometerSpin->value());
 }
 
 void MainWindow::slotLog(QString message)   {

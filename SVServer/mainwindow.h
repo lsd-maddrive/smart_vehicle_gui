@@ -13,6 +13,7 @@
 #include <QTimer>
 #include <QPlainTextEdit>
 #include <QMessageBox>
+#include <QSpinBox>
 #include "addressvalidator.h"
 
 class MainWindow : public QWidget
@@ -33,6 +34,10 @@ private:
                 QLineEdit *messageLine;
                 QPushButton *sendButton;
                 QPushButton *answerButton;
+                QLabel *encoderLabel;
+                QLabel *potentiometerLabel;
+                QSpinBox *encoderSpin;
+                QSpinBox *potentiometerSpin;
                 QPushButton *dataButton;
 
     QPlainTextEdit *log;
@@ -58,7 +63,8 @@ signals:
     void signalServerStart(QString adress = "0.0.0.0", quint16 port = 80);
     void signalServerStop();
     void signalServerSendAll(QString data);
-    void signalServerTestSend(QString command);
+    void signalServerTestAnswer();
+    void signalServerTestData(qint32 encoderValue, qint32 potentiometerValue);
 };
 
 #endif // MAINWINDOW_H

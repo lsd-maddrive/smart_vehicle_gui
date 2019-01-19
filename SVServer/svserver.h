@@ -70,7 +70,8 @@ public slots:
     void slotUIStart(QString adress, quint16 port);
     void slotUIStop();
     void slotUISendAll(QString message);
-    void slotUITestSend(QString command);
+    void slotUITestAnswer();
+    void slotUITestData(qint32, qint32);
 
     void slotTaskDone(quint8 answerType);
     void slotSendData(DataPackage data);

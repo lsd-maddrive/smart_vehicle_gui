@@ -25,7 +25,8 @@ void SVServer::setUI(QObject const *UI)   {
     QObject::connect(UI, SIGNAL(signalServerStart(QString, quint16)), this, SLOT(slotUIStart(QString, quint16)));
     QObject::connect(UI, SIGNAL(signalServerStop()), this, SLOT(slotUIStop()));
     QObject::connect(UI, SIGNAL(signalServerSendAll(QString)), this, SLOT(slotUISendAll(QString)));
-    QObject::connect(UI, SIGNAL(signalServerTestSend(QString)), this, SLOT(slotUITestSend(QString)));
+    QObject::connect(UI, SIGNAL(signalServerTestAnswer()), this, SLOT(slotUITestAnswer()));
+    QObject::connect(UI, SIGNAL(signalServerTestData(qint32, qint32)), this, SLOT(slotUITestData(qint32, qint32)));
     log("Done. UI for server is ready.");
 }
 
@@ -53,7 +54,7 @@ void SVServer::log(DataPackage data)    {
     message.append(QString::number(data.dataBlockSize));
     message.append("; Data: ");
     for (int i = 0; i < data.dataBlockSize; i++)    {
-        message.append(QString::number(data.data[i].first) + " " + QString::number(data.data[i].second) + "; ");
+        message.append(" type: " + QString::number(data.data[i].first) + ", value: " + QString::number(data.data[i].second) + "; ");
     }
 
     log(message);
@@ -274,13 +275,13 @@ void SVServer::slotUISendAll(QString message) {
     sendAll(message);
 }
 
-void SVServer::slotUITestSend(QString command)  {
-    if (command == "Answer")    {
-        sendAll(AnswerPackage(5, 1));
-    }
-    if (command == "Data")  {
-        sendAll(DataPackage(1, {{1, 10}, {2, 30}, {3, 500000}}));
-    }
+void SVServer::slotUITestAnswer()   {
+    sendAll(AnswerPackage(5, 1));
+}
+
+void SVServer::slotUITestData(qint32 encoderValue, qint32 potentiometerValue) {
+    DataPackage data(1, {{1, encoderValue}, {2, potentiometerValue}});
+    sendAll(data);
 }
 
 void SVServer::slotTaskDone(quint8 answerType)   {
