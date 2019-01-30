@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>corner.png</file>
+        <file>error.png</file>
+    </qresource>
+</RCC>
