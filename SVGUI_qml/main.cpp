@@ -8,8 +8,9 @@
 #include "svclient.h"
 #include "adapter.h"
 
-void initConnections(SVClient *client, Adapter *adapter, QObject *root)  {
+void initConnections(SVClient *client, Adapter *adapter)  {
     QObject::connect(adapter, SIGNAL(signalConnect(QString const&, quint16 const&)), client, SLOT(slotUIConnect(QString const&, quint16 const&)));
+    QObject::connect(adapter, SIGNAL(signalDisconnect()), client, SLOT(slotUIDisconnect()));
     QObject::connect(client, SIGNAL(signalUIConnected(qint8 const&)), adapter, SLOT(slotConnected(qint8 const&)));
     QObject::connect(client, SIGNAL(signalUIDisconnected()), adapter, SLOT(slotDisconnected()));
     QObject::connect(client, SIGNAL(signalUIError(QString)), adapter, SLOT(slotConnectionError(QString)));
@@ -20,7 +21,7 @@ int main(int argc, char *argv[])
 {
     qDebug() << "Application initializing...";
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication guiApp(argc, argv);
+    QApplication guiApp(argc, argv);
 
     qDebug() << "User interface initializing...";
     QQmlApplicationEngine engine;
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
     Adapter *adapter = new Adapter(root);
     engine.rootContext()->setContextProperty("adapter", adapter);
 
-    initConnections(client, adapter, root);
+    initConnections(client, adapter);
 
     qDebug() << "Done. Aplication has been initialized and ready to work.";
     qDebug() << "----------------------------------------------";

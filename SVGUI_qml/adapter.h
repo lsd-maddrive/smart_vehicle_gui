@@ -20,6 +20,7 @@ signals:
     //void signalCommandWheels(float degrees);
 
     void signalConnect(QString const& address, quint16 const& port);
+    void signalDisconnect();
 
     void signalUILog(QString const& message);
     void signalUIConnected();
@@ -32,6 +33,7 @@ signals:
 public slots:
     void slotTest();
     void slotUIConnect(QString address, QString port);
+    void slotUIDisconnect();
 
     void slotConnected(qint8 const& state);
     void slotDisconnected();

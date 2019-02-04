@@ -1,7 +1,6 @@
 #include "adapter.h"
 
-Adapter::Adapter(QObject *root, QObject *parent) : QObject(parent)
-{
+Adapter::Adapter(QObject* root, QObject *parent) : QObject(parent) {
     this->root = root;
 }
 
@@ -41,9 +40,13 @@ void Adapter::log(const QString &message)   {
 
 void Adapter::slotUIConnect(QString address, QString portStr)    {
     qDebug() << "Adapter: incoming connect signal";
+    log("Connecting to " + address + "...");
     quint16 port = portStr.toInt();
     emit signalConnect(address, port);
-    log("Connecting to " + address + "...");
+}
+
+void Adapter::slotUIDisconnect()    {
+    emit signalDisconnect();
 }
 
 void Adapter::slotConnected(qint8 const& state)   {
@@ -67,6 +70,7 @@ void Adapter::slotConnectionError(QString message) {
 
 void Adapter::slotData(DataPackage const& data) {
     qDebug() << "Adapter: incoming data package";
+    log("Incoming data package.");
     qint8 state = data.stateType;
     QString stateString = getStatusStr(state);
     emit signalUIStatus(stateString);
@@ -78,10 +82,12 @@ void Adapter::slotData(DataPackage const& data) {
         }
         case 1: {
             emit signalUIEncoderData(data.second);
+            log("Encoder: " + QString::number(data.second));
             break;
         }
         case 2: {
             emit signalUIPotentiometerData(data.second);
+            log("Potentiometer: " + QString::number(data.second));
             break;
         }
         case 3: {
@@ -89,5 +95,4 @@ void Adapter::slotData(DataPackage const& data) {
         }
         }
     }
-    log("Incoming data package.");
 }
