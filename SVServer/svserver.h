@@ -33,7 +33,7 @@ private:
      * в качестве ключа используется socket->socketDescriptor()
      */
     AuthPackage validAuthPackage;
-    QQueue<quint8> coiQueue;
+    qint8 currentTaskCOI = 0;
 
     void sendTo(QTcpSocket* socket, QString const& data);
     void sendTo(QTcpSocket* socket, QByteArray const& data);
@@ -45,6 +45,8 @@ private:
     void log(AnswerPackage answer);
     void log(DataPackage data);
 public:
+    enum State {FAULT, RUN, WAIT, STOP};
+
     SVServer();
     ~SVServer();
 
@@ -57,6 +59,9 @@ public:
     void sendAll(QByteArray const& data);
     void sendAll(AnswerPackage const& answer);
     void sendAll(DataPackage const& data);
+
+    void sendData(State const& state, qint32 const& encoderValue, qint32 const& potentiometerValue,
+                  qint32 const& battery1 = 100, qint32 const& battery2 = 100);
 
     QHostAddress getHostAdress() const;
     quint16 getPort() const;
@@ -79,8 +84,11 @@ signals:
     void signalUILog(QString message);
     void signalUIChangeState(bool listening);
 
-    void signalTask(TaskPackage task);
-    void signalSet(SetPackage set);
+    void signalTaskForward(qint32 distantion);
+    void signalTaskWheels(qint32 angle);
+    void signalTaskFlick();
+    void signalSetPID(qint32 p, qint32 i, qint32 d);
+    void signalSetServoZero(qint32 zero);
 };
 
 #endif // SVSERVER_H

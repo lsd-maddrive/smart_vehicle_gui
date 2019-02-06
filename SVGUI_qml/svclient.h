@@ -47,6 +47,7 @@ signals:
     void signalUIDisconnected();
     void signalUIError(QString message);
     void signalUIData(DataPackage const& data);
+    void signalUIDone(qint8 const& COI, qint8 const& answerCode);
 };
 
 #endif // SVCLIENT_H

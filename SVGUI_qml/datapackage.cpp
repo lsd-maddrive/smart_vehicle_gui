@@ -1,5 +1,12 @@
 #include "datapackage.h"
 
+void writeToBytes(QByteArray *bytes, qint32 const& value) {
+    bytes->append(value & 0x000000FF);
+    bytes->append((value & 0x0000FF00) >> 8);
+    bytes->append((value & 0x00FF0000) >> 16);
+    bytes->append((value & 0xFF000000) >> 24);
+}
+
 const char AuthPackage::authRequest[10] = {'k', 'o', 'n', 'n', 'i', 'c', 'h', 'i', 'w', 'a'};
 
 AuthPackage::AuthPackage() {}
@@ -41,10 +48,7 @@ QByteArray TaskPackage::toBytes() const   {
     bytes.append(taskType);
     bytes.append(paramBlockSize);
     foreach (qint32 const& param, params) {
-        bytes.append(param & 0x000000FF);
-        bytes.append((param & 0x0000FF00) >> 8);
-        bytes.append((param & 0x00FF0000) >> 16);
-        bytes.append((param & 0xFF000000) >> 24);
+        writeToBytes(&bytes, param);
     }
     return bytes;
 }
@@ -53,26 +57,22 @@ size_t TaskPackage::size() const    {
     return static_cast<size_t>(4 + 4 * params.size());
 }
 
-SetPackage::SetPackage(qint8 COI, QVector<std::pair<qint8, qint32>> params) :
-    COI(COI), paramBlockSize(static_cast<qint8>(params.size())), params(params) {}
+SetPackage::SetPackage(qint8 COI, qint32 p, qint32 i, qint32 d, qint32 servoZero) :
+    COI(COI), p(p), i(i), d(d), servoZero(servoZero) {}
 
 QByteArray SetPackage::toBytes() const    {
     QByteArray bytes;
     bytes.append(packageType);
     bytes.append(COI);
-    bytes.append(paramBlockSize);
-    for (std::pair<qint8, qint32> const& param : params) {
-        bytes.append(param.first);
-        bytes.append(param.second & 0x000000FF);
-        bytes.append((param.second & 0x0000FF00) >> 8);
-        bytes.append((param.second & 0x00FF0000) >> 16);
-        bytes.append((param.second & 0xFF000000) >> 24);
-    }
+    writeToBytes(&bytes, p);
+    writeToBytes(&bytes, i);
+    writeToBytes(&bytes, d);
+    writeToBytes(&bytes, servoZero);
     return bytes;
 }
 
 size_t SetPackage::size() const {
-    return static_cast<size_t>(3 + 5 * params.size());
+    return static_cast<size_t>(3 + 4 * 4);
 }
 
 AnswerPackage::AnswerPackage(qint8 COI, qint8 answerType) :
@@ -99,17 +99,11 @@ QByteArray DataPackage::toBytes() const   {
     bytes.append(packageType);
     bytes.append(stateType);
     int msec = QTime::currentTime().msecsSinceStartOfDay();
-    bytes.append(msec & 0x000000ff);
-    bytes.append((msec & 0x0000ff00) >> 8);
-    bytes.append((msec & 0x00ff0000) >> 16);
-    bytes.append((msec & 0xff000000) >> 24);
+    writeToBytes(&bytes, msec);
     bytes.append(dataBlockSize);
     for (std::pair<qint8, qint32> const& value : data) {
         bytes.append(value.first);
-        bytes.append(value.second & 0x000000FF);
-        bytes.append((value.second & 0x0000FF00) >> 8);
-        bytes.append((value.second & 0x00FF0000) >> 16);
-        bytes.append((value.second & 0xFF000000) >> 24);
+        writeToBytes(&bytes, value.second);
     }
     return bytes;
 }

@@ -14,7 +14,6 @@ struct Package
     virtual ~Package() {}
 };
 
-//todo
 struct AuthPackage : public Package
 {
     static const qint8 packageType = 1;
@@ -54,10 +53,12 @@ struct SetPackage : public Package
 {
     static const qint8 packageType = 4;
     qint8 COI;
-    qint8 paramBlockSize;
-    QVector<std::pair<qint8, qint32>> params;
+    qint32 p;
+    qint32 i;
+    qint32 d;
+    qint32 servoZero;
 
-    explicit SetPackage(qint8 COI = 0, QVector<std::pair<qint8, qint32>> params = QVector<std::pair<qint8, qint32>>());
+    explicit SetPackage(qint8 COI = 0, qint32 p = 0, qint32 i = 0, qint32 d = 0, qint32 servoZero = 0);
     QByteArray toBytes() const;
     size_t size() const;
 };
@@ -120,10 +121,10 @@ struct DataPackage : public Package
  *
  *  DataType:
  *      0 - odometric(4)
- *      1 - speed(4)
- *      2 - angle(4)
- *      3 - battery(1)
- *
+ *      1 - encoder(4)
+ *      2 - potentiometer(4)
+ *      3 - battery_1(1)
+ *      4 - battery_2(1)
  */
 
 #endif // DATAPACKAGE_H

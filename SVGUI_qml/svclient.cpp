@@ -7,7 +7,7 @@ SVClient::SVClient()
     connect(socket, SIGNAL(connected()), this, SLOT(slotConnected()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(slotReadyRead()));
-    connect(socket, SIGNAL(QAbstractSocket::SocketError), this, SLOT(slotError(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotError(QAbstractSocket::SocketError)));
 
     qDebug() << "Done. Network client is ready.";
 }
@@ -112,6 +112,7 @@ void SVClient::slotReadyRead()  {
         if (bytes.at(0) == AnswerPackage::packageType && blockSize == 3)   {
             qDebug() << "Task #" << QString::number(bytes[1]) << " has been done.";
             qDebug() << "Answer code: " << QString::number(bytes[2]);
+            emit signalUIDone(bytes[1], bytes[2]);
         }
         if (bytes.at(0) == DataPackage::packageType && blockSize >= 12) {
             qDebug() << "Data package: ";

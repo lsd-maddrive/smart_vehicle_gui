@@ -67,6 +67,10 @@ ApplicationWindow {
             values_list_model.setProperty(1, "value", potValue);
             charts_potentiometer_current = potValue;
         }
+        onSignalUIBatteryData:  {
+            console.log("Incoming " + number + " battery data: " + value);
+            values_list_model.setProperty(1 + number, "value", value);
+        }
     }
 
     MouseArea {
@@ -291,6 +295,16 @@ ApplicationWindow {
                                 name: "Potentiometer"
                                 value: 0
                                 measure: "smthng"
+                            }
+                            ListElement {
+                                name: "Battery 1"
+                                value: 0
+                                measure: "%"
+                            }
+                            ListElement {
+                                name: "Battery 2"
+                                value: 0
+                                measure: "%"
                             }
                         }
 
@@ -592,6 +606,10 @@ ApplicationWindow {
                         id: commands_forwawrd_button
                         x: commands_forward_label.x + commands_forward_label.width + 20
                         text: qsTr("Move")
+                        enabled: (statusBar_label.text === "WAIT" || statusBar_label === "STOP")
+                        onClicked: {
+                            adapter.slotUICommandForward(commands_forward_slider.value);
+                        }
                     }
                 }
 
@@ -622,6 +640,10 @@ ApplicationWindow {
                         id: commands_wheels_button
                         x: commands_wheels_label.x + commands_wheels_label.width + 20
                         text: qsTr("Rotate")
+                        enabled: (statusBar_label.text === "WAIT" || statusBar_label === "STOP")
+                        onClicked: {
+                            adapter.slotUICommandWheels(commands_wheels_slider.value);
+                        }
                     }
                 }
 
@@ -639,6 +661,10 @@ ApplicationWindow {
                     Button  {
                         id: commands_lights_button
                         text: qsTr("Flick")
+                        enabled: (statusBar_label.text === "WAIT" || statusBar_label === "STOP")
+                        onClicked: {
+                            adapter.slotUICommandFlick();
+                        }
                     }
                 }
             }

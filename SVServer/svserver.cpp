@@ -136,6 +136,33 @@ void SVServer::sendAll(DataPackage const &data) {
     sendAll(data.toBytes());
 }
 
+void SVServer::sendData(State const& state, qint32 const& encoderValue, qint32 const& potentiometerValue,
+              qint32 const& battery1, qint32 const& battery2)   {
+    qint8 stateValue = 0;
+    switch (state)  {
+        case State::FAULT:  {
+            stateValue = 0;
+            break;
+        }
+        case State::RUN:    {
+            stateValue = 1;
+            break;
+        }
+        case State::STOP:   {
+            stateValue = 2;
+            break;
+        }
+        case State::WAIT:    {
+            stateValue = 3;
+            break;
+        }
+    }
+    if (stateValue == 3)
+        currentTaskCOI = 0;
+    DataPackage data(stateValue, {{1, encoderValue}, {2, potentiometerValue}, {3, battery1}, {4, battery2}});
+    sendAll(data);
+}
+
 void SVServer::sendTo(QTcpSocket* socket, QString const& data)   {
     char *bytes = new char[(size_t) data.size() + 2];
     bytes[0] = (char)data.size();
@@ -154,7 +181,6 @@ void SVServer::sendTo(QTcpSocket *socket, QByteArray const &data)   {
     bytes.append(static_cast<char>(data.size()));
     bytes.append(data);
     socket->write(bytes);
-    //log(bytes);
 }
 
 void SVServer::sendTo(QTcpSocket *socket, AnswerPackage const &answer)  {
@@ -221,7 +247,7 @@ void SVServer::slotReadyRead()  {
                 log("Valid GUI device connected.");
                 sendTo(client, AuthAnswerPackage(1, 2, 3));
             }
-        }
+        }   else
         if (bytes.at(0) == TaskPackage::packageType)    {
             TaskPackage task;
             task.COI = bytes.at(1);
@@ -237,28 +263,56 @@ void SVServer::slotReadyRead()  {
             log("COI: " + QString::number(task.COI) + "; TaskType: " + QString::number(task.taskType) + "; Parameters:");
             for (qint32 const& param : task.params)
                 log(QString::number(param));
-
-            emit signalTask(task);
-        }
+            if (!currentTaskCOI)    {
+                currentTaskCOI = task.COI;
+                switch (task.taskType)  {
+                case 1: {
+                    emit signalTaskForward(task.params.first());
+                    log("Starting task FORWARD...");
+                    break;
+                }
+                case 2: {
+                    emit signalTaskWheels(task.params.first());
+                    log("Starting task WHEELS");
+                    break;
+                }
+                case 3: {
+                    emit signalTaskFlick();
+                    log("Starting task FLICK");
+                    break;
+                }
+                }
+            }   else {
+                log("Vehicle is busy.");
+            }
+        }   else
         if (bytes.at(0) == SetPackage::packageType)  {
             SetPackage set;
             set.COI = bytes.at(1);
-            set.paramBlockSize = bytes.at(2);
-            for (int i = 0; i < set.paramBlockSize; i++)   {
-                std::pair<qint8, qint32> pair;
-                pair.first = bytes.at(3 + i * 5);
-                BI bi = {(unsigned char) bytes.at(4 + i * 5), (unsigned char) bytes.at(5 + i * 5),
-                         (unsigned char) bytes.at(6 + i * 5), (unsigned char) bytes.at(7 + i * 5)};
-                pair.second = bi.I;
-                set.params.push_back(pair);
+            BI bi[4];
+            for (int i = 0; i < 4; i++) {
+                bi[i] = {(unsigned char) bytes.at(2 + i * 5), (unsigned char) bytes.at(3 + i * 5),
+                         (unsigned char) bytes.at(4 + i * 5), (unsigned char) bytes.at(5 + i * 5)};
             }
-
+            set.p = bi[0].I;
+            set.i = bi[1].I;
+            set.d = bi[2].I;
+            set.servoZero = bi[3].I;
             log("Set package:");
             log("COI: " + QString::number(set.COI) + "; Parameters:");
-            for (std::pair<qint8, qint32> const& pair : set.params)
-                log("Type: " + QString::number(pair.first) + "; Value: " + QString::number(pair.second) + ";");
-
-            emit signalSet(set);
+            log("p: " + QString::number(set.p) + ", ");
+            log("i: " + QString::number(set.i) + ", ");
+            log("d: " + QString::number(set.d) + ", ");
+            log("servo zero state: " + QString::number(set.servoZero) + ", ");
+            if (!currentTaskCOI)    {
+                currentTaskCOI = set.COI;
+                emit signalSetPID(set.p, set.i, set.d);
+                emit signalSetServoZero(set.servoZero);
+            }   else {
+                log("Vehicle is busy.");
+            }
+        }   else {
+            log("Corrupted or illegal package.");
         }
     }
 }
@@ -276,16 +330,17 @@ void SVServer::slotUISendAll(QString message) {
 }
 
 void SVServer::slotUITestAnswer()   {
-    sendAll(AnswerPackage(5, 1));
+    sendAll(AnswerPackage(5, 2));
+    currentTaskCOI = 0;
 }
 
 void SVServer::slotUITestData(qint32 encoderValue, qint32 potentiometerValue) {
-    DataPackage data(1, {{1, encoderValue}, {2, potentiometerValue}});
-    sendAll(data);
+    sendData(State::WAIT, encoderValue, potentiometerValue);
 }
 
 void SVServer::slotTaskDone(quint8 answerType)   {
-    sendAll(AnswerPackage(coiQueue.dequeue(), answerType));
+    sendAll(AnswerPackage(currentTaskCOI, answerType));
+    currentTaskCOI = 0;
 }
 
 void SVServer::slotSendData(DataPackage data)   {
