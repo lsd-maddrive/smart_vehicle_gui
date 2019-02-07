@@ -49,7 +49,7 @@ ApplicationWindow {
         onSignalUIConnectionError:  {
             console.log("Connection error");
             connection_state = "DISCONNECTED";
-            connection_error_modale.visible = true;
+            //connection_error_modale.visible = true;
             statusBar_label.text = str_state_disconnected;
         }
 
@@ -128,6 +128,11 @@ ApplicationWindow {
                 id: toolBar_values_switch
                 text: qsTr("Show values")
                 checked: true
+            }
+            Switch    {
+                id: toolBar_connection_switch
+                text: qsTr("Show connection")
+                checked: false
             }
             Switch    {
                 id: toolBar_charts_switch
@@ -275,13 +280,18 @@ ApplicationWindow {
                         source: "corner.png"
                     }
 
+                    Column  {
+                        anchors.fill: parent
+
+
                     ListView    {
                         id: values_list
                         spacing: 5
+
                         anchors.rightMargin: 20
                         anchors.leftMargin: 20
                         anchors.bottomMargin: 20
-                        anchors.topMargin: 40
+                        anchors.topMargin: 40                        
                         anchors.fill: parent
 
                         model:  ListModel   {
@@ -314,9 +324,88 @@ ApplicationWindow {
                         }
                     }
                 }
+
+
+
+
+                }
             }
 
-
+            Rectangle   {
+                id: connection_container
+                visible: toolBar_connection_switch.checked
+                Layout.columnSpan: 20
+                Layout.rowSpan: 20
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                anchors.margins: 10
+                anchors.leftMargin: 20
+                anchors.rightMargin: 20
+                color: "#f4f4f4"
+                Column  {
+                    Row {
+                        Label   {
+                            id: connection_address_label
+                            text: qsTr("Address")
+                            font.pointSize: 10
+                            width: 100
+                            padding: 10
+                        }
+                        Rectangle   {
+                            width: 150
+                            height: connection_address_edit.height - 5
+                            color: "white"
+                            TextInput   {
+                                id: connection_address_edit
+                                width: 150
+                                padding: 10
+                                text: qsTr("127.0.0.1")
+                                validator: RegExpValidator  { regExp: /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/ }
+                                font.pointSize: 10
+                                focus: true
+                            }
+                        }
+                    }
+                    Row {
+                        Label   {
+                            id: connection_port_label
+                            text: qsTr("Port")
+                            font.pointSize: 10
+                            width: 100
+                            padding: 10
+                        }
+                        Rectangle   {
+                            color: "white"
+                            width: 150
+                            height: connection_port_edit.height - 5
+                            TextInput    {
+                                id: connection_port_edit
+                                width: 150
+                                padding: 10
+                                text: qsTr("80")
+                                maximumLength: 5
+                                font.pointSize: 10
+                            }
+                        }
+                    }
+                    Row {
+                        Button  {
+                            id: connection_button
+                            text: qsTr("Connect")
+                            font.pointSize: 12
+                            x: (connection_window.width - this.width) / 2
+                            Layout.alignment: Layout.Center
+                            onClicked: {
+                                if (connection_state == "DISCONNECTED")   {
+                                    adapter.slotUIConnect(connection_address_edit.text, connection_port_edit.text);
+                                }   else    {
+                                    adapter.slotUIDisconnect();
+                                }
+                            }
+                        }
+                    }
+                    }
+                }
 
             Rectangle   {
                 id: charts_container
@@ -425,7 +514,7 @@ ApplicationWindow {
             }
         }
     }
-
+/*
     Window  {
         id: connection_window
         visible: false
@@ -555,8 +644,8 @@ ApplicationWindow {
                 onClicked: { connection_error_modale.close();    }
             }
         }
-
     }
+    */
 
     Window {
         id: commands_window
