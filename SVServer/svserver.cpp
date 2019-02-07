@@ -3,13 +3,13 @@
 Server::Server(QObject* parent)    {}
 
 void Server::incomingConnection(qintptr socketDescriptor)   {
-    emit newConnection();
+    emit newConnection(socketDescriptor);
 }
 
 SVServer::SVServer()   {
     log("Server initializing...");
     server = new Server(this);
-    connect(server, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
+    connect(server, SIGNAL(newConnection(qintptr)), this, SLOT(slotNewConnection(qintptr)));
     connect(server, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));
     log("Server is ready.");
 }
@@ -214,9 +214,12 @@ bool SVServer::isListening() const  {
     return server->isListening();
 }
 
-void SVServer::slotNewConnection()  {
+void SVServer::slotNewConnection(qintptr socketDescriptor)  {
     log("New connection.");
-    QTcpSocket* newConnection = dynamic_cast<QTcpSocket*>(server->nextPendingConnection());
+    //QTcpSocket* newConnection = dynamic_cast<QTcpSocket*>(server->nextPendingConnection());
+    QTcpSocket *newConnection = new QTcpSocket();
+    newConnection->setSocketDescriptor(socketDescriptor);
+
     log("new connection");
     if (newConnection != nullptr)
         connections.insert(newConnection->socketDescriptor(), newConnection);

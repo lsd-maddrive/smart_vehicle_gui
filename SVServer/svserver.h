@@ -21,9 +21,12 @@ union BI // byte / int conversion
 };
 
 class Server : public QTcpServer    {
+    Q_OBJECT
 public:
     Server(QObject *parent = nullptr);
     void incomingConnection(qintptr socketDescriptor);
+signals:
+    void newConnection(qintptr socketDescriptor);
 };
 
 class SVServer : public QObject
@@ -73,7 +76,7 @@ public:
     quint16 getPort() const;
     bool isListening() const;
 private slots:
-    void slotNewConnection();
+    void slotNewConnection(qintptr socketDescriptor);
     void slotAcceptError(QAbstractSocket::SocketError error);
     void slotClientDisconnected();
     void slotReadyRead();
