@@ -25,7 +25,7 @@ class SVServer : public QObject
     Q_OBJECT
 private:
     QTcpServer *server;
-    QHostAddress adress;
+    QHostAddress address;
     quint16 port;
     QMap<qintptr, QTcpSocket*> connections;
     /*
@@ -52,7 +52,7 @@ public:
 
     void setUI(QObject const *UI);
 
-    bool start(QHostAddress const& adress = QHostAddress::AnyIPv4 , quint16 port = 80);
+    bool start(QHostAddress const& adress = QHostAddress::Null, quint16 port = 555);
     void stop();
 
     void sendAll(QString const& data);
@@ -63,7 +63,7 @@ public:
     void sendData(State const& state, qint32 const& encoderValue, qint32 const& potentiometerValue,
                   qint32 const& battery1 = 100, qint32 const& battery2 = 100);
 
-    QHostAddress getHostAdress() const;
+    QHostAddress getHostAddress() const;
     quint16 getPort() const;
     bool isListening() const;
 private slots:

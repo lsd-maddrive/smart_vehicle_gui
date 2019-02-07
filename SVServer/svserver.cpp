@@ -60,20 +60,22 @@ void SVServer::log(DataPackage data)    {
     log(message);
 }
 
-bool SVServer::start(QHostAddress const& adress, quint16 port)   {
+bool SVServer::start(QHostAddress const& address, quint16 port)   {
     log("Starting server...");
     if (!server->isListening())   {
-        bool ready = server->listen(adress, port);
-        if (ready)  {
-
-            this->port = port;
-            foreach (QHostAddress adress, QNetworkInterface::allAddresses())    {
-                if (adress != QHostAddress::LocalHost && adress.toIPv4Address())    {
-                    this->adress = adress;
-                    break;
-                }
+        QHostAddress currentAddress = address;
+        if (address == QHostAddress::Null)  {
+            foreach (const QHostAddress &a, QNetworkInterface::allAddresses()) {
+                if (a.protocol() == QAbstractSocket::IPv4Protocol && a != QHostAddress(QHostAddress::LocalHost))
+                     currentAddress = a;
             }
-            log("Server is listening.");
+        }
+
+        bool ready = server->listen(currentAddress, port);
+        if (ready)  {
+            this->port = port;
+            this->address = currentAddress;
+            log("Server is listening. Address: " + currentAddress.toString() + ", port " + QString::number(port));
         }   else    {
             log("Error! Cannot start server.");
         }
@@ -195,8 +197,8 @@ void SVServer::sendTo(QTcpSocket *socket, AuthAnswerPackage const& answer) {
     sendTo(socket, answer.toBytes());
 }
 
-QHostAddress SVServer::getHostAdress() const    {
-    return adress;
+QHostAddress SVServer::getHostAddress() const    {
+    return address;
 }
 
 quint16 SVServer::getPort() const   {
