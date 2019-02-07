@@ -1,9 +1,14 @@
 #include "svserver.h"
 
+Server::Server(QObject* parent)    {}
+
+void Server::incomingConnection(qintptr socketDescriptor)   {
+    emit newConnection();
+}
 
 SVServer::SVServer()   {
     log("Server initializing...");
-    server = new QTcpServer(this);
+    server = new Server(this);
     connect(server, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
     connect(server, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));
     log("Server is ready.");
@@ -212,7 +217,13 @@ bool SVServer::isListening() const  {
 void SVServer::slotNewConnection()  {
     log("New connection.");
     QTcpSocket* newConnection = dynamic_cast<QTcpSocket*>(server->nextPendingConnection());
-    connections.insert(newConnection->socketDescriptor(), newConnection);
+    log("new connection");
+    if (newConnection != nullptr)
+        connections.insert(newConnection->socketDescriptor(), newConnection);
+    else {
+        log("null");
+    }
+    log("insert");
     connect(newConnection, SIGNAL(disconnected()), this, SLOT(slotClientDisconnected()));
     connect(newConnection, SIGNAL(readyRead()),this, SLOT(slotReadyRead()));
     connect(newConnection, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));

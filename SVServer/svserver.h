@@ -20,11 +20,17 @@ union BI // byte / int conversion
     unsigned  int I;
 };
 
+class Server : public QTcpServer    {
+public:
+    Server(QObject *parent = nullptr);
+    void incomingConnection(qintptr socketDescriptor);
+};
+
 class SVServer : public QObject
 {
     Q_OBJECT
 private:
-    QTcpServer *server;
+    Server *server;
     QHostAddress address;
     quint16 port;
     QMap<qintptr, QTcpSocket*> connections;
@@ -52,7 +58,7 @@ public:
 
     void setUI(QObject const *UI);
 
-    bool start(QHostAddress const& adress = QHostAddress::Null, quint16 port = 555);
+    bool start(QHostAddress const& adress = QHostAddress::Null, quint16 port = 55555);
     void stop();
 
     void sendAll(QString const& data);
