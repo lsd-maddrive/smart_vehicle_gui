@@ -14,7 +14,7 @@ AuthPackage::AuthPackage() {}
 QByteArray AuthPackage::toBytes() const {
     QByteArray bytes;
     bytes.append(packageType);
-    bytes.append(authRequest);
+    bytes.append(authRequest, sizeof(AuthPackage::authRequest));
     return bytes;
 }
 

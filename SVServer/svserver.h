@@ -24,9 +24,6 @@ class Server : public QTcpServer    {
     Q_OBJECT
 public:
     Server(QObject *parent = nullptr);
-    void incomingConnection(qintptr socketDescriptor);
-signals:
-    void newConnection(qintptr socketDescriptor);
 };
 
 class SVServer : public QObject
@@ -69,18 +66,20 @@ public:
     void sendAll(AnswerPackage const& answer);
     void sendAll(DataPackage const& data);
 
-    void sendData(State const& state, qint32 const& encoderValue, qint32 const& potentiometerValue,
-                  qint32 const& battery1 = 100, qint32 const& battery2 = 100);
+
 
     QHostAddress getHostAddress() const;
     quint16 getPort() const;
     bool isListening() const;
 private slots:
-    void slotNewConnection(qintptr socketDescriptor);
+    void slotNewConnection();
     void slotAcceptError(QAbstractSocket::SocketError error);
     void slotClientDisconnected();
     void slotReadyRead();
 public slots:
+    void sendData(State const& state, qint32 const& encoderValue, qint32 const& potentiometerValue,
+                  qint32 const& battery1, qint32 const& battery2);
+
     void slotUIStart(QString adress, quint16 port);
     void slotUIStop();
     void slotUISendAll(QString message);

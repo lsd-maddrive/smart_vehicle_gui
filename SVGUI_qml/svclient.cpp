@@ -54,13 +54,14 @@ void SVClient::sendData(QString data)   {
 
 void SVClient::sendData(QByteArray data)    {
     if (connected)  {
-        qDebug() << "sending " + data + "...";
-        data.push_front(static_cast<char>(data.size()));
+        qDebug() << "sending " + data + " / sz " + QString::number(data.size()) + "...";
+        data.push_front(static_cast<uint8_t>(data.size()));
         socket->write(data);
 
     }   else {
         qDebug() << "there is no active connections";
     }
+    qDebug() << "send done";
 }
 
 void SVClient::sendAuthPackage()    {

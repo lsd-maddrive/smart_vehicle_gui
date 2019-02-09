@@ -2,14 +2,14 @@
 
 Server::Server(QObject* parent)    {}
 
-void Server::incomingConnection(qintptr socketDescriptor)   {
-    emit newConnection(socketDescriptor);
-}
+//void Server::incomingConnection(qintptr socketDescriptor)   {
+//    emit newConnection(socketDescriptor);
+//}
 
 SVServer::SVServer()   {
     log("Server initializing...");
     server = new Server(this);
-    connect(server, SIGNAL(newConnection(qintptr)), this, SLOT(slotNewConnection(qintptr)));
+    connect(server, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
     connect(server, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));
     log("Server is ready.");
 }
@@ -214,13 +214,9 @@ bool SVServer::isListening() const  {
     return server->isListening();
 }
 
-void SVServer::slotNewConnection(qintptr socketDescriptor)  {
-    log("New connection.");
-    //QTcpSocket* newConnection = dynamic_cast<QTcpSocket*>(server->nextPendingConnection());
-    QTcpSocket *newConnection = new QTcpSocket();
-    newConnection->setSocketDescriptor(socketDescriptor);
-
-    log("new connection");
+void SVServer::slotNewConnection()  {
+    QTcpSocket* newConnection = dynamic_cast<QTcpSocket*>(server->nextPendingConnection());
+    log("New connection: " + QString::number(newConnection->socketDescriptor()));
     if (newConnection != nullptr)
         connections.insert(newConnection->socketDescriptor(), newConnection);
     else {
@@ -257,8 +253,11 @@ void SVServer::slotReadyRead()  {
             message.chop(2);
 
         log("Data[" + QString::number(size) + "]: " + message);
+        log("First byte: " + QString::number(bytes[0]));
 
         if (bytes.at(0) == AuthPackage::packageType && size == 11)    {
+            log("First byte: " + QString::number(bytes[0]));
+
             if (message.endsWith(validAuthPackage.authRequest)) {
                 log("Valid GUI device connected.");
                 sendTo(client, AuthAnswerPackage(1, 2, 3));
@@ -351,7 +350,7 @@ void SVServer::slotUITestAnswer()   {
 }
 
 void SVServer::slotUITestData(qint32 encoderValue, qint32 potentiometerValue) {
-    sendData(State::WAIT, encoderValue, potentiometerValue);
+    sendData(State::WAIT, encoderValue, potentiometerValue, 100, 100);
 }
 
 void SVServer::slotTaskDone(quint8 answerType)   {

@@ -101,30 +101,30 @@ void Adapter::slotData(DataPackage const& data) {
     qint8 state = data.stateType;
     QString stateString = getStatusStr(state);
     emit signalUIStatus(stateString);
-    qint8 dataBlockSize = data.dataBlockSize;
-    for (std::pair<qint8, qint32> const& data : data.data)  {
-        switch (data.first) {
+
+    for (std::pair<qint8, qint32> const& _data : data.data)  {
+        switch (_data.first) {
         case 0: {
             break;
         }
         case 1: {
-            emit signalUIEncoderData(data.second);
-            log("Encoder: " + QString::number(data.second));
+            emit signalUIEncoderData(_data.second);
+            log("Encoder: " + QString::number(_data.second));
             break;
         }
         case 2: {
-            emit signalUIPotentiometerData(data.second);
-            log("Potentiometer: " + QString::number(data.second));
+            emit signalUIPotentiometerData(_data.second);
+            log("Potentiometer: " + QString::number(_data.second));
             break;
         }
         case 3: {
-            emit signalUIBatteryData(1, data.second);
-            log("Battery (1): " + QString::number(data.second));
+            emit signalUIBatteryData(1, _data.second);
+            log("Battery (1): " + QString::number(_data.second));
             break;
         }
         case 4: {
-            emit signalUIBatteryData(2, data.second);
-            log("Battery (2): " + QString::number(data.second));
+            emit signalUIBatteryData(2, _data.second);
+            log("Battery (2): " + QString::number(_data.second));
             break;
         }
         }
