@@ -51,7 +51,7 @@ private:
     void log(AnswerPackage answer);
     void log(DataPackage data);
 public:
-    enum State {FAULT, RUN, WAIT, STOP};
+
 
     SVServer();
     ~SVServer();
@@ -77,8 +77,7 @@ private slots:
     void slotClientDisconnected();
     void slotReadyRead();
 public slots:
-    void sendData(State const& state, qint32 const& encoderValue, qint32 const& potentiometerValue,
-                  qint32 const& battery1, qint32 const& battery2);
+    void sendData(DataPackage const& data);
 
     void slotUIStart(QString adress, quint16 port);
     void slotUIStop();

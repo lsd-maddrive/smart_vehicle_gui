@@ -359,7 +359,7 @@ ApplicationWindow {
                                 id: connection_address_edit
                                 width: 150
                                 padding: 10
-                                text: qsTr("127.0.0.1")
+                                text: qsTr("192.168.31.152")
                                 validator: RegExpValidator  { regExp: /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/ }
                                 font.pointSize: 10
                                 focus: true
@@ -382,7 +382,7 @@ ApplicationWindow {
                                 id: connection_port_edit
                                 width: 150
                                 padding: 10
-                                text: qsTr("80")
+                                text: qsTr("5556")
                                 maximumLength: 5
                                 font.pointSize: 10
                             }

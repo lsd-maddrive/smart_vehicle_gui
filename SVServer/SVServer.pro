@@ -27,15 +27,17 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    svserver.cpp \
-    addressvalidator.cpp \
-    datapackage.cpp
+        svserver.cpp \
+        addressvalidator.cpp \
+        ../common/datapackage.cpp
+
+INCLUDEPATH += ../common/
 
 HEADERS += \
         mainwindow.h \
-    svserver.h \
-    datapackage.h \
-    addressvalidator.h
+        svserver.h \
+        ../common/datapackage.h \
+        addressvalidator.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

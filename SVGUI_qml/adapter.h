@@ -29,7 +29,7 @@ signals:
     void signalUIStatus(QString const& str);
     void signalUIPotentiometerData(qint32 const& potValue);
     void signalUIEncoderData(qint32 const& encValue);
-    void signalUIBatteryData(qint32 const& number, qint32 const& value);
+    void signalUIBatteryData(quint32 const& number, quint32 const& value);
 
 public slots:
     void slotTest();

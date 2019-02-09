@@ -79,12 +79,40 @@ struct DataPackage : public Package
     static const qint8 packageType = 6;
     qint8 stateType;
     qint8 dataBlockSize;
-    QVector<std::pair<qint8, qint32>> data;
+    quint32 timeStamp;
 
-    explicit DataPackage(qint8 stateType = 0, QVector<std::pair<qint8, qint32>> data = QVector<std::pair<qint8, qint32>>());
+    enum State {
+        FAULT = 0,
+        RUN = 1,
+        STOP = 2,
+        WAIT = 3
+    };
+
+    explicit DataPackage();
+    explicit DataPackage(State state);
+    explicit DataPackage(QByteArray &bytes);
     QByteArray toBytes() const;
     size_t size() const;
+
+public:
+    /* As you asked, removed Getters/Setters */
+//    bool setEncoderValue(quint32 value);
+//    bool setSteeringValue(float value);
+//    bool setMotorBatteryValue(quint32 value);
+//    bool setComputerBatteryValue(quint32 value);
+    /* Required for internal conversion from State to qint8 */
+    bool setState(State state);
+
+//private:
+    /* Should be private, but now is opened for Adapter class */
+    qint32  m_encoderValue;
+    float   m_steeringAngle;
+    quint32 m_motorBatteryPerc;
+    quint32 m_compBatteryPerc;
 };
+
+/* Declaration for external slot */
+Q_DECLARE_METATYPE(DataPackage);
 
 /*
  *  packageType:

@@ -15,9 +15,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-    datapackage.cpp \
-    svclient.cpp \
-    adapter.cpp
+        ../common/datapackage.cpp \
+        svclient.cpp \
+        adapter.cpp
 
 RESOURCES += qml.qrc
 
@@ -32,9 +32,11 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+INCLUDEPATH += ../common/
+
 HEADERS += \
-    datapackage.h \
-    svclient.h \
-    adapter.h
+        ../common/datapackage.h \
+        svclient.h \
+        adapter.h
 
 DISTFILES +=

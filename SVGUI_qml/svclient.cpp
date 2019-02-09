@@ -98,7 +98,6 @@ void SVClient::slotReadyRead()  {
         socket->read(&blockSize, 1);
 
         QByteArray bytes = socket->readAll();
-        QDataStream in(bytes);
 
         qDebug() << "Data(" << (int)blockSize << "): " << QString(bytes);
 
@@ -116,26 +115,8 @@ void SVClient::slotReadyRead()  {
             emit signalUIDone(bytes[1], bytes[2]);
         }
         if (bytes.at(0) == DataPackage::packageType && blockSize >= 12) {
-            qDebug() << "Data package: ";
-            qint8 state = bytes[1];
-            qDebug() << "State: " << QString::number(state);
-            BI bi = {(unsigned char) bytes[2], (unsigned char) bytes[3],
-                     (unsigned char) bytes[4], (unsigned char) bytes[5]};
-            qint32 msec = bi.I;
-            qDebug() << "Sending time: " << QTime::fromMSecsSinceStartOfDay(msec).toString();
-            int dataBlockSize = bytes[6];
-            DataPackage data;
-            data.stateType = state;
-            data.dataBlockSize = dataBlockSize;
-            for (int i = 0; i < dataBlockSize; i++) {
-                qint8 dataType = bytes[7 + i * 5];
-                qDebug() << "Data type: " << QString::number(dataType);
-                bi = {(unsigned char) bytes[8 + i * 5], (unsigned char) bytes[9 + i * 5],
-                      (unsigned char) bytes[10 + i * 5], (unsigned char) bytes[11 + i * 5]};
-                qint32 dataValue = bi.I;
-                qDebug() << "Value: " << dataValue;
-                data.data.append({dataType, dataValue});
-            }
+            DataPackage data(bytes);
+
             emit signalUIData(data);
         }
         qDebug() << "----------------------------------------------------------------------";

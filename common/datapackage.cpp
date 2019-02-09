@@ -14,7 +14,7 @@ AuthPackage::AuthPackage() {}
 QByteArray AuthPackage::toBytes() const {
     QByteArray bytes;
     bytes.append(packageType);
-    bytes.append(authRequest);
+    bytes.append(authRequest, sizeof(AuthPackage::authRequest));
     return bytes;
 }
 
@@ -90,24 +90,109 @@ size_t AnswerPackage::size() const  {
     return 3;
 }
 
-DataPackage::DataPackage(qint8 stateType, QVector<std::pair<qint8, qint32>> data) :
-    stateType(stateType), dataBlockSize(static_cast<qint8>(data.size())), data(data)   {}
+enum DataType {
+    ENCODER = 1,
+    STEERING = 2,
+    MOTOR_BATTERY = 3,
+    COMP_BATTERY = 4
+};
 
-QByteArray DataPackage::toBytes() const   {
+DataPackage::DataPackage() :
+    m_encoderValue( 0 ), m_steeringAngle( 0.0f ),
+    m_motorBatteryPerc( 0 ), m_compBatteryPerc( 0 )
+{
+    timeStamp = static_cast<quint32>(QTime::currentTime().msecsSinceStartOfDay());
+    stateType = State::WAIT;
+}
+
+DataPackage::DataPackage(DataPackage::State state) :
+    m_encoderValue( 0 ), m_steeringAngle( 0.0f ),
+    m_motorBatteryPerc( 0 ), m_compBatteryPerc( 0 )
+{
+    timeStamp = static_cast<quint32>(QTime::currentTime().msecsSinceStartOfDay());
+    stateType = state;
+}
+
+DataPackage::DataPackage(QByteArray &bytes)
+{
+    QDataStream stream(&bytes, QIODevice::ReadOnly);
+
+    stream.skipRawData(sizeof( DataPackage::packageType ));
+
+    stream >> stateType;
+    stream >> timeStamp;
+
+    /* Maybe exclude this field? Really we don`t need to vary data package width */
+    stream >> dataBlockSize;
+
+    stream.skipRawData(sizeof(DataType));
+    stream >> m_encoderValue;
+    stream.skipRawData(sizeof(DataType));
+    stream >> m_steeringAngle;
+    stream.skipRawData(sizeof(DataType));
+    stream >> m_motorBatteryPerc;
+    stream.skipRawData(sizeof(DataType));
+    stream >> m_compBatteryPerc;
+}
+
+QByteArray DataPackage::toBytes() const {
+
     QByteArray bytes;
+    QDataStream stream(&bytes, QIODevice::WriteOnly);
 
-    bytes.append(packageType);
-    bytes.append(stateType);
-    int msec = QTime::currentTime().msecsSinceStartOfDay();
-    writeToBytes(&bytes, msec);
-    bytes.append(dataBlockSize);
-    for (std::pair<qint8, qint32> const& value : data) {
-        bytes.append(value.first);
-        writeToBytes(&bytes, value.second);
-    }
+    stream << packageType;
+    stream << stateType;
+    stream << timeStamp;
+
+    /* Maybe exclude this field? Really we don`t need to vary data package width */
+    stream << dataBlockSize;
+
+    stream << ENCODER;
+    stream << m_encoderValue;
+    stream << STEERING;
+    stream << m_steeringAngle;
+    stream << MOTOR_BATTERY;
+    stream << m_motorBatteryPerc;
+    stream << COMP_BATTERY;
+    stream << m_compBatteryPerc;
+
     return bytes;
 }
 
+/* Is it required? */
 size_t DataPackage::size() const    {
-    return static_cast<size_t>(7 + 5 * data.size());
+    return static_cast<size_t>(7 + 5 * 0);
+}
+
+/*
+bool DataPackage::setEncoderValue(quint32 value)
+{
+    m_encoderValue = value;
+    return true;
+}
+
+bool DataPackage::setSteeringValue(float value)
+{
+    m_steeringAngle = value;
+    return true;
+}
+
+bool DataPackage::setMotorBatteryValue(quint32 value)
+{
+    m_motorBatteryPerc = value;
+    return true;
+}
+
+bool DataPackage::setComputerBatteryValue(quint32 value)
+{
+    m_compBatteryPerc = value;
+    return true;
+}
+*/
+
+bool DataPackage::setState(DataPackage::State state)
+{
+    stateType = state;
+
+    return true;
 }

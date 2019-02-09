@@ -59,7 +59,7 @@ void SVServer::log(DataPackage data)    {
     message.append(QString::number(data.dataBlockSize));
     message.append("; Data: ");
     for (int i = 0; i < data.dataBlockSize; i++)    {
-        message.append(" type: " + QString::number(data.data[i].first) + ", value: " + QString::number(data.data[i].second) + "; ");
+//        message.append(" type: " + QString::number(data.data[i].first) + ", value: " + QString::number(data.data[i].second) + "; ");
     }
 
     log(message);
@@ -143,30 +143,7 @@ void SVServer::sendAll(DataPackage const &data) {
     sendAll(data.toBytes());
 }
 
-void SVServer::sendData(State const& state, qint32 const& encoderValue, qint32 const& potentiometerValue,
-              qint32 const& battery1, qint32 const& battery2)   {
-    qint8 stateValue = 0;
-    switch (state)  {
-        case State::FAULT:  {
-            stateValue = 0;
-            break;
-        }
-        case State::RUN:    {
-            stateValue = 1;
-            break;
-        }
-        case State::STOP:   {
-            stateValue = 2;
-            break;
-        }
-        case State::WAIT:    {
-            stateValue = 3;
-            break;
-        }
-    }
-    if (stateValue == 3)
-        currentTaskCOI = 0;
-    DataPackage data(stateValue, {{1, encoderValue}, {2, potentiometerValue}, {3, battery1}, {4, battery2}});
+void SVServer::sendData(DataPackage const &data)   {
     sendAll(data);
 }
 
@@ -350,7 +327,11 @@ void SVServer::slotUITestAnswer()   {
 }
 
 void SVServer::slotUITestData(qint32 encoderValue, qint32 potentiometerValue) {
-    sendData(State::WAIT, encoderValue, potentiometerValue, 100, 100);
+    DataPackage data( DataPackage::State::WAIT );
+    data.m_steeringAngle = potentiometerValue;
+    data.m_encoderValue = encoderValue;
+
+    sendData(data);
 }
 
 void SVServer::slotTaskDone(quint8 answerType)   {

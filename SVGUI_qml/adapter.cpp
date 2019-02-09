@@ -102,33 +102,10 @@ void Adapter::slotData(DataPackage const& data) {
     QString stateString = getStatusStr(state);
     emit signalUIStatus(stateString);
 
-    for (std::pair<qint8, qint32> const& _data : data.data)  {
-        switch (_data.first) {
-        case 0: {
-            break;
-        }
-        case 1: {
-            emit signalUIEncoderData(_data.second);
-            log("Encoder: " + QString::number(_data.second));
-            break;
-        }
-        case 2: {
-            emit signalUIPotentiometerData(_data.second);
-            log("Potentiometer: " + QString::number(_data.second));
-            break;
-        }
-        case 3: {
-            emit signalUIBatteryData(1, _data.second);
-            log("Battery (1): " + QString::number(_data.second));
-            break;
-        }
-        case 4: {
-            emit signalUIBatteryData(2, _data.second);
-            log("Battery (2): " + QString::number(_data.second));
-            break;
-        }
-        }
-    }
+    emit signalUIEncoderData(data.m_encoderValue);
+    emit signalUIPotentiometerData(static_cast<qint32>(data.m_steeringAngle));
+    emit signalUIBatteryData(1, data.m_motorBatteryPerc);
+    emit signalUIBatteryData(2, data.m_compBatteryPerc);
 }
 
 void Adapter::slotDone(qint8 const& COI, qint8 const& answerCode) {
