@@ -17,8 +17,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-    ../SVServer/datapackage.cpp \
-    ../SVServer/svserver.cpp
+        ../common/svserver.cpp \
+        ../common/datapackage.cpp
+
+INCLUDEPATH += ../common/
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -26,5 +28,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    ../SVServer/datapackage.h \
-    ../SVServer/svserver.h
+        ../common/svserver.h \
+        ../common/datapackage.h \

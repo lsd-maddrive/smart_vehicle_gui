@@ -121,7 +121,11 @@ void MainWindow::slotAnswerButton() {
 }
 
 void MainWindow::slotDataButton()   {
-    emit signalServerTestData(encoderSpin->value(), potentiometerSpin->value());
+    DataPackage data(DataPackage::WAIT);
+    data.m_encoderValue = encoderSpin->value();
+    data.m_steeringAngle = potentiometerSpin->value();
+
+    emit signalSendData(data);
 }
 
 void MainWindow::slotLog(QString message)   {

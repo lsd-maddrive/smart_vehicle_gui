@@ -15,6 +15,7 @@
 #include <QMessageBox>
 #include <QSpinBox>
 #include "addressvalidator.h"
+#include <datapackage.h>
 
 class MainWindow : public QWidget
 {
@@ -60,6 +61,8 @@ public slots:
     void slotServerChangeState(bool state);
     void slotRefreshData();
 signals:
+    void signalSendData(DataPackage const& data);
+
     void signalServerStart(QString adress = "0.0.0.0", quint16 port = 80);
     void signalServerStop();
     void signalServerSendAll(QString data);

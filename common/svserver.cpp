@@ -23,18 +23,6 @@ SVServer::~SVServer()   {
     }
 }
 
-void SVServer::setUI(QObject const *UI)   {
-    log("Setting UI");
-    QObject::connect(this, SIGNAL(signalUILog(QString)), UI, SLOT(slotLog(QString)));
-    QObject::connect(this, SIGNAL(signalUIChangeState(bool)), UI, SLOT(slotServerChangeState(bool)));
-    QObject::connect(UI, SIGNAL(signalServerStart(QString, quint16)), this, SLOT(slotUIStart(QString, quint16)));
-    QObject::connect(UI, SIGNAL(signalServerStop()), this, SLOT(slotUIStop()));
-    QObject::connect(UI, SIGNAL(signalServerSendAll(QString)), this, SLOT(slotUISendAll(QString)));
-    QObject::connect(UI, SIGNAL(signalServerTestAnswer()), this, SLOT(slotUITestAnswer()));
-    QObject::connect(UI, SIGNAL(signalServerTestData(qint32, qint32)), this, SLOT(slotUITestData(qint32, qint32)));
-    log("Done. UI for server is ready.");
-}
-
 void SVServer::log(QString message) {
     QString timedMessage = QTime::currentTime().toString() + ": " + message;
     emit signalUILog(timedMessage);

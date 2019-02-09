@@ -27,15 +27,15 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-        svserver.cpp \
         addressvalidator.cpp \
+        ../common/svserver.cpp \
         ../common/datapackage.cpp
 
 INCLUDEPATH += ../common/
 
 HEADERS += \
         mainwindow.h \
-        svserver.h \
+        ../common/svserver.h \
         ../common/datapackage.h \
         addressvalidator.h
 

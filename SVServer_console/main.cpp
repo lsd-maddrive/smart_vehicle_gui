@@ -1,6 +1,6 @@
 #include <QCoreApplication>
 #include <iostream>
-#include "../SVServer/svserver.h"
+#include <svserver.h>
 
 int main(int argc, char *argv[])
 {
@@ -9,9 +9,11 @@ int main(int argc, char *argv[])
     SVServer server;
     server.start(QHostAddress("192.168.31.56"), 5555);
 
-    /*
-    server.sendData( state , encoder, potentiometer, battery1, battery2);
+    DataPackage data( DataPackage::WAIT );
+    data.m_encoderValue = 100;
+
+    server.sendData( data );
     server.disconnect();
-    */
+
     return a.exec();
 }

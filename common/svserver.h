@@ -56,8 +56,6 @@ public:
     SVServer();
     ~SVServer();
 
-    void setUI(QObject const *UI);
-
     bool start(QHostAddress const& adress = QHostAddress::Null, quint16 port = 55555);
     void stop();
 
