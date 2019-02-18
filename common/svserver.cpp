@@ -43,13 +43,11 @@ void SVServer::log(DataPackage data)    {
     QString message = "Sending data package: ";
     message.append("State type: ");
     message.append(QString::number(data.stateType));
-    message.append("; Data block size: ");
-    message.append(QString::number(data.dataBlockSize));
     message.append("; Data: ");
-    for (int i = 0; i < data.dataBlockSize; i++)    {
-//        message.append(" type: " + QString::number(data.data[i].first) + ", value: " + QString::number(data.data[i].second) + "; ");
-    }
-
+    message.append("encoder: " + QString::number(data.m_encoderValue));
+    message.append("; potentiometer: " + QString::number(data.m_steeringAngle));
+    message.append("; compBattery: " + QString::number(data.m_compBatteryPerc));
+    message.append("; motorBattery: " + QString::number(data.m_motorBatteryPerc));
     log(message);
 }
 

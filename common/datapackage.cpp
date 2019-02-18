@@ -19,7 +19,7 @@ QByteArray AuthPackage::toBytes() const {
 }
 
 size_t AuthPackage::size() const    {
-    return 11;
+    return static_cast<size_t>(toBytes().size());
 }
 
 AuthAnswerPackage::AuthAnswerPackage(qint8 deviceType, qint8 deviceID, qint8 stateType) :
@@ -35,7 +35,7 @@ QByteArray AuthAnswerPackage::toBytes() const   {
 }
 
 size_t AuthAnswerPackage::size() const  {
-    return 4;
+    return static_cast<size_t>(toBytes().size());
 }
 
 TaskPackage::TaskPackage(qint8 COI, qint8 taskType, QVector<qint32> params) :
@@ -54,7 +54,7 @@ QByteArray TaskPackage::toBytes() const   {
 }
 
 size_t TaskPackage::size() const    {
-    return static_cast<size_t>(4 + 4 * params.size());
+    return static_cast<size_t>(toBytes().size());
 }
 
 SetPackage::SetPackage(qint8 COI, qint32 p, qint32 i, qint32 d, qint32 servoZero) :
@@ -72,7 +72,7 @@ QByteArray SetPackage::toBytes() const    {
 }
 
 size_t SetPackage::size() const {
-    return static_cast<size_t>(3 + 4 * 4);
+    return static_cast<size_t>(toBytes().size());
 }
 
 AnswerPackage::AnswerPackage(qint8 COI, qint8 answerType) :
@@ -87,15 +87,8 @@ QByteArray AnswerPackage::toBytes() const {
 }
 
 size_t AnswerPackage::size() const  {
-    return 3;
+    return static_cast<size_t>(toBytes().size());
 }
-
-enum DataType {
-    ENCODER = 1,
-    STEERING = 2,
-    MOTOR_BATTERY = 3,
-    COMP_BATTERY = 4
-};
 
 DataPackage::DataPackage() :
     m_encoderValue( 0 ), m_steeringAngle( 0.0f ),
@@ -123,7 +116,7 @@ DataPackage::DataPackage(QByteArray &bytes)
     stream >> timeStamp;
 
     /* Maybe exclude this field? Really we don`t need to vary data package width */
-    stream >> dataBlockSize;
+    //stream >> dataBlockSize;
 
     stream.skipRawData(sizeof(DataType));
     stream >> m_encoderValue;
@@ -145,7 +138,7 @@ QByteArray DataPackage::toBytes() const {
     stream << timeStamp;
 
     /* Maybe exclude this field? Really we don`t need to vary data package width */
-    stream << dataBlockSize;
+    //stream << dataBlockSize;
 
     stream << ENCODER;
     stream << m_encoderValue;
@@ -159,9 +152,8 @@ QByteArray DataPackage::toBytes() const {
     return bytes;
 }
 
-/* Is it required? */
 size_t DataPackage::size() const    {
-    return static_cast<size_t>(7 + 5 * 0);
+    return static_cast<size_t>(toBytes().size());
 }
 
 /*

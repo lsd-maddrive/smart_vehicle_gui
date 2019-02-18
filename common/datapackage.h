@@ -78,7 +78,7 @@ struct DataPackage : public Package
 {
     static const qint8 packageType = 6;
     qint8 stateType;
-    qint8 dataBlockSize;
+    //qint8 dataBlockSize;
     quint32 timeStamp;
 
     enum State {
@@ -86,6 +86,13 @@ struct DataPackage : public Package
         RUN = 1,
         STOP = 2,
         WAIT = 3
+    };
+
+    enum DataType {
+        ENCODER = 1,
+        STEERING = 2,
+        MOTOR_BATTERY = 3,
+        COMP_BATTERY = 4
     };
 
     explicit DataPackage();

@@ -17,7 +17,6 @@ SVClient::~SVClient() {
     delete socket;
 }
 
-
 void SVClient::connectToHost(QString const& adress, quint16 port) {
     qDebug() << "connecting to " + adress + "...";
     socket->connectToHost(adress, port);
@@ -116,7 +115,6 @@ void SVClient::slotReadyRead()  {
         }
         if (bytes.at(0) == DataPackage::packageType && blockSize >= 12) {
             DataPackage data(bytes);
-
             emit signalUIData(data);
         }
         qDebug() << "----------------------------------------------------------------------";

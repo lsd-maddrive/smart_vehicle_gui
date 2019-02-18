@@ -41,14 +41,14 @@ ApplicationWindow {
             console.log("Connected.");
             connection_state = "CONNECTED";
             statusBar_label.text = str_state_ready;
-            connection_button.text = "Disconnect";
+            connection_connect_button.text = "Disconnect";
         }
 
         onSignalUIDisconnected: {
             console.log("Disconnected");
             connection_state = "DISCONNECTED";
             statusBar_label.text = str_state_disconnected;
-            connection_button.text = "Connect";
+            connection_connect_button.text = "Connect";
         }
 
         onSignalUIConnectionError:  {
@@ -466,10 +466,10 @@ ApplicationWindow {
                         }
                         Button  {
                             id: connection_search_button
-                            width: parent.width - 40
-                            anchors.margins: 20
                             anchors.top: connection_label.bottom
                             anchors.left: parent.left
+                            anchors.margins: 10
+                            width: parent.width - 40
                             text: qsTr("Search...")
                             font.pointSize: 12
                             onClicked: {
@@ -480,7 +480,7 @@ ApplicationWindow {
                         Rectangle   {
                             id: connection_addresses_container
                             anchors.top: connection_search_button.bottom
-                            anchors.bottom: connection_connect_button.top
+                            anchors.bottom: connection_port_label.top
                             anchors.left: parent.left
                             anchors.margins: 20
                             ListView    {
@@ -505,6 +505,33 @@ ApplicationWindow {
                                 }
                             }
                         }
+                        Label   {
+                            id: connection_port_label
+                            anchors.bottom: connection_connect_button.top
+                            anchors.left: parent.left
+                            anchors.margins: 20
+                            text: qsTr("Port: ")
+                            font.pointSize: 12
+                            font.bold: true
+                            width: 50
+                        }
+                        Rectangle {
+                            id: connection_port_field
+                            anchors.bottom: connection_connect_button.top
+                            anchors.left: connection_port_label.right
+                            anchors.margins: 10
+                            width: 80
+                            height: connection_port_label.height + 20
+                            color: "white"
+                            TextInput   {
+                                id: connection_port_textInput
+                                anchors.fill: parent
+                                anchors.topMargin: 10
+                                anchors.leftMargin: 10
+                                text: qsTr("5556")
+                                font.pointSize: 12
+                            }
+                        }
                         Button  {
                             id: connection_connect_button
                             width: parent.width - 40
@@ -515,8 +542,13 @@ ApplicationWindow {
                             font.pointSize: 12
                             enabled: connection_addresses_listView.currentItem
                             onClicked: {
-                                var address = connection_addresses_model.get(connection_addresses_listView.currentIndex).address;
-                                adapter.slotUIConnect(address);
+                                if (connection_state == "DISCONNECTED") {
+                                    var address = connection_addresses_model.get(connection_addresses_listView.currentIndex).address;
+                                    var port = connection_port_textInput.text;
+                                    adapter.slotUIConnect(address, port);
+                                }   else    {
+                                    adapter.slotUIDisconnect();
+                                }
                             }
                         }
                     }
