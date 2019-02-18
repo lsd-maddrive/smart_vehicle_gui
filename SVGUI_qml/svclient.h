@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QDataStream>
 #include <QTime>
+#include <QNetworkInterface>
 #include "datapackage.h"
 #include "adapter.h"
 
@@ -39,10 +40,12 @@ private slots:
     void slotError(QAbstractSocket::SocketError socketError);
     void slotReadyRead();
 public slots:
+    void slotUISearch();
     void slotUIConnect(QString const& address, quint16 const& port);
     void slotUIDisconnect();
     void slotUICommand(TaskPackage const& task);
 signals:
+    void signalUIAddresses(QList<QString> const& addresses);
     void signalUIConnected(qint8 const& state);
     void signalUIDisconnected();
     void signalUIError(QString message);

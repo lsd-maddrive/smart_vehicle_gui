@@ -38,6 +38,10 @@ void Adapter::log(const QString &message)   {
     emit signalUILog(message);
 }
 
+void Adapter::slotUISearch()    {
+    emit signalSearch();
+}
+
 void Adapter::slotUIConnect(QString address, QString portStr)    {
     qDebug() << "Adapter: incoming connect signal";
     log("Connecting to " + address + "...");
@@ -74,6 +78,10 @@ void Adapter::slotUICommandFlick() {
     if (COI >= 127)
         COI = 1;
     emit signalCommand(task);
+}
+
+void Adapter::slotAddresses(QList<QString> const& addresses)    {
+    emit signalUIAddresses(addresses);
 }
 
 void Adapter::slotConnected(qint8 const& state)   {

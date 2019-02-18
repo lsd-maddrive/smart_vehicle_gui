@@ -12,6 +12,8 @@ void initConnections(SVClient *client, Adapter *adapter)  {
     QObject::connect(adapter, SIGNAL(signalConnect(QString const&, quint16 const&)), client, SLOT(slotUIConnect(QString const&, quint16 const&)));
     QObject::connect(adapter, SIGNAL(signalDisconnect()), client, SLOT(slotUIDisconnect()));
     QObject::connect(adapter, SIGNAL(signalCommand(TaskPackage const&)), client, SLOT(slotUICommand(TaskPackage const&)));
+    QObject::connect(adapter, SIGNAL(signalSearch()), client, SLOT(slotUISearch()));
+    QObject::connect(client, SIGNAL(signalUIAddresses(QList<QString> const&)), adapter, SLOT(slotAddresses(QList<QString> const&)));
     QObject::connect(client, SIGNAL(signalUIConnected(qint8 const&)), adapter, SLOT(slotConnected(qint8 const&)));
     QObject::connect(client, SIGNAL(signalUIDisconnected()), adapter, SLOT(slotDisconnected()));
     QObject::connect(client, SIGNAL(signalUIError(QString)), adapter, SLOT(slotConnectionError(QString)));

@@ -126,7 +126,19 @@ void SVClient::slotReadyRead()  {
 
 }
 
+void SVClient::slotUISearch()   {
+    qDebug() << "Searching...";
+        QList<QString> addressList;
+        foreach (const QHostAddress &a, QNetworkInterface::allAddresses()) {
+            if (a.isGlobal() || a.isEqual(QHostAddress::LocalHost))
+                addressList.push_back(a.toString());
+        }
+        emit signalUIAddresses(addressList);
+}
+
 void SVClient::slotUIConnect(QString const& address, quint16 const& port) {
+    if (connected)
+        disconnectFromHost();
     connectToHost(address, port);
 }
 
