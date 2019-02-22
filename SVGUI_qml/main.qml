@@ -597,13 +597,6 @@ ApplicationWindow {
                                         to: 30
                                     }
                                 }
-                                Row {
-                                    padding: 10
-                                    Label   {
-                                        text: qsTr("Another parameter...")
-                                        font.pointSize: 12
-                                    }
-                                }
                             }
                         }
 
@@ -636,10 +629,20 @@ ApplicationWindow {
                                 Row {
                                     padding: 10
                                     Label   {
-                                        text: qsTr("paremeters...")
+                                        text: qsTr("P: ") + settings_vehicle_p.value
                                         font.pointSize: 12
                                     }
+                                    Dial    {
+                                        id: settings_vehicle_p
+                                        width: 50; height: 50
+                                        from: 0.1
+                                        to: 10
+                                        value: 1
+                                        stepSize: 0.01
+                                    }
                                 }
+
+
                             }
                         }
                     }

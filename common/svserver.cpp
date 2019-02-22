@@ -97,7 +97,7 @@ void SVServer::stop()   {
 
 void SVServer::sendAll(QString const& data)    {
     if (server->isListening())   {
-        log("Sending data [" + data + "] to all... (number of clients: " + QString::number(connections.size()) + ")");
+        //log("Sending data [" + data + "] to all... (number of clients: " + QString::number(connections.size()) + ")");
         foreach (QTcpSocket* socket, connections)  {
             sendTo(socket, data);
         }
@@ -179,17 +179,13 @@ bool SVServer::isListening() const  {
 
 void SVServer::slotNewConnection()  {
     QTcpSocket* newConnection = dynamic_cast<QTcpSocket*>(server->nextPendingConnection());
-    log("New connection: " + QString::number(newConnection->socketDescriptor()));
+    log("New connection: socket descriptor " + QString::number(newConnection->socketDescriptor()));
     if (newConnection != nullptr)
         connections.insert(newConnection->socketDescriptor(), newConnection);
-    else {
-        log("null");
-    }
-    log("insert");
+
     connect(newConnection, SIGNAL(disconnected()), this, SLOT(slotClientDisconnected()));
     connect(newConnection, SIGNAL(readyRead()),this, SLOT(slotReadyRead()));
     connect(newConnection, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));
-    log("Socket descriptor: " + QString::number(newConnection->socketDescriptor()));
 }
 
 void SVServer::slotAcceptError(QAbstractSocket::SocketError error)    {
@@ -216,7 +212,6 @@ void SVServer::slotReadyRead()  {
             message.chop(2);
 
         log("Data[" + QString::number(size) + "]: " + message);
-        log("First byte: " + QString::number(bytes[0]));
 
         if (bytes.at(0) == AuthPackage::packageType && size == 11)    {
             log("First byte: " + QString::number(bytes[0]));

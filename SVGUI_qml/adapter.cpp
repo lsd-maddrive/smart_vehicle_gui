@@ -105,7 +105,7 @@ void Adapter::slotConnectionError(QString message) {
 
 void Adapter::slotData(DataPackage const& data) {
     qDebug() << "Adapter: incoming data package";
-    log("Incoming data package.");
+    //log("Incoming data package.");
     qint8 state = data.stateType;
     QString stateString = getStatusStr(state);
     emit signalUIStatus(stateString);

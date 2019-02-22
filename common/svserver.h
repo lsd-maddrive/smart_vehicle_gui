@@ -64,8 +64,6 @@ public:
     void sendAll(AnswerPackage const& answer);
     void sendAll(DataPackage const& data);
 
-
-
     QHostAddress getHostAddress() const;
     quint16 getPort() const;
     bool isListening() const;
