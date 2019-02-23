@@ -53,6 +53,17 @@ void Adapter::slotUIDisconnect()    {
     emit signalDisconnect();
 }
 
+void Adapter::slotUISettingsLoad(float p, float i, float d, float zero)  {
+    log("Loading settings...");
+    SetPackage set(p, i, d, zero);
+    emit signalSettingsLoad(set);
+}
+
+void Adapter::slotUISettingsUpload()    {
+    log("Uploading settings...");
+    emit signalSettingsUpload();
+}
+
 void Adapter::slotUICommandForward(float const& distantion) {
     TaskPackage task(COI, 1, {static_cast<qint32>(distantion)});
     log("Command move forward for distantion: " + QString::number(distantion) + ", COI: " + QString::number(COI));
@@ -131,4 +142,9 @@ void Adapter::slotDone(qint8 const& COI, qint8 const& answerCode) {
         break;
     }
     }
+}
+
+void Adapter::slotSettings(SetPackage const& set)   {
+    emit signalUISettings(set.p, set.i, set.d, set.servoZero);
+    log("Settings uploaded.");
 }

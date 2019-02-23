@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     DataPackage data( DataPackage::WAIT );
     data.m_encoderValue = 100;
 
-    server.sendData( data );
+    server.slotSendData( data );
     server.disconnect();
 
     return a.exec();

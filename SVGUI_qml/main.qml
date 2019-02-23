@@ -75,6 +75,13 @@ ApplicationWindow {
             console.log("Incoming " + number + " battery data: " + value);
             values_list_model.setProperty(1 + number, "value", value);
         }
+        onSignalUISettings: {
+            console.log("Incoming new settings");
+            settings_vehicle_p.value = p;
+            settings_vehicle_i.value = i;
+            settings_vehicle_d.value = d;
+            settings_vehicle_zero_slider.value = zero;
+        }
     }
 
 /*
@@ -289,17 +296,17 @@ ApplicationWindow {
                                             measure: "smthng"
                                         }
                                         ListElement {
-                                            name: "Potentiometer"
+                                            name: "Steering wheel"
                                             value: 0
-                                            measure: "smthng"
+                                            measure: "angle"
                                         }
                                         ListElement {
-                                            name: "Battery 1"
+                                            name: "Motor battery"
                                             value: 0
                                             measure: "%"
                                         }
                                         ListElement {
-                                            name: "Battery 2"
+                                            name: "Computer battery"
                                             value: 0
                                             measure: "%"
                                         }
@@ -628,20 +635,97 @@ ApplicationWindow {
                                 }
                                 Row {
                                     padding: 10
-                                    Label   {
-                                        text: qsTr("P: ") + settings_vehicle_p.value
-                                        font.pointSize: 12
-                                    }
+                                    spacing: 5
                                     Dial    {
                                         id: settings_vehicle_p
-                                        width: 50; height: 50
-                                        from: 0.1
-                                        to: 10
+                                        width: 100; height: 100
+                                        from: 0.1; to: 10
                                         value: 1
                                         stepSize: 0.01
+                                        Label   {
+                                            text: qsTr("P: ") + settings_vehicle_p.value.toPrecision(3)
+                                            font.pointSize: 12
+                                            x: 25; y: 40
+                                        }
+                                    }
+                                    Dial    {
+                                        id: settings_vehicle_i
+                                        width: 100; height: 100
+                                        from: 0.1; to: 10
+                                        value: 1
+                                        stepSize: 0.01
+                                        Label   {
+                                            text: qsTr("I: ") + settings_vehicle_i.value.toPrecision(3)
+                                            font.pointSize: 12
+                                            x: 25; y: 40
+                                        }
+                                    }
+                                    Dial    {
+                                        id: settings_vehicle_d
+                                        width: 100; height: 100
+                                        from: 0.1; to: 10
+                                        value: 1
+                                        stepSize: 0.01
+                                        Label   {
+                                            text: qsTr("D: ") + settings_vehicle_d.value.toPrecision(3)
+                                            font.pointSize: 12
+                                            x: 25; y: 40
+                                        }
                                     }
                                 }
+                                Row {
+                                    padding: 10
+                                    Slider  {
+                                        id: settings_vehicle_zero_slider
+                                        from: 0.1; to: 10
+                                        value: 1
+                                        stepSize: 0.01
 
+                                        background: Rectangle {
+                                                x: parent.leftPadding
+                                                y: parent.topPadding + parent.availableHeight / 2 - height / 2
+                                                implicitWidth: 200
+                                                implicitHeight: 4
+                                                width: parent.availableWidth
+                                                height: implicitHeight
+                                                radius: 2
+                                                color: "#bdbebf"
+
+                                                Rectangle {
+                                                    width: settings_vehicle_zero_slider.visualPosition * parent.width
+                                                    height: parent.height
+                                                    color: "#4fc622"
+                                                    radius: 2
+                                                }
+                                            }
+                                    }
+                                    Label   {
+                                        id: settings_vehicle_zero_label
+                                        font.pointSize: 12
+                                        text: qsTr("Servo zero state: \n") + settings_vehicle_zero_slider.value.toPrecision(3)
+                                    }
+
+                                }
+                                Row {
+                                    anchors.margins: 20
+                                    spacing: 10
+                                    Button  {
+                                        id: settings_vehicle_load
+                                        text: qsTr("Load")
+                                        onClicked:  {
+                                            adapter.slotUISettingsLoad(settings_vehicle_p.value, settings_vehicle_i.value,
+                                                                       settings_vehicle_d.value, settings_vehicle_zero_slider.value);
+                                        }
+
+                                    }
+                                    Button  {
+                                        id: settings_vehicle_upload
+                                        text: qsTr("Upoad")
+                                        onClicked: {
+                                            adapter.slotUISettingsUpload();
+                                        }
+                                    }
+                                }
 
                             }
                         }

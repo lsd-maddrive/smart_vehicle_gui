@@ -56,11 +56,10 @@ void SVClient::sendData(QByteArray data)    {
         qDebug() << "sending " + data + " / sz " + QString::number(data.size()) + "...";
         data.push_front(static_cast<uint8_t>(data.size()));
         socket->write(data);
-
+        qDebug() << "send done";
     }   else {
         qDebug() << "there is no active connections";
     }
-    qDebug() << "send done";
 }
 
 void SVClient::sendAuthPackage()    {
@@ -76,6 +75,10 @@ void SVClient::slotConnected()  {
     qDebug() << "Connected";
     connected = true;
     sendAuthPackage();
+    QTimer::singleShot(3000, [this] {
+        if (!gotAuthPackage)
+            this->disconnectFromHost();
+    });
 }
 
 void SVClient::slotDisconnected()   {
@@ -106,6 +109,7 @@ void SVClient::slotReadyRead()  {
             qDebug() << "Device id: " << QString::number(bytes[2]);
             qDebug() << "State: " << QString::number(bytes[3]);
 
+            gotAuthPackage = true;
             emit signalUIConnected(bytes[3]);
         }
         if (bytes.at(0) == AnswerPackage::packageType && blockSize == 3)   {
@@ -117,9 +121,14 @@ void SVClient::slotReadyRead()  {
             DataPackage data(bytes);
             emit signalUIData(data);
         }
+        if (bytes.at(0) == SetPackage::packageType) {
+            qDebug() << "Uploading settings...";
+            SetPackage set(bytes);
+            emit signalUISettings(set);
+        }
         qDebug() << "----------------------------------------------------------------------";
     }   else {
-        qDebug() << "Nothing to read.";
+        qDebug() << "Nothing to read. Maybe this device is not supporting.";
     }
 
 }
@@ -128,7 +137,7 @@ void SVClient::slotUISearch()   {
     qDebug() << "Searching...";
         QList<QString> addressList;
         foreach (const QHostAddress &a, QNetworkInterface::allAddresses()) {
-            if (a.isGlobal() || a.isEqual(QHostAddress::LocalHost))
+            //if (a.isGlobal() || a.isEqual(QHostAddress::LocalHost))
                 addressList.push_back(a.toString());
         }
         emit signalUIAddresses(addressList);
@@ -146,4 +155,13 @@ void SVClient::slotUIDisconnect()   {
 
 void SVClient::slotUICommand(TaskPackage const& task)   {
     sendData(task.toBytes());
+}
+
+void SVClient::slotUISettingsLoad(SetPackage const& set)    {
+    sendData(set.toBytes());
+}
+
+void SVClient::slotUISettingsUpload()   {
+    SetRequestPackage request;
+    sendData(request.toBytes());
 }

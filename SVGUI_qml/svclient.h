@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QDataStream>
 #include <QTime>
+#include <QTimer>
 #include <QNetworkInterface>
 #include "datapackage.h"
 #include "adapter.h"
@@ -21,7 +22,8 @@ class SVClient : public QObject
     Q_OBJECT
 private:
     QTcpSocket* socket;
-    bool connected;
+    bool connected = false;
+    bool gotAuthPackage = false;
 public:
     SVClient();
     ~SVClient();
@@ -44,6 +46,8 @@ public slots:
     void slotUIConnect(QString const& address, quint16 const& port);
     void slotUIDisconnect();
     void slotUICommand(TaskPackage const& task);
+    void slotUISettingsLoad(SetPackage const& set);
+    void slotUISettingsUpload();
 signals:
     void signalUIAddresses(QList<QString> const& addresses);
     void signalUIConnected(qint8 const& state);
@@ -51,6 +55,7 @@ signals:
     void signalUIError(QString message);
     void signalUIData(DataPackage const& data);
     void signalUIDone(qint8 const& COI, qint8 const& answerCode);
+    void signalUISettings(SetPackage const& set);
 };
 
 #endif // SVCLIENT_H

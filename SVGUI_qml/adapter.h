@@ -22,6 +22,8 @@ signals:
     void signalSearch();
     void signalConnect(QString const& address, quint16 const& port);
     void signalDisconnect();
+    void signalSettingsLoad(SetPackage const& set);
+    void signalSettingsUpload();
 
     void signalUILog(QString const& message);
     void signalUIAddresses(QList<QString> const& addresses);
@@ -32,12 +34,15 @@ signals:
     void signalUIPotentiometerData(qint32 const& potValue);
     void signalUIEncoderData(qint32 const& encValue);
     void signalUIBatteryData(quint32 const& number, quint32 const& value);
+    void signalUISettings(float p, float i, float d, float zero);
 
 public slots:
     void slotTest();
     void slotUISearch();
     void slotUIConnect(QString address, QString port = "5556");
     void slotUIDisconnect();
+    void slotUISettingsLoad(float p, float i, float d, float zero);
+    void slotUISettingsUpload();
     void slotUICommandForward(float const& distantion);
     void slotUICommandWheels(float const& degrees);
     void slotUICommandFlick();
@@ -48,6 +53,7 @@ public slots:
     void slotConnectionError(QString message);
     void slotData(DataPackage const& data);
     void slotDone(qint8 const& COI, qint8 const& answerCode);
+    void slotSettings(SetPackage const& set);
 };
 
 #endif // ADAPTER_H

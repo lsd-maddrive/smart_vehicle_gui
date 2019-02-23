@@ -52,13 +52,13 @@ struct TaskPackage : public Package
 struct SetPackage : public Package
 {
     static const qint8 packageType = 4;
-    qint8 COI;
-    qint32 p;
-    qint32 i;
-    qint32 d;
-    qint32 servoZero;
+    float p;
+    float i;
+    float d;
+    float servoZero;
 
-    explicit SetPackage(qint8 COI = 0, qint32 p = 0, qint32 i = 0, qint32 d = 0, qint32 servoZero = 0);
+    explicit SetPackage(QByteArray& bytes);
+    explicit SetPackage(float p = 0, float i = 0, float d = 0, float servoZero = 0);
     QByteArray toBytes() const;
     size_t size() const;
 };
@@ -120,6 +120,13 @@ public:
 
 /* Declaration for external slot */
 Q_DECLARE_METATYPE(DataPackage);
+
+struct SetRequestPackage : public Package   {
+    static const qint8 packageType = 7;
+    explicit SetRequestPackage();
+    QByteArray toBytes() const;
+    size_t size() const;
+};
 
 /*
  *  packageType:

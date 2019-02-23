@@ -57,17 +57,29 @@ size_t TaskPackage::size() const    {
     return static_cast<size_t>(toBytes().size());
 }
 
-SetPackage::SetPackage(qint8 COI, qint32 p, qint32 i, qint32 d, qint32 servoZero) :
-    COI(COI), p(p), i(i), d(d), servoZero(servoZero) {}
+SetPackage::SetPackage(QByteArray& bytes)   {
+    QDataStream stream(&bytes, QIODevice::ReadOnly);
+
+    stream.skipRawData(sizeof( DataPackage::packageType ));
+    stream >> p;
+    stream >> i;
+    stream >> d;
+    stream >> servoZero;
+}
+
+SetPackage::SetPackage(float p, float i, float d, float servoZero) :
+    p(p), i(i), d(d), servoZero(servoZero) {}
 
 QByteArray SetPackage::toBytes() const    {
     QByteArray bytes;
-    bytes.append(packageType);
-    bytes.append(COI);
-    writeToBytes(&bytes, p);
-    writeToBytes(&bytes, i);
-    writeToBytes(&bytes, d);
-    writeToBytes(&bytes, servoZero);
+    QDataStream stream(&bytes, QIODevice::WriteOnly);
+
+    stream << packageType;
+    stream << p;
+    stream << i;
+    stream << d;
+    stream << servoZero;
+
     return bytes;
 }
 
@@ -114,9 +126,6 @@ DataPackage::DataPackage(QByteArray &bytes)
 
     stream >> stateType;
     stream >> timeStamp;
-
-    /* Maybe exclude this field? Really we don`t need to vary data package width */
-    //stream >> dataBlockSize;
 
     stream.skipRawData(sizeof(DataType));
     stream >> m_encoderValue;
@@ -185,6 +194,17 @@ bool DataPackage::setComputerBatteryValue(quint32 value)
 bool DataPackage::setState(DataPackage::State state)
 {
     stateType = state;
-
     return true;
+}
+
+SetRequestPackage::SetRequestPackage()  {}
+
+QByteArray SetRequestPackage::toBytes() const   {
+    QByteArray bytes;
+    bytes.append(packageType);
+    return bytes;
+}
+
+size_t SetRequestPackage::size() const   {
+    return 1;
 }

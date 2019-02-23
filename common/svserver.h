@@ -73,7 +73,6 @@ private slots:
     void slotClientDisconnected();
     void slotReadyRead();
 public slots:
-    void sendData(DataPackage const& data);
 
     void slotUIStart(QString adress, quint16 port);
     void slotUIStop();
@@ -82,7 +81,8 @@ public slots:
     void slotUITestData(qint32, qint32);
 
     void slotTaskDone(quint8 answerType);
-    void slotSendData(DataPackage data);
+    void slotSendData(DataPackage const& data);
+    void slotSendSettings(SetPackage const& set);
 signals:
     void signalUILog(QString message);
     void signalUIChangeState(bool listening);
@@ -90,8 +90,10 @@ signals:
     void signalTaskForward(qint32 distantion);
     void signalTaskWheels(qint32 angle);
     void signalTaskFlick();
-    void signalSetPID(qint32 p, qint32 i, qint32 d);
-    void signalSetServoZero(qint32 zero);
+    void signalSetPID(float p, float i, float d);
+    void signalSetServoZero(float zero);
+    void signalUploadSettings();
+    void signalNewConnection(qintptr descriptor);
 };
 
 #endif // SVSERVER_H

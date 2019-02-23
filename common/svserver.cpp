@@ -129,10 +129,6 @@ void SVServer::sendAll(DataPackage const &data) {
     sendAll(data.toBytes());
 }
 
-void SVServer::sendData(DataPackage const &data)   {
-    sendAll(data);
-}
-
 void SVServer::sendTo(QTcpSocket* socket, QString const& data)   {
     char *bytes = new char[(size_t) data.size() + 2];
     bytes[0] = (char)data.size();
@@ -186,6 +182,8 @@ void SVServer::slotNewConnection()  {
     connect(newConnection, SIGNAL(disconnected()), this, SLOT(slotClientDisconnected()));
     connect(newConnection, SIGNAL(readyRead()),this, SLOT(slotReadyRead()));
     connect(newConnection, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));
+
+    emit signalNewConnection(newConnection->socketDescriptor());
 }
 
 void SVServer::slotAcceptError(QAbstractSocket::SocketError error)    {
@@ -260,31 +258,16 @@ void SVServer::slotReadyRead()  {
             }
         }   else
         if (bytes.at(0) == SetPackage::packageType)  {
-            SetPackage set;
-            set.COI = bytes.at(1);
-            BI bi[4];
-            for (int i = 0; i < 4; i++) {
-                bi[i] = {(unsigned char) bytes.at(2 + i * 5), (unsigned char) bytes.at(3 + i * 5),
-                         (unsigned char) bytes.at(4 + i * 5), (unsigned char) bytes.at(5 + i * 5)};
-            }
-            set.p = bi[0].I;
-            set.i = bi[1].I;
-            set.d = bi[2].I;
-            set.servoZero = bi[3].I;
-            log("Set package:");
-            log("COI: " + QString::number(set.COI) + "; Parameters:");
-            log("p: " + QString::number(set.p) + ", ");
-            log("i: " + QString::number(set.i) + ", ");
-            log("d: " + QString::number(set.d) + ", ");
-            log("servo zero state: " + QString::number(set.servoZero) + ", ");
-            if (!currentTaskCOI)    {
-                currentTaskCOI = set.COI;
-                emit signalSetPID(set.p, set.i, set.d);
-                emit signalSetServoZero(set.servoZero);
-            }   else {
-                log("Vehicle is busy.");
-            }
-        }   else {
+            SetPackage set(bytes);
+            emit signalSetPID(set.p, set.i, set.d);
+            emit signalSetServoZero(set.servoZero);
+            log("Incoming new settings");
+        }   else
+        if (bytes.at(0) == SetRequestPackage::packageType)   {
+            emit signalUploadSettings();
+            log("Incoming settings request");
+        }
+        else {
             log("Corrupted or illegal package.");
         }
     }
@@ -312,7 +295,7 @@ void SVServer::slotUITestData(qint32 encoderValue, qint32 potentiometerValue) {
     data.m_steeringAngle = potentiometerValue;
     data.m_encoderValue = encoderValue;
 
-    sendData(data);
+    slotSendData(data);
 }
 
 void SVServer::slotTaskDone(quint8 answerType)   {
@@ -320,6 +303,10 @@ void SVServer::slotTaskDone(quint8 answerType)   {
     currentTaskCOI = 0;
 }
 
-void SVServer::slotSendData(DataPackage data)   {
+void SVServer::slotSendData(DataPackage const& data)   {
     sendAll(data);
+}
+
+void SVServer::slotSendSettings(SetPackage const& set)   {
+    sendAll(set.toBytes());
 }
