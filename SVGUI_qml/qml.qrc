@@ -3,5 +3,9 @@
         <file>main.qml</file>
         <file>corner.png</file>
         <file>error.png</file>
+        <file>About.qml</file>
+        <file>Commands.qml</file>
+        <file>Settings.qml</file>
+        <file>Content.qml</file>
     </qresource>
 </RCC>

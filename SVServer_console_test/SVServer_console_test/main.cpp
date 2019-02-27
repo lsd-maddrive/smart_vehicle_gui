@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
         data.m_compBatteryPerc = qrand() % 100;
         data.m_motorBatteryPerc = qrand() % 100;
 
-        server.sendData(data);
+        server.slotSendData(data);
     });
     timer->start(50); // <- delay between sending
 

@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QDebug>
+#include <QLineSeries>
+#include <QList>
 #include "datapackage.h"
 
 class Adapter : public QObject
@@ -12,6 +14,8 @@ private:
     QObject *root;
     static QString getStatusStr(qint8 const& status);
     qint8 COI = 1;
+
+
 public:
     explicit Adapter(QObject *root, QObject *parent = nullptr);
     void log(QString const& message);
