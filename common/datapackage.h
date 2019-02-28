@@ -42,9 +42,10 @@ struct TaskPackage : public Package
     qint8 COI;
     qint8 taskType;
     qint8 paramBlockSize;
-    QVector<qint32> params;
+    QVector<float> params;
 
-    explicit TaskPackage(qint8 COI = 0, qint8 taskType = 0, QVector<qint32> params = QVector<qint32>());
+    explicit TaskPackage(QByteArray &bytes);
+    explicit TaskPackage(qint8 COI = 0, qint8 taskType = 0, QVector<float> params = QVector<float>());
     QByteArray toBytes() const;
     size_t size() const;
 };
@@ -78,7 +79,6 @@ struct DataPackage : public Package
 {
     static const qint8 packageType = 6;
     qint8 stateType;
-    //qint8 dataBlockSize;
     quint32 timeStamp;
 
     enum State {
@@ -102,16 +102,7 @@ struct DataPackage : public Package
     size_t size() const;
 
 public:
-    /* As you asked, removed Getters/Setters */
-//    bool setEncoderValue(quint32 value);
-//    bool setSteeringValue(float value);
-//    bool setMotorBatteryValue(quint32 value);
-//    bool setComputerBatteryValue(quint32 value);
-    /* Required for internal conversion from State to qint8 */
     bool setState(State state);
-
-//private:
-    /* Should be private, but now is opened for Adapter class */
     float  m_encoderValue;
     float   m_steeringAngle;
     quint32 m_motorBatteryPerc;
@@ -162,7 +153,6 @@ struct SetRequestPackage : public Package   {
  *      3 - servoZero
  *
  *  DataType:
- *      0 - odometric(4)
  *      1 - encoder(4)
  *      2 - potentiometer(4)
  *      3 - battery_1(1)

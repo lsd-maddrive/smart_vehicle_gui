@@ -38,18 +38,33 @@ size_t AuthAnswerPackage::size() const  {
     return static_cast<size_t>(toBytes().size());
 }
 
-TaskPackage::TaskPackage(qint8 COI, qint8 taskType, QVector<qint32> params) :
+TaskPackage::TaskPackage(QByteArray &bytes) {
+    QDataStream stream(&bytes, QIODevice::ReadOnly);
+
+    stream.skipRawData(sizeof (TaskPackage::packageType));
+    stream >> COI;
+    stream >> taskType;
+    stream >> paramBlockSize;
+    for (int i = 0; i < paramBlockSize; i++)    {
+        float param;
+        stream >> param;
+        params.push_back(param);
+    }
+}
+
+TaskPackage::TaskPackage(qint8 COI, qint8 taskType, QVector<float> params) :
     COI(COI), taskType(taskType), paramBlockSize(static_cast<qint8>(params.size())), params(params)    {}
 
 QByteArray TaskPackage::toBytes() const   {
     QByteArray bytes;
-    bytes.append(packageType);
-    bytes.append(COI);
-    bytes.append(taskType);
-    bytes.append(paramBlockSize);
-    foreach (qint32 const& param, params) {
-        writeToBytes(&bytes, param);
-    }
+    QDataStream stream(&bytes, QIODevice::WriteOnly);
+
+    stream << COI;
+    stream << taskType;
+    stream << paramBlockSize;
+    for (float const& param : params)
+        stream << param;
+
     return bytes;
 }
 
@@ -146,9 +161,6 @@ QByteArray DataPackage::toBytes() const {
     stream << stateType;
     stream << timeStamp;
 
-    /* Maybe exclude this field? Really we don`t need to vary data package width */
-    //stream << dataBlockSize;
-
     stream << ENCODER;
     stream << m_encoderValue;
     stream << STEERING;
@@ -164,32 +176,6 @@ QByteArray DataPackage::toBytes() const {
 size_t DataPackage::size() const    {
     return static_cast<size_t>(toBytes().size());
 }
-
-/*
-bool DataPackage::setEncoderValue(quint32 value)
-{
-    m_encoderValue = value;
-    return true;
-}
-
-bool DataPackage::setSteeringValue(float value)
-{
-    m_steeringAngle = value;
-    return true;
-}
-
-bool DataPackage::setMotorBatteryValue(quint32 value)
-{
-    m_motorBatteryPerc = value;
-    return true;
-}
-
-bool DataPackage::setComputerBatteryValue(quint32 value)
-{
-    m_compBatteryPerc = value;
-    return true;
-}
-*/
 
 bool DataPackage::setState(DataPackage::State state)
 {

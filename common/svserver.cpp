@@ -202,16 +202,16 @@ void SVServer::slotReadyRead()  {
     QTcpSocket* client = dynamic_cast<QTcpSocket*>(sender());
 
     if (client->bytesAvailable())   {
-        char size = 0;
-        client->read(&size, 1);
-        QByteArray bytes = client->readAll();
+        char blockSize = 0;
+        client->read(&blockSize, 1);
+        QByteArray bytes = client->read(blockSize);
         QString message(bytes);
         if (message.endsWith("\r\n"))
             message.chop(2);
 
-        log("Data[" + QString::number(size) + "]: " + message);
+        log("Data[" + QString::number(blockSize) + "]: " + message);
 
-        if (bytes.at(0) == AuthPackage::packageType && size == 11)    {
+        if (bytes.at(0) == AuthPackage::packageType)    {
             log("First byte: " + QString::number(bytes[0]));
 
             if (message.endsWith(validAuthPackage.authRequest)) {
@@ -220,19 +220,11 @@ void SVServer::slotReadyRead()  {
             }
         }   else
         if (bytes.at(0) == TaskPackage::packageType)    {
-            TaskPackage task;
-            task.COI = bytes.at(1);
-            task.taskType = bytes.at(2);
-            task.paramBlockSize = bytes.at(3);
-            for (int i = 0; i < task.paramBlockSize; i++)   {
-                BI bi = {(unsigned char) bytes.at(4 + i * 4), (unsigned char) bytes.at(5 + i * 4),
-                         (unsigned char) bytes.at(6 + i * 4), (unsigned char) bytes.at(7 + i * 4)};
-                task.params.push_back(static_cast<qint32>(bi.I));
-            }
+            TaskPackage task(bytes);
 
             log("Task package:");
             log("COI: " + QString::number(task.COI) + "; TaskType: " + QString::number(task.taskType) + "; Parameters:");
-            for (qint32 const& param : task.params)
+            for (float const& param : task.params)
                 log(QString::number(param));
             if (!currentTaskCOI)    {
                 currentTaskCOI = task.COI;

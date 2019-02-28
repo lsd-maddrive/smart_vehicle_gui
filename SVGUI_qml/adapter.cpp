@@ -87,7 +87,7 @@ void Adapter::slotUISettingsUpload()    {
 }
 
 void Adapter::slotUICommandForward(float const& distantion) {
-    TaskPackage task(COI, 1, {static_cast<qint32>(distantion)});
+    TaskPackage task(COI, 1, {distantion});
     log("Command move forward for distantion: " + QString::number(distantion) + ", COI: " + QString::number(COI));
     COI++;
     if (COI >= 127)
@@ -96,7 +96,7 @@ void Adapter::slotUICommandForward(float const& distantion) {
 }
 
 void Adapter::slotUICommandWheels(float const& angle) {
-    TaskPackage task(COI, 2, {static_cast<qint32>(angle)});
+    TaskPackage task(COI, 2, {angle});
     log("Command rotate wheels for angle: " + QString::number(angle) + ", COI: " + QString::number(COI));
     COI++;
     if (COI >= 127)
@@ -141,7 +141,6 @@ void Adapter::slotConnectionError(QString message) {
 
 QVector<QPointF> Adapter::getChartData(const QVector<QPointF> &allPoints)  {
     QVector<QPointF> points;
-    int size = allPoints.size();
     float rangeStart = allPoints.last().x() - chartTimeRange;
     if (rangeStart < 0)
         return allPoints;
@@ -203,9 +202,9 @@ void Adapter::slotData(DataPackage const& data) {
     emit signalUIStatus(stateString);
     emit signalUIUpdateData(data.m_encoderValue, data.m_steeringAngle, data.m_motorBatteryPerc, data.m_compBatteryPerc);
 
-    QTime time = QTime::fromMSecsSinceStartOfDay(data.timeStamp);
+    QTime time = QTime::fromMSecsSinceStartOfDay(static_cast<int>(data.timeStamp));
     if (time.isValid())
-        updateCharts(data.timeStamp, data.m_encoderValue, data.m_steeringAngle);
+        updateCharts(static_cast<int>(data.timeStamp), data.m_encoderValue, data.m_steeringAngle);
 }
 
 void Adapter::slotDone(qint8 const& COI, qint8 const& answerCode) {

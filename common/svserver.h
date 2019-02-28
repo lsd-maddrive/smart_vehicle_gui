@@ -87,8 +87,8 @@ signals:
     void signalUILog(QString message);
     void signalUIChangeState(bool listening);
 
-    void signalTaskForward(qint32 distantion);
-    void signalTaskWheels(qint32 angle);
+    void signalTaskForward(float distantion);
+    void signalTaskWheels(float angle);
     void signalTaskFlick();
     void signalSetPID(float p, float i, float d);
     void signalSetServoZero(float zero);

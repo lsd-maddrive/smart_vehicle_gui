@@ -99,11 +99,11 @@ void SVClient::slotReadyRead()  {
         char blockSize = 0;
         socket->read(&blockSize, 1);
 
-        QByteArray bytes = socket->readAll();
+        QByteArray bytes = socket->read(blockSize);
 
         qDebug() << "Data(" << (int)blockSize << "): " << QString(bytes);
 
-        if (bytes.at(0) == AuthAnswerPackage::packageType && blockSize == 4)    {
+        if (bytes.at(0) == AuthAnswerPackage::packageType)    {
             qDebug() << "Valid answer code.";
             qDebug() << "Device type: " << QString::number(bytes[1]);
             qDebug() << "Device id: " << QString::number(bytes[2]);
@@ -112,12 +112,12 @@ void SVClient::slotReadyRead()  {
             gotAuthPackage = true;
             emit signalUIConnected(bytes[3]);
         }
-        if (bytes.at(0) == AnswerPackage::packageType && blockSize == 3)   {
+        if (bytes.at(0) == AnswerPackage::packageType)   {
             qDebug() << "Task #" << QString::number(bytes[1]) << " has been done.";
             qDebug() << "Answer code: " << QString::number(bytes[2]);
             emit signalUIDone(bytes[1], bytes[2]);
         }
-        if (bytes.at(0) == DataPackage::packageType && blockSize >= 12) {
+        if (bytes.at(0) == DataPackage::packageType) {
             DataPackage data(bytes);
             emit signalUIData(data);
         }
