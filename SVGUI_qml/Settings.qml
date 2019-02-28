@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.1
 
 Item {
     function showAddresses(addresses)   {
+        connection_addresses_model.clear();
         for (var index in addresses)    {
             connection_addresses_model.append( { address: addresses[index] } );
         }

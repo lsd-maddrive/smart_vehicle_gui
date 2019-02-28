@@ -31,27 +31,24 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication guiApp(argc, argv);
 
+    SVClient *client = new SVClient();
+
+    Adapter *adapter = new Adapter();
+
+    initConnections(client, adapter);
+
     qDebug() << "User interface initializing...";
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("adapter", adapter);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
 
-    //QQuickView view(QUrl::fromLocalFile("main.qml"));
     QObject *root = engine.rootObjects().first();
     qDebug() << "Done. User interface is ready.";
 
-    SVClient *client = new SVClient();
-
-    Adapter *adapter = new Adapter(root);
-    engine.rootContext()->setContextProperty("adapter", adapter);
-
-    initConnections(client, adapter);
-
     qDebug() << "Done. Aplication has been initialized and ready to work.";
     qDebug() << "----------------------------------------------";
-
-    //view.show();
 
     return guiApp.exec();
 }

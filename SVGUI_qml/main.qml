@@ -59,62 +59,19 @@ ApplicationWindow {
             console.log("Incoming new status.");
             statusBar_label.text = str;
         }
-        onSignalUIEncoderData:  {
-            console.log("Incoming encoder data: " + encValue);
-            charts_encoder_current = encValue;
-            content_item.encoderSet(encValue);
-        }
-        onSignalUIPotentiometerData:  {
-            console.log("Incoming potentiometer data: " + potValue);
-            content_item.potentiometerSet(potValue);
-            charts_potentiometer_current = potValue;
-        }
-        onSignalUIBatteryData:  {
-            console.log("Incoming " + number + " battery data: " + value);
-            content_item.batterySet(number, value);
-        }
         onSignalUISettings: {
             console.log("Incoming new settings");
             settings_item.newSet(p, i, d, zero);
         }
+        onSignalUIUpdateData:   {
+            charts_encoder_current = encValue;
+            content_item.encoderSet(encValue);
+            charts_potentiometer_current = potValue;
+            content_item.potentiometerSet(potValue);
+            content_item.batterySet(1, firstBatteryValue);
+            content_item.batterySet(2, secondBatteryValue);
+        }
     }
-
-/*
-    menuBar: MenuBar {
-        id: menuBar
-        MenuBarItem {
-            id: menuBar_button_connection
-            text: qsTr("Connection")
-            display: AbstractButton.TextBesideIcon
-            onTriggered: {
-                connection_window.visible = true;
-            }
-        }
-        MenuBarItem    {
-            id: menuBar_button_commands
-            text: qsTr("Commands")
-            display: AbstractButton.TextBesideIcon
-            onTriggered: {
-                commands_window.visible = true;
-            }
-        }
-        MenuBarItem    {
-            id: menuBar_button_settings
-            text: qsTr("Settings")
-            display: AbstractButton.TextBesideIcon
-            onTriggered: {
-                settings_window.visible = true;
-            }
-        }
-        MenuBarItem {
-            id: menuBar_button_about
-            text: qsTr("About")
-            display: AbstractButton.TextBesideIcon
-            onTriggered: {
-                about_window.visible = true;
-            }
-        }
-    }*/
 
     footer: Rectangle {
         id: statusBar
@@ -161,6 +118,9 @@ ApplicationWindow {
         currentIndex: content_swipe.currentIndex
         anchors.bottom: content_swipe.bottom
         anchors.horizontalCenter: parent.horizontalCenter
+    }
+    Component.onCompleted: {
+        adapter.slotUISetSerieses(content_item.encoderSeries, content_item.potentiometerSeries);
     }
 }
 

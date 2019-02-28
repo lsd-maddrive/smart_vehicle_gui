@@ -1,7 +1,7 @@
 #include "adapter.h"
 
-Adapter::Adapter(QObject* root, QObject *parent) : QObject(parent) {
-    this->root = root;
+Adapter::Adapter(QObject *parent) : QObject(parent) {
+
 }
 
 QString Adapter::getStatusStr(const qint8 &state)  {
@@ -30,12 +30,34 @@ QString Adapter::getStatusStr(const qint8 &state)  {
     return stateString;
 }
 
+void Adapter::clearCharts() {
+
+    if (encoderSeries)
+        encoderSeries->clear();
+    if (potentiometerSeries)
+        potentiometerSeries->clear();
+
+    encoderChartArray.clear();
+    potentiometerChartArray.clear();
+
+    chartAxisStart = 0;
+    chartStartTime = 0;
+    chartEncAmpl = chartStartAmp;
+    chartPotAmpl = chartStartAmp;
+}
+
 void Adapter::slotTest()    {
     qDebug() << "Test slot was called.";
 }
 
 void Adapter::log(const QString &message)   {
     emit signalUILog(message);
+}
+
+void Adapter::slotUISetSerieses(QObject *encoderSeries, QObject *potentiometerSeries)   {
+    this->encoderSeries = qobject_cast<QtCharts::QLineSeries*>(encoderSeries);
+    this->potentiometerSeries = qobject_cast<QtCharts::QLineSeries*>(potentiometerSeries);
+    qDebug() << "Chart serieses initialized";
 }
 
 void Adapter::slotUISearch()    {
@@ -45,7 +67,7 @@ void Adapter::slotUISearch()    {
 void Adapter::slotUIConnect(QString address, QString portStr)    {
     qDebug() << "Adapter: incoming connect signal";
     log("Connecting to " + address + "...");
-    quint16 port = portStr.toInt();
+    quint16 port = static_cast<quint16>(portStr.toInt());
     emit signalConnect(address, port);
 }
 
@@ -99,6 +121,9 @@ void Adapter::slotConnected(qint8 const& state)   {
     qDebug() << "Adapter: Connected";
     emit signalUIConnected();
     emit signalUIStatus(getStatusStr(state));
+
+    clearCharts();
+
     log("Connected.");
 }
 
@@ -114,17 +139,73 @@ void Adapter::slotConnectionError(QString message) {
     log("Connection error: " + message);
 }
 
+QVector<QPointF> Adapter::getChartData(const QVector<QPointF> &allPoints)  {
+    QVector<QPointF> points;
+    int size = allPoints.size();
+    float rangeStart = allPoints.last().x() - chartTimeRange;
+    if (rangeStart < 0)
+        return allPoints;
+
+    QVector<QPointF>::const_reverse_iterator it = allPoints.rend();
+    while (it != allPoints.rbegin())   {
+        points.push_front(*it);
+        it--;
+    }
+
+    return points;
+}
+
+void Adapter::updateCharts(const int &msec, const float &encVal, const float &potVal) {
+    if (!chartStartTime)
+        chartStartTime = msec;
+    float deltaTime = (msec - chartStartTime) / 1000.0f;
+    float sec = msec / 1000.0f;
+    if (deltaTime > chartTimeRange + chartAxisStart)
+        chartAxisStart += chartTimeInc;
+
+    encoderChartArray.append(QPointF(deltaTime, encVal));
+    potentiometerChartArray.append(QPointF(deltaTime, potVal));
+
+    QVector<QPointF> encoderChartPoints = getChartData(encoderChartArray);
+    QVector<QPointF> potentiometerChartPoints = getChartData(potentiometerChartArray);
+
+    if (encoderSeries)  {
+        encoderSeries->replace(encoderChartPoints);
+        if (deltaTime > chartTimeRange) {
+            encoderSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
+            encoderSeries->attachedAxes().first()->setMin(chartAxisStart);
+        }
+        if (encVal >= chartEncAmpl) {
+            chartEncAmpl = static_cast<int>(encVal) + 2;
+            encoderSeries->attachedAxes().at(1)->setMax(chartEncAmpl);
+            encoderSeries->attachedAxes().at(1)->setMin(-chartEncAmpl);
+        }
+    }
+    if (potentiometerSeries)    {
+        potentiometerSeries->replace(potentiometerChartPoints);
+        if (deltaTime > chartTimeRange) {
+            potentiometerSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
+            potentiometerSeries->attachedAxes().first()->setMin(chartAxisStart);
+        }
+        if (potVal >= chartPotAmpl) {
+            chartPotAmpl = static_cast<int>(potVal) + 2;
+            potentiometerSeries->attachedAxes().at(1)->setMax(chartPotAmpl);
+            potentiometerSeries->attachedAxes().at(1)->setMin(-chartPotAmpl);
+        }
+    }
+}
+
 void Adapter::slotData(DataPackage const& data) {
     qDebug() << "Adapter: incoming data package";
-    //log("Incoming data package.");
+
     qint8 state = data.stateType;
     QString stateString = getStatusStr(state);
     emit signalUIStatus(stateString);
+    emit signalUIUpdateData(data.m_encoderValue, data.m_steeringAngle, data.m_motorBatteryPerc, data.m_compBatteryPerc);
 
-    emit signalUIEncoderData(data.m_encoderValue);
-    emit signalUIPotentiometerData(static_cast<qint32>(data.m_steeringAngle));
-    emit signalUIBatteryData(1, data.m_motorBatteryPerc);
-    emit signalUIBatteryData(2, data.m_compBatteryPerc);
+    QTime time = QTime::fromMSecsSinceStartOfDay(data.timeStamp);
+    if (time.isValid())
+        updateCharts(data.timeStamp, data.m_encoderValue, data.m_steeringAngle);
 }
 
 void Adapter::slotDone(qint8 const& COI, qint8 const& answerCode) {

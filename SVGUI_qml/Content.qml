@@ -5,6 +5,8 @@ import QtCharts 2.2
 
 Item {
     property double data_visualization_frequency: 1
+    property var encoderSeries: charts_encoder_series
+    property var potentiometerSeries: charts_potentiometer_series
     function log(message)   {
         log_textArea.append(message);
         log_textArea.cursorPosition = log_textArea.length - 1;
@@ -17,6 +19,9 @@ Item {
     }
     function batterySet(number, batValue)   {
         values_list_model.setProperty(1 + number, "value", batValue);
+    }
+    function updateCharts() {
+
     }
 
     Rectangle   {
@@ -276,7 +281,8 @@ Item {
 
                         Timer   {
                             interval: 1000 / data_visualization_frequency
-                            running: connection_state == "CONNECTED"
+                            //running: connection_state == "CONNECTED"
+                            running: false
                             repeat: true
                             onTriggered: {
                                 charts_encoder_series.insert(0, charts_time, charts_encoder_current);
@@ -298,7 +304,7 @@ Item {
                                     charts_time = 0;
                                 }
                             }
-                        }
+                        }                                                
                     }
                 }
             }

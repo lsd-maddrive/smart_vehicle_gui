@@ -112,7 +112,7 @@ public:
 
 //private:
     /* Should be private, but now is opened for Adapter class */
-    qint32  m_encoderValue;
+    float  m_encoderValue;
     float   m_steeringAngle;
     quint32 m_motorBatteryPerc;
     quint32 m_compBatteryPerc;

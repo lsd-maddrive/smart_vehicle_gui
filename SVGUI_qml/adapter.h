@@ -5,19 +5,38 @@
 #include <QDebug>
 #include <QLineSeries>
 #include <QList>
+#include <QPointF>
+#include <QChartView>
+#include <QXYSeries>
+#include <QLineSeries>
+#include <QAbstractSeries>
 #include "datapackage.h"
 
 class Adapter : public QObject
 {
     Q_OBJECT
 private:
-    QObject *root;
     static QString getStatusStr(qint8 const& status);
     qint8 COI = 1;
 
+    static const int chartTimeRange = 60;
+    static const int chartTimeInc = 10;
+    static const int chartStartAmp = 10;
+    int chartEncAmpl = chartStartAmp;
+    int chartPotAmpl = chartStartAmp;
+    int chartAxisStart = 0;
+    int chartStartTime = 0; //msec
+    QVector<QPointF> encoderChartArray;
+    QVector<QPointF> potentiometerChartArray;
+    QVector<QPointF> getChartData(QVector<QPointF> const& list);
+
+    QtCharts::QLineSeries *encoderSeries;
+    QtCharts::QLineSeries* potentiometerSeries;
+    void updateCharts(int const& msec, float const& encVal, float const& potVal);
+    void clearCharts();
 
 public:
-    explicit Adapter(QObject *root, QObject *parent = nullptr);
+    explicit Adapter(QObject *parent = nullptr);
     void log(QString const& message);
     void data(DataPackage const& data);
 signals:
@@ -35,13 +54,14 @@ signals:
     void signalUIDisconnected();
     void signalUIConnectionError();
     void signalUIStatus(QString const& str);
-    void signalUIPotentiometerData(qint32 const& potValue);
-    void signalUIEncoderData(qint32 const& encValue);
-    void signalUIBatteryData(quint32 const& number, quint32 const& value);
+    void signalUIUpdateData(float const& encValue, float const& potValue, quint32 const& firstBatteryValue, quint32 const& secondBatteryValue);
     void signalUISettings(float p, float i, float d, float zero);
+    //experimetal
+    void signalUISetSerieses();
 
 public slots:
     void slotTest();
+    void slotUISetSerieses(QObject *encoderSeries, QObject *potentiometerSeries);
     void slotUISearch();
     void slotUIConnect(QString address, QString port = "5556");
     void slotUIDisconnect();
