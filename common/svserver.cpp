@@ -2,10 +2,6 @@
 
 Server::Server(QObject* parent)    {}
 
-//void Server::incomingConnection(qintptr socketDescriptor)   {
-//    emit newConnection(socketDescriptor);
-//}
-
 SVServer::SVServer()   {
     log("Server initializing...");
     server = new Server(this);
@@ -173,6 +169,10 @@ bool SVServer::isListening() const  {
     return server->isListening();
 }
 
+int SVServer::activeConnections() const {
+    return connections.size();
+}
+
 void SVServer::slotNewConnection()  {
     QTcpSocket* newConnection = dynamic_cast<QTcpSocket*>(server->nextPendingConnection());
     log("New connection: socket descriptor " + QString::number(newConnection->socketDescriptor()));
@@ -194,6 +194,7 @@ void SVServer::slotClientDisconnected() {
     log("Client disconnected");
     QTcpSocket* disconnectedClient = dynamic_cast<QTcpSocket*>(sender());
     connections.remove(connections.key(disconnectedClient));
+    emit signalDisconnected(disconnectedClient->socketDescriptor());
     disconnectedClient->deleteLater();
 }
 

@@ -18,10 +18,6 @@ int main(int argc, char *argv[])
     QTimer *timer = new QTimer();
     QObject::connect(timer, &QTimer::timeout, [&server] {
         DataPackage data;
-        /*
-        data.m_encoderValue = qrand() % 20 - 10;
-        data.m_steeringAngle = qrand() % 20 - 10;
-        */
         t += 0.01;
         float v = sin(t) * 15;
 
@@ -32,7 +28,7 @@ int main(int argc, char *argv[])
 
         server.slotSendData(data);
     });
-    timer->start(50); // <- delay between sending
+    timer->start(50); // <- delay between sendings
 
     return a.exec();
 }

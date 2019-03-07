@@ -14,12 +14,6 @@
 #include <QQueue>
 #include "datapackage.h"
 
-union BI // byte / int conversion
-{
-    unsigned char bytes[4];
-    unsigned  int I;
-};
-
 class Server : public QTcpServer    {
     Q_OBJECT
 public:
@@ -51,8 +45,6 @@ private:
     void log(AnswerPackage answer);
     void log(DataPackage data);
 public:
-
-
     SVServer();
     ~SVServer();
 
@@ -67,6 +59,7 @@ public:
     QHostAddress getHostAddress() const;
     quint16 getPort() const;
     bool isListening() const;
+    int activeConnections() const;
 private slots:
     void slotNewConnection();
     void slotAcceptError(QAbstractSocket::SocketError error);
@@ -94,6 +87,7 @@ signals:
     void signalSetServoZero(float zero);
     void signalUploadSettings();
     void signalNewConnection(qintptr descriptor);
+    void signalDisconnected(qintptr descriptor);
 };
 
 #endif // SVSERVER_H
