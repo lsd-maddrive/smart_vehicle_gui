@@ -20,9 +20,6 @@ Item {
     function batterySet(number, batValue)   {
         values_list_model.setProperty(1 + number, "value", batValue);
     }
-    function updateCharts() {
-
-    }
 
     Rectangle   {
         id: content_container
@@ -221,15 +218,30 @@ Item {
 
                     ColumnLayout    {
                         anchors.fill: parent
-                        Label {
-                            id: charts_label
-                            text: qsTr("Charts viewer")
+                        RowLayout {
                             Layout.alignment: Layout.TopLeft
                             Layout.leftMargin: 40
                             Layout.topMargin: 5
-                            font.bold: true
-                            font.pointSize: 14
+                            Layout.rightMargin: 5
+                            Label {
+                                id: charts_label
+                                text: qsTr("Charts viewer")
+                                font.bold: true
+                                font.pointSize: 14
+                                Layout.fillWidth: true
+                            }
+                            Button  {
+                                id: charts_clear_button
+                                height: 30
+                                text: qsTr("Clear charts")
+                                font.pointSize: 12
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    adapter.slotUIClearCharts();
+                                }
+                            }
                         }
+
                         ChartView   {
                             id: charts_encoder
                             Layout.fillWidth: true

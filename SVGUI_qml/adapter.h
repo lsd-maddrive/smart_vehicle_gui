@@ -10,6 +10,7 @@
 #include <QXYSeries>
 #include <QLineSeries>
 #include <QAbstractSeries>
+#include <QtMath>
 #include "datapackage.h"
 
 class Adapter : public QObject
@@ -70,6 +71,7 @@ public slots:
     void slotUICommandForward(float const& distantion);
     void slotUICommandWheels(float const& degrees);
     void slotUICommandFlick();
+    void slotUIClearCharts();
 
     void slotAddresses(QList<QString> const& addresses);
     void slotConnected(qint8 const& state);
@@ -78,6 +80,7 @@ public slots:
     void slotData(DataPackage const& data);
     void slotDone(qint8 const& COI, qint8 const& answerCode);
     void slotSettings(SetPackage const& set);
+    void slotBrokenPackage();
 };
 
 #endif // ADAPTER_H

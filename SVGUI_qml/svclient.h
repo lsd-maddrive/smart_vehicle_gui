@@ -11,12 +11,6 @@
 #include "datapackage.h"
 #include "adapter.h"
 
-union BI // byte / int conversion
-{
-    unsigned char bytes[4];
-    unsigned  int I;
-};
-
 class SVClient : public QObject
 {
     Q_OBJECT
@@ -24,6 +18,7 @@ private:
     QTcpSocket* socket;
     bool connected = false;
     bool gotAuthPackage = false;
+    unsigned brokenPackages = 0;
 public:
     SVClient();
     ~SVClient();
@@ -56,6 +51,7 @@ signals:
     void signalUIData(DataPackage const& data);
     void signalUIDone(qint8 const& COI, qint8 const& answerCode);
     void signalUISettings(SetPackage const& set);
+    void signalUIBrokenPackage();
 };
 
 #endif // SVCLIENT_H

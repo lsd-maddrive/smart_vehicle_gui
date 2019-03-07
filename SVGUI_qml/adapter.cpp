@@ -44,6 +44,10 @@ void Adapter::clearCharts() {
     chartStartTime = 0;
     chartEncAmpl = chartStartAmp;
     chartPotAmpl = chartStartAmp;
+    encoderSeries->attachedAxes().at(1)->setMax(chartEncAmpl);
+    encoderSeries->attachedAxes().at(1)->setMin(-chartEncAmpl);
+    potentiometerSeries->attachedAxes().at(1)->setMax(chartEncAmpl);
+    potentiometerSeries->attachedAxes().at(1)->setMin(-chartEncAmpl);
 }
 
 void Adapter::slotTest()    {
@@ -113,6 +117,10 @@ void Adapter::slotUICommandFlick() {
     emit signalCommand(task);
 }
 
+void Adapter::slotUIClearCharts()   {
+    clearCharts();
+}
+
 void Adapter::slotAddresses(QList<QString> const& addresses)    {
     emit signalUIAddresses(addresses);
 }
@@ -174,8 +182,8 @@ void Adapter::updateCharts(const int &msec, const float &encVal, const float &po
             encoderSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
             encoderSeries->attachedAxes().first()->setMin(chartAxisStart);
         }
-        if (encVal >= chartEncAmpl) {
-            chartEncAmpl = static_cast<int>(encVal) + 2;
+        if (abs(encVal)>= chartEncAmpl) {
+            chartEncAmpl = static_cast<int>(abs(encVal)) + 2;
             encoderSeries->attachedAxes().at(1)->setMax(chartEncAmpl);
             encoderSeries->attachedAxes().at(1)->setMin(-chartEncAmpl);
         }
@@ -186,8 +194,8 @@ void Adapter::updateCharts(const int &msec, const float &encVal, const float &po
             potentiometerSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
             potentiometerSeries->attachedAxes().first()->setMin(chartAxisStart);
         }
-        if (potVal >= chartPotAmpl) {
-            chartPotAmpl = static_cast<int>(potVal) + 2;
+        if (abs(potVal) >= chartPotAmpl) {
+            chartPotAmpl = static_cast<int>(abs(potVal)) + 2;
             potentiometerSeries->attachedAxes().at(1)->setMax(chartPotAmpl);
             potentiometerSeries->attachedAxes().at(1)->setMin(-chartPotAmpl);
         }
@@ -227,4 +235,8 @@ void Adapter::slotDone(qint8 const& COI, qint8 const& answerCode) {
 void Adapter::slotSettings(SetPackage const& set)   {
     emit signalUISettings(set.p, set.i, set.d, set.servoZero);
     log("Settings uploaded.");
+}
+
+void Adapter::slotBrokenPackage()   {
+    log("Incoming broken package.");
 }

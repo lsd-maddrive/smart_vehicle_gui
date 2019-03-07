@@ -23,6 +23,7 @@ void initConnections(SVClient *client, Adapter *adapter)  {
     QObject::connect(client, SIGNAL(signalUIData(DataPackage const&)), adapter, SLOT(slotData(DataPackage const&)));
     QObject::connect(client, SIGNAL(signalUIDone(qint8 const&, qint8 const&)), adapter, SLOT(slotDone(qint8 const&, qint8 const&)));
     QObject::connect(client, SIGNAL(signalUISettings(SetPackage const&)), adapter, SLOT(slotSettings(SetPackage const&)));
+    QObject::connect(client, SIGNAL(signalUIBrokenPackage()), adapter, SLOT(slotBrokenPackage()));
 }
 
 int main(int argc, char *argv[])

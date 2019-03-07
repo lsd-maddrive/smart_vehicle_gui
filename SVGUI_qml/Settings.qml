@@ -104,6 +104,34 @@ Item {
                     }
                 }
                 Label   {
+                    id: connection_address_label
+                    anchors.left: parent.left
+                    anchors.bottom: connection_port_label.top
+                    anchors.margins: 20
+                    text: qsTr("Address: ")
+                    font.pointSize: 12
+                    font.bold: true
+                    width: 70
+                }
+                Rectangle   {
+                    id: connection_address_field
+                    anchors.left: connection_address_label.right
+                    anchors.bottom: connection_port_label.top
+                    anchors.margins: 10
+                    width: 120
+                    height: connection_address_label.height + 20
+                    color: "white"
+                    TextInput   {
+                        id: connection_address_textInput
+                        anchors.fill: parent
+                        anchors.topMargin: 10
+                        anchors.leftMargin: 10
+                        text: connection_addresses_model.get(connection_addresses_listView.currentIndex).address;
+                        font.pointSize: 12
+                    }
+                }
+
+                Label   {
                     id: connection_port_label
                     anchors.bottom: connection_connect_button.top
                     anchors.left: parent.left
@@ -111,14 +139,14 @@ Item {
                     text: qsTr("Port: ")
                     font.pointSize: 12
                     font.bold: true
-                    width: 50
+                    width: 70
                 }
                 Rectangle {
                     id: connection_port_field
                     anchors.bottom: connection_connect_button.top
                     anchors.left: connection_port_label.right
                     anchors.margins: 10
-                    width: 80
+                    width: 120
                     height: connection_port_label.height + 20
                     color: "white"
                     TextInput   {
@@ -141,7 +169,7 @@ Item {
                     enabled: connection_addresses_listView.currentItem
                     onClicked: {
                         if (connection_state == "DISCONNECTED") {
-                            var address = connection_addresses_model.get(connection_addresses_listView.currentIndex).address;
+                            var address = connection_address_textInput.text;
                             var port = connection_port_textInput.text;
                             adapter.slotUIConnect(address, port);
                         }   else    {

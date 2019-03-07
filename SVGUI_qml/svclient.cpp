@@ -111,20 +111,20 @@ void SVClient::slotReadyRead()  {
 
             gotAuthPackage = true;
             emit signalUIConnected(bytes[3]);
-        }
-        if (bytes.at(0) == AnswerPackage::packageType)   {
+        }   else if (bytes.at(0) == AnswerPackage::packageType)   {
             qDebug() << "Task #" << QString::number(bytes[1]) << " has been done.";
             qDebug() << "Answer code: " << QString::number(bytes[2]);
             emit signalUIDone(bytes[1], bytes[2]);
-        }
-        if (bytes.at(0) == DataPackage::packageType) {
+        }   else if (bytes.at(0) == DataPackage::packageType) {
             DataPackage data(bytes);
             emit signalUIData(data);
-        }
-        if (bytes.at(0) == SetPackage::packageType) {
+        }   else if (bytes.at(0) == SetPackage::packageType) {
             qDebug() << "Uploading settings...";
             SetPackage set(bytes);
             emit signalUISettings(set);
+        }   else {
+            brokenPackages++;
+            emit signalUIBrokenPackage();
         }
         qDebug() << "----------------------------------------------------------------------";
     }   else {
@@ -136,10 +136,24 @@ void SVClient::slotReadyRead()  {
 void SVClient::slotUISearch()   {
     qDebug() << "Searching...";
         QList<QString> addressList;
+        /*
         foreach (const QHostAddress &a, QNetworkInterface::allAddresses()) {
-            //if (a.isGlobal() || a.isEqual(QHostAddress::LocalHost))
+            if (a.isGlobal() || a.isLoopback())
                 addressList.push_back(a.toString());
+        }*/
+        foreach(const QNetworkInterface &interface, QNetworkInterface::allInterfaces()) {
+            if (interface.type() == QNetworkInterface::Loopback || interface.type() == QNetworkInterface::Ethernet) {
+                foreach (const QNetworkAddressEntry &addressEntry, interface.addressEntries())   {
+                    QHostAddress address = addressEntry.ip();
+                    if (address.isGlobal()) {
+                        addressList.push_back(interface.addressEntries().first().ip().toString());
+                        break;
+                    }
+                }
+            }
         }
+        addressList.push_back("127.0.0.1");
+
         emit signalUIAddresses(addressList);
 }
 
