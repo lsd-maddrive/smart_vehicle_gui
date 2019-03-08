@@ -83,8 +83,10 @@ signals:
     void signalTaskForward(float distantion);
     void signalTaskWheels(float angle);
     void signalTaskFlick();
-    void signalSetPID(float p, float i, float d);
-    void signalSetServoZero(float zero);
+    void signalSetSteering(float p, float i, float d, float zero);
+    void signalSetForward(float p, float i, float d, float integrator);
+    void signalSetBackward(float p, float i, float d, float integrator);
+
     void signalUploadSettings();
     void signalNewConnection(qintptr descriptor);
     void signalDisconnected(qintptr descriptor);

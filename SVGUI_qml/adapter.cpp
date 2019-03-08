@@ -79,9 +79,28 @@ void Adapter::slotUIDisconnect()    {
     emit signalDisconnect();
 }
 
-void Adapter::slotUISettingsLoad(float p, float i, float d, float zero)  {
+void Adapter::slotUISettingsLoad(float steering_p, float steering_i, float steering_d, float steering_zero,
+                                 float forward_p, float forward_i, float forward_d, float forward_int,
+                                 float backward_p, float backward_i, float backward_d, float backward_int)  {
     log("Loading settings...");
-    SetPackage set(p, i, d, zero);
+    SetPackage set;
+
+    set.steering_p = steering_p;
+    set.steering_i = steering_i;
+    set.steering_d = steering_d;
+    set.steering_servoZero = steering_zero;
+
+    set.forward_p = forward_p;
+    set.forward_i = forward_i;
+    set.forward_d = forward_d;
+    set.forward_int = forward_int;
+
+    set.backward_p = backward_p;
+    set.backward_i = backward_i;
+    set.backward_d = backward_d;
+    set.backward_int = backward_int;
+
+
     emit signalSettingsLoad(set);
 }
 
@@ -166,7 +185,6 @@ void Adapter::updateCharts(const int &msec, const float &encVal, const float &po
     if (!chartStartTime)
         chartStartTime = msec;
     float deltaTime = (msec - chartStartTime) / 1000.0f;
-    float sec = msec / 1000.0f;
     if (deltaTime > chartTimeRange + chartAxisStart)
         chartAxisStart += chartTimeInc;
 
@@ -233,7 +251,9 @@ void Adapter::slotDone(qint8 const& COI, qint8 const& answerCode) {
 }
 
 void Adapter::slotSettings(SetPackage const& set)   {
-    emit signalUISettings(set.p, set.i, set.d, set.servoZero);
+    emit signalUISettings(set.steering_p, set.steering_i, set.steering_d, set.steering_servoZero,
+                          set.forward_p, set.forward_i, set.forward_d, set.forward_int,
+                          set.backward_p, set.backward_i, set.backward_d, set.backward_int);
     log("Settings uploaded.");
 }
 

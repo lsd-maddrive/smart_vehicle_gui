@@ -7,5 +7,6 @@
         <file>Commands.qml</file>
         <file>Settings.qml</file>
         <file>Content.qml</file>
+        <file>Connection.qml</file>
     </qresource>
 </RCC>

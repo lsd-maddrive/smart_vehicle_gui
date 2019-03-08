@@ -56,8 +56,9 @@ signals:
     void signalUIConnectionError();
     void signalUIStatus(QString const& str);
     void signalUIUpdateData(float const& encValue, float const& potValue, quint32 const& firstBatteryValue, quint32 const& secondBatteryValue);
-    void signalUISettings(float p, float i, float d, float zero);
-    //experimetal
+    void signalUISettings(float steering_p, float steering_i, float steering_d, float steering_zero,
+                          float forward_p, float forward_i, float forward_d, float forward_int,
+                          float backward_p, float backward_i, float backward_d, float backward_int);
     void signalUISetSerieses();
 
 public slots:
@@ -66,7 +67,9 @@ public slots:
     void slotUISearch();
     void slotUIConnect(QString address, QString port = "5556");
     void slotUIDisconnect();
-    void slotUISettingsLoad(float p, float i, float d, float zero);
+    void slotUISettingsLoad(float steering_p, float steering_i, float steering_d, float steering_zero,
+                            float forward_p, float forward_i, float forward_d, float forward_int,
+                            float backward_p, float backward_i, float backward_d, float backward_int);
     void slotUISettingsUpload();
     void slotUICommandForward(float const& distantion);
     void slotUICommandWheels(float const& degrees);

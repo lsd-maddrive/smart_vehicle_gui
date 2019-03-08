@@ -53,13 +53,21 @@ struct TaskPackage : public Package
 struct SetPackage : public Package
 {
     static const qint8 packageType = 4;
-    float p;
-    float i;
-    float d;
-    float servoZero;
+    float steering_p = 0;
+    float steering_i = 0;
+    float steering_d = 0;
+    float steering_servoZero = 0;
+    float forward_p = 0;
+    float forward_i = 0;
+    float forward_d = 0;
+    float forward_int = 0;
+    float backward_p = 0;
+    float backward_i = 0;
+    float backward_d = 0;
+    float backward_int = 0;
 
     explicit SetPackage(QByteArray& bytes);
-    explicit SetPackage(float p = 0, float i = 0, float d = 0, float servoZero = 0);
+    explicit SetPackage();
     QByteArray toBytes() const;
     size_t size() const;
 };

@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.1
 import QtCharts 2.2
 
 ApplicationWindow {
+
     id: mainWindow
     visible: true
     minimumWidth: 800
@@ -19,8 +20,6 @@ ApplicationWindow {
     property string str_state_fault: qsTr("FAULT")
     property string str_state_disconnected: qsTr("DISCONNECTED")
 
-    property real data_visualisation_frequency: settings_item.data_visualisation_frequency
-
     property real charts_encoder_current: 0
     property real charts_potentiometer_current: 0
     property real charts_time: 0
@@ -33,20 +32,20 @@ ApplicationWindow {
         }                
         onSignalUIAddresses:    {
             console.log(addresses);
-            settings_item.showAddresses(addresses);
+            connection_item.showAddresses(addresses);
         }
         onSignalUIConnected:    {
             console.log("Connected.");
             connection_state = "CONNECTED";
             statusBar_label.text = str_state_ready;
-            settings_item.connected();
+            connection_item.connected();
         }
 
         onSignalUIDisconnected: {
             console.log("Disconnected");
             connection_state = "DISCONNECTED";
             statusBar_label.text = str_state_disconnected;
-            settings_item.disconnected();
+            connection_item.disconnected();
         }
 
         onSignalUIConnectionError:  {
@@ -61,7 +60,9 @@ ApplicationWindow {
         }
         onSignalUISettings: {
             console.log("Incoming new settings");
-            settings_item.newSet(p, i, d, zero);
+            settings_item.newSet(steering_p, steering_i, steering_d, steering_zero,
+                                 forward_p, forward_i, forward_d, forward_int,
+                                 backward_p, backward_i, backward_d, backward_int);
         }
         onSignalUIUpdateData:   {
             charts_encoder_current = encValue;
@@ -97,15 +98,14 @@ ApplicationWindow {
 
         Content {
             id: content_item
-            data_visualization_frequency: data_visualisation_frequency
+        }
+
+        Connection  {
+            id: connection_item
         }
 
         Settings {
             id: settings_item
-        }
-
-        Commands {
-            id: commands_item
         }
 
         About {

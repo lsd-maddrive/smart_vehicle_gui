@@ -4,7 +4,6 @@ import QtQuick.Layouts 1.1
 import QtCharts 2.2
 
 Item {
-    property double data_visualization_frequency: 1
     property var encoderSeries: charts_encoder_series
     property var potentiometerSeries: charts_potentiometer_series
     function log(message)   {
@@ -290,33 +289,6 @@ Item {
                                 }
                             }
                         }
-
-                        Timer   {
-                            interval: 1000 / data_visualization_frequency
-                            //running: connection_state == "CONNECTED"
-                            running: false
-                            repeat: true
-                            onTriggered: {
-                                charts_encoder_series.insert(0, charts_time, charts_encoder_current);
-                                charts_potentiometer_series.insert(0, charts_time, charts_potentiometer_current);
-
-                                if (charts_encoder_current >= charts_encoder_axis.max)
-                                    charts_encoder_axis.max = charts_encoder_current + 1;
-                                if (charts_encoder_current <= charts_encoder_axis.min)
-                                    charts_encoder_axis.min = charts_encoder_current - 1;
-                                if (charts_potentiometer_current >= charts_potentiometer_axis.max)
-                                    charts_potentiometer_axis.max = charts_potentiometer_current + 1;
-                                if (charts_potentiometer_current <= charts_potentiometer_axis.min)
-                                    charts_potentiometer_axis.min = charts_potentiometer_current - 1;
-
-                                charts_time += 1 / data_visualization_frequency;
-                                if (charts_time > charts_max_time)    {
-                                    charts_encoder_series.clear();
-                                    charts_potentiometer_series.clear();
-                                    charts_time = 0;
-                                }
-                            }
-                        }                                                
                     }
                 }
             }

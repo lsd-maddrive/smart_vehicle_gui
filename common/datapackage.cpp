@@ -1,12 +1,5 @@
 #include "datapackage.h"
 
-void writeToBytes(QByteArray *bytes, qint32 const& value) {
-    bytes->append(value & 0x000000FF);
-    bytes->append((value & 0x0000FF00) >> 8);
-    bytes->append((value & 0x00FF0000) >> 16);
-    bytes->append((value & 0xFF000000) >> 24);
-}
-
 const char AuthPackage::authRequest[10] = {'k', 'o', 'n', 'n', 'i', 'c', 'h', 'i', 'w', 'a'};
 
 AuthPackage::AuthPackage() {}
@@ -76,24 +69,39 @@ SetPackage::SetPackage(QByteArray& bytes)   {
     QDataStream stream(&bytes, QIODevice::ReadOnly);
 
     stream.skipRawData(sizeof( DataPackage::packageType ));
-    stream >> p;
-    stream >> i;
-    stream >> d;
-    stream >> servoZero;
+    stream >> steering_p;
+    stream >> steering_i;
+    stream >> steering_d;
+    stream >> steering_servoZero;
+    stream >> forward_p;
+    stream >> forward_i;
+    stream >> forward_d;
+    stream >> forward_int;
+    stream >> backward_p;
+    stream >> backward_i;
+    stream >> backward_d;
+    stream >> backward_int;
 }
 
-SetPackage::SetPackage(float p, float i, float d, float servoZero) :
-    p(p), i(i), d(d), servoZero(servoZero) {}
+SetPackage::SetPackage() {}
 
 QByteArray SetPackage::toBytes() const    {
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::WriteOnly);
 
     stream << packageType;
-    stream << p;
-    stream << i;
-    stream << d;
-    stream << servoZero;
+    stream << steering_p;
+    stream << steering_i;
+    stream << steering_d;
+    stream << steering_servoZero;
+    stream << forward_p;
+    stream << forward_i;
+    stream << forward_d;
+    stream << forward_int;
+    stream << backward_p;
+    stream << backward_i;
+    stream << backward_d;
+    stream << backward_int;
 
     return bytes;
 }

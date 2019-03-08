@@ -252,8 +252,9 @@ void SVServer::slotReadyRead()  {
         }   else
         if (bytes.at(0) == SetPackage::packageType)  {
             SetPackage set(bytes);
-            emit signalSetPID(set.p, set.i, set.d);
-            emit signalSetServoZero(set.servoZero);
+            emit signalSetSteering(set.steering_p, set.steering_i, set.steering_d, set.steering_servoZero);
+            emit signalSetForward(set.forward_p, set.forward_i, set.forward_d, set.forward_int);
+            emit signalSetBackward(set.backward_p, set.backward_i, set.backward_d, set.backward_int);
             log("Incoming new settings");
         }   else
         if (bytes.at(0) == SetRequestPackage::packageType)   {
