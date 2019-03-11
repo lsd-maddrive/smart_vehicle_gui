@@ -20,11 +20,6 @@ ApplicationWindow {
     property string str_state_fault: qsTr("FAULT")
     property string str_state_disconnected: qsTr("DISCONNECTED")
 
-    property real charts_encoder_current: 0
-    property real charts_potentiometer_current: 0
-    property real charts_time: 0
-    property int charts_max_time: 60
-
     Connections {
         target: adapter
         onSignalUILog:  {
@@ -65,10 +60,9 @@ ApplicationWindow {
                                  backward_p, backward_i, backward_d, backward_int);
         }
         onSignalUIUpdateData:   {
-            charts_encoder_current = encValue;
             content_item.encoderSet(encValue);
-            charts_potentiometer_current = potValue;
             content_item.potentiometerSet(potValue);
+            content_item.speedSet(speedValue);
             content_item.batterySet(1, firstBatteryValue);
             content_item.batterySet(2, secondBatteryValue);
         }

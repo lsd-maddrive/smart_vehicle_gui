@@ -6,6 +6,7 @@ import QtCharts 2.2
 Item {
     property var encoderSeries: charts_encoder_series
     property var potentiometerSeries: charts_potentiometer_series
+
     function log(message)   {
         log_textArea.append(message);
         log_textArea.cursorPosition = log_textArea.length - 1;
@@ -16,8 +17,12 @@ Item {
     function potentiometerSet(potValue) {
         values_list_model.setProperty(1, "value", potValue);
     }
+    function speedSet(speedValue)   {
+        values_list_model.setProperty(2, "value", speedValue);
+    }
+
     function batterySet(number, batValue)   {
-        values_list_model.setProperty(1 + number, "value", batValue);
+        values_list_model.setProperty(2 + number, "value", batValue);
     }
 
     Rectangle   {
@@ -176,6 +181,11 @@ Item {
                                     measure: "angle"
                                 }
                                 ListElement {
+                                    name: "Speed"
+                                    value: 0
+                                    measure: "mps"
+                                }
+                                ListElement {
                                     name: "Motor battery"
                                     value: 0
                                     measure: "%"
@@ -189,7 +199,7 @@ Item {
 
                             delegate: Text {
                                 font.pointSize: 12
-                                text: name + ": " + value + " " + measure
+                                text: name + ": " + value.toPrecision(4) + " " + measure
                             }
                         }
                     }
@@ -254,9 +264,8 @@ Item {
                                 useOpenGL: true
                                 axisX: ValueAxis    {
                                      id: charts_encoder_time_axis
-                                     max: charts_max_time
+                                     max: 60
                                      min: 0
-                                     tickCount: charts_max_time / 10 + 1
                                 }
                                 axisY: ValueAxis    {
                                     id: charts_encoder_axis
@@ -278,9 +287,8 @@ Item {
                                 useOpenGL: true
                                 axisX: ValueAxis    {
                                     id: charts_potentiometer_time_axis
-                                    max: charts_max_time
+                                    max: 60
                                     min: 0
-                                    tickCount: charts_max_time / 10 + 1
                                 }
                                 axisY: ValueAxis    {
                                     id: charts_potentiometer_axis

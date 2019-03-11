@@ -35,6 +35,7 @@ private:
     QtCharts::QLineSeries* potentiometerSeries;
     void updateCharts(int const& msec, float const& encVal, float const& potVal);
     void clearCharts();
+    float getSpeed(float currentTime, float currentEncoder) const;
 
 public:
     explicit Adapter(QObject *parent = nullptr);
@@ -55,7 +56,7 @@ signals:
     void signalUIDisconnected();
     void signalUIConnectionError();
     void signalUIStatus(QString const& str);
-    void signalUIUpdateData(float const& encValue, float const& potValue, quint32 const& firstBatteryValue, quint32 const& secondBatteryValue);
+    void signalUIUpdateData(float const& encValue, float const& potValue, float const& speedValue, quint32 const& firstBatteryValue, quint32 const& secondBatteryValue);
     void signalUISettings(float steering_p, float steering_i, float steering_d, float steering_zero,
                           float forward_p, float forward_i, float forward_d, float forward_int,
                           float backward_p, float backward_i, float backward_d, float backward_int);

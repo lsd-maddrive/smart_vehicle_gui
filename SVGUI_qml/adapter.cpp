@@ -220,13 +220,25 @@ void Adapter::updateCharts(const int &msec, const float &encVal, const float &po
     }
 }
 
+float Adapter::getSpeed(float currentTime, float currentEncoder) const {
+    if (encoderChartArray.empty() || currentTime - chartStartTime < 1000)   {
+        return 0;
+    }
+    currentTime = (currentTime - chartStartTime) / 1000.0f;
+    QPointF lastPoint = encoderChartArray.last();
+    float speed = (currentEncoder - lastPoint.y()) / (currentTime - lastPoint.x());
+    return speed;
+}
+
 void Adapter::slotData(DataPackage const& data) {
     qDebug() << "Adapter: incoming data package";
 
     qint8 state = data.stateType;
     QString stateString = getStatusStr(state);
+    float speed = getSpeed(data.timeStamp, data.m_encoderValue);
+
     emit signalUIStatus(stateString);
-    emit signalUIUpdateData(data.m_encoderValue, data.m_steeringAngle, data.m_motorBatteryPerc, data.m_compBatteryPerc);
+    emit signalUIUpdateData(data.m_encoderValue, data.m_steeringAngle, speed, data.m_motorBatteryPerc, data.m_compBatteryPerc);
 
     QTime time = QTime::fromMSecsSinceStartOfDay(static_cast<int>(data.timeStamp));
     if (time.isValid())
