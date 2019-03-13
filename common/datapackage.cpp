@@ -200,5 +200,76 @@ QByteArray SetRequestPackage::toBytes() const   {
 }
 
 size_t SetRequestPackage::size() const   {
-    return 1;
+    return static_cast<size_t>(toBytes().size());
+}
+
+MapPackage::MapPackage()    {}
+
+MapPackage::MapPackage(QVector<QVector<qint8>> const& cells)    {
+    _cells = cells;
+
+    mapHeight = static_cast<qint8>(cells.size());
+    if (mapHeight)  {
+        mapWidth = static_cast<qint8>(cells.first().size());
+
+        /*
+         * map must be full rectangle
+         */
+        for (auto const& line : cells) {
+            assert (static_cast<qint8>(line.size()) == mapWidth);
+        }
+    }
+}
+
+MapPackage::MapPackage(QByteArray bytes)    {
+    QDataStream stream(&bytes, QIODevice::ReadOnly);
+
+    stream.skipRawData(sizeof(packageType));
+    stream >> mapWidth;
+    stream >> mapHeight;
+
+    stream >> _cells;
+}
+
+MapPackage::~MapPackage()   {
+    clear();
+}
+
+void MapPackage::clear()    {
+    mapWidth = 0;
+    mapHeight = 0;
+    _cells.clear();
+}
+
+int MapPackage::getWidth() const    {
+    return mapWidth;
+}
+
+int MapPackage::getHeight() const   {
+    return mapHeight;
+}
+
+size_t MapPackage::size() const   {
+    return static_cast<size_t>(toBytes().size());
+}
+
+qint8 MapPackage::at(int i, int j) const   {
+    return _cells[i][j];
+}
+
+QVector<QVector<qint8>> MapPackage::cells() const   {
+    return _cells;
+}
+
+QByteArray MapPackage::toBytes() const  {
+    QByteArray bytes;
+    QDataStream stream(&bytes, QIODevice::WriteOnly);
+
+    stream << packageType;
+    stream << mapWidth;
+    stream << mapHeight;
+
+    stream << _cells;
+
+    return bytes;
 }

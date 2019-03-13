@@ -41,6 +41,7 @@ public:
     explicit Adapter(QObject *parent = nullptr);
     void log(QString const& message);
     void data(DataPackage const& data);
+
 signals:
     void signalCommand(TaskPackage const& task);
 
@@ -61,6 +62,7 @@ signals:
                           float forward_p, float forward_i, float forward_d, float forward_int,
                           float backward_p, float backward_i, float backward_d, float backward_int);
     void signalUISetSerieses();
+    void signalUIMap(int w, int h, QList<int> const& cellList);
 
 public slots:
     void slotTest();
@@ -84,6 +86,7 @@ public slots:
     void slotData(DataPackage const& data);
     void slotDone(qint8 const& COI, qint8 const& answerCode);
     void slotSettings(SetPackage const& set);
+    void slotMap(MapPackage const& map);
     void slotBrokenPackage();
 };
 

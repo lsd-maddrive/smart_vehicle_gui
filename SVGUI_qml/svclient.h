@@ -51,6 +51,7 @@ signals:
     void signalUIData(DataPackage const& data);
     void signalUIDone(qint8 const& COI, qint8 const& answerCode);
     void signalUISettings(SetPackage const& set);
+    void signalUIMap(MapPackage const& map);
     void signalUIBrokenPackage();
 };
 

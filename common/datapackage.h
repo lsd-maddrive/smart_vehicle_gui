@@ -127,6 +127,40 @@ struct SetRequestPackage : public Package   {
     size_t size() const;
 };
 
+struct MapPackage : public Package  {
+    static const qint8 packageType = 8;
+
+    enum Cells {
+        EMPTY = 0,
+        WALL = 1,
+        CAR_UP = 2,
+        CAR_DOWN = 3,
+        CAR_LEFT = 4,
+        CAR_RIGHT = 5
+    };
+
+    explicit MapPackage();
+    explicit MapPackage(QVector<QVector<qint8>> const& cells);
+    explicit MapPackage(QByteArray bytes);
+    ~MapPackage();
+
+    QByteArray toBytes() const;
+    size_t size() const;
+    int getWidth() const;
+    int getHeight() const;
+    qint8 at(int i, int j) const;
+    QVector<QVector<qint8>> cells() const;
+
+private:
+    qint8 mapWidth = 0;
+    qint8 mapHeight = 0;
+    QVector<QVector<qint8>> _cells;
+    void clear();
+};
+
+
+
+
 /*
  *  packageType:
  *      0 - Empty

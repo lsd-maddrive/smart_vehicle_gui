@@ -37,10 +37,10 @@ void SVClient::sendData(QString data)   {
     if (connected)  {
         qDebug() << "sending " + data + "...";
 
-        char *bytes = new char[(size_t) data.length() + 2];
-        bytes[0] = (char)data.length();
+        char *bytes = new char[static_cast<size_t>(data.length()) + 2];
+        bytes[0] = static_cast<char>(data.length());
         for (int i = 0; i < data.length(); i++)    {
-            bytes[i + 1] = (char) data.data()[i].toLatin1();
+            bytes[i + 1] = static_cast<char>(data.data()[i].toLatin1());
         }
         bytes[data.length() + 1] = '\0';
         socket->write(bytes);
@@ -122,6 +122,9 @@ void SVClient::slotReadyRead()  {
             qDebug() << "Uploading settings...";
             SetPackage set(bytes);
             emit signalUISettings(set);
+        }   else if (bytes.at(0) == MapPackage::packageType) {
+            MapPackage map(bytes);
+            emit signalUIMap(map);
         }   else {
             brokenPackages++;
             emit signalUIBrokenPackage();

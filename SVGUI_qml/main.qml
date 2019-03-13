@@ -66,6 +66,9 @@ ApplicationWindow {
             content_item.batterySet(1, firstBatteryValue);
             content_item.batterySet(2, secondBatteryValue);
         }
+        onSignalUIMap:  {
+            map_item.setMap(w, h, cellList);
+        }
     }
 
     footer: Rectangle {
@@ -90,12 +93,16 @@ ApplicationWindow {
         id: content_swipe
         anchors.fill: parent
 
+        Connection  {
+            id: connection_item
+        }
+
         Content {
             id: content_item
         }
 
-        Connection  {
-            id: connection_item
+        CellMap {
+            id: map_item
         }
 
         Settings {

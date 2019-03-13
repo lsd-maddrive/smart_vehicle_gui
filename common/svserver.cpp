@@ -19,13 +19,13 @@ SVServer::~SVServer()   {
     }
 }
 
-void SVServer::log(QString message) {
+void SVServer::log(QString const& message) {
     QString timedMessage = QTime::currentTime().toString() + ": " + message;
     emit signalUILog(timedMessage);
     qDebug() << timedMessage;
 }
 
-void SVServer::log(AnswerPackage answer)    {
+void SVServer::log(AnswerPackage const& answer)    {
     QString message = "Sending answer package: ";
     message.append("COI: ");
     message.append(QString::number(answer.COI));
@@ -35,7 +35,7 @@ void SVServer::log(AnswerPackage answer)    {
     log(message);
 }
 
-void SVServer::log(DataPackage data)    {
+void SVServer::log(DataPackage const& data)    {
     QString message = "Sending data package: ";
     message.append("State type: ");
     message.append(QString::number(data.stateType));
@@ -45,6 +45,18 @@ void SVServer::log(DataPackage data)    {
     message.append("; compBattery: " + QString::number(data.m_compBatteryPerc));
     message.append("; motorBattery: " + QString::number(data.m_motorBatteryPerc));
     log(message);
+}
+
+void SVServer::log(MapPackage const& map)  {
+    log("Map:");
+    for (auto const& line : map.cells())    {
+        QString str;
+        for (auto const& cell : line)   {
+            str.append(QString::number(cell));
+            str.append(' ');
+        }
+        log(str);
+    }
 }
 
 bool SVServer::start(QHostAddress const& address, quint16 port)   {
@@ -87,31 +99,28 @@ void SVServer::stop()   {
         log("Server stopped");
         emit signalUIChangeState(false);
     }   else    {
-        log("Warning! Server is already disabled,");
+        log("Warning! Server is already disabled.");
     }
 }
 
 void SVServer::sendAll(QString const& data)    {
     if (server->isListening())   {
-        //log("Sending data [" + data + "] to all... (number of clients: " + QString::number(connections.size()) + ")");
         foreach (QTcpSocket* socket, connections)  {
             sendTo(socket, data);
         }
         log("Done.");
     }   else    {
-        log("Warning! Server is disabled");
+        log("Warning! Server is disabled.");
     }
 }
 
 void SVServer::sendAll(QByteArray const& data)    {
     if (server->isListening())   {
-        log("Sending data [" + QString(data) + "] to all...  (number of clients: " + QString::number(connections.size()) + ")");
         foreach (QTcpSocket* socket, connections)  {
             sendTo(socket, data);
         }
-        log("Done.");
     }   else    {
-        log("Warning! Server is disabled");
+        log("Warning! Server is disabled.");
     }
 }
 
@@ -121,8 +130,12 @@ void SVServer::sendAll(AnswerPackage const &answer) {
 }
 
 void SVServer::sendAll(DataPackage const &data) {
-    log(data);
+    //log(data);
     sendAll(data.toBytes());
+}
+
+void SVServer::sendAll(MapPackage const& map)  {
+    sendAll(map.toBytes());
 }
 
 void SVServer::sendTo(QTcpSocket* socket, QString const& data)   {
@@ -303,4 +316,8 @@ void SVServer::slotSendData(DataPackage const& data)   {
 
 void SVServer::slotSendSettings(SetPackage const& set)   {
     sendAll(set.toBytes());
+}
+
+void SVServer::slotSendMap(MapPackage const& map)  {
+    sendAll(map);
 }

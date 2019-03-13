@@ -41,9 +41,10 @@ private:
     void sendTo(QTcpSocket* socket, DataPackage const& data);
     void sendTo(QTcpSocket* socket, AuthAnswerPackage const& answer);
 
-    void log(QString message);
-    void log(AnswerPackage answer);
-    void log(DataPackage data);
+    void log(QString const& message);
+    void log(AnswerPackage const& answer);
+    void log(DataPackage const& data);
+    void log(MapPackage const& map);
 public:
     SVServer();
     ~SVServer();
@@ -55,6 +56,7 @@ public:
     void sendAll(QByteArray const& data);
     void sendAll(AnswerPackage const& answer);
     void sendAll(DataPackage const& data);
+    void sendAll(MapPackage const& map);
 
     QHostAddress getHostAddress() const;
     quint16 getPort() const;
@@ -76,6 +78,7 @@ public slots:
     void slotTaskDone(quint8 answerType);
     void slotSendData(DataPackage const& data);
     void slotSendSettings(SetPackage const& set);
+    void slotSendMap(MapPackage const& map);
 signals:
     void signalUILog(QString message);
     void signalUIChangeState(bool listening);

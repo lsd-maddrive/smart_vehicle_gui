@@ -44,10 +44,16 @@ void Adapter::clearCharts() {
     chartStartTime = 0;
     chartEncAmpl = chartStartAmp;
     chartPotAmpl = chartStartAmp;
+
     encoderSeries->attachedAxes().at(1)->setMax(chartEncAmpl);
     encoderSeries->attachedAxes().at(1)->setMin(-chartEncAmpl);
     potentiometerSeries->attachedAxes().at(1)->setMax(chartEncAmpl);
     potentiometerSeries->attachedAxes().at(1)->setMin(-chartEncAmpl);
+
+    encoderSeries->attachedAxes().at(0)->setMax(chartTimeRange);
+    encoderSeries->attachedAxes().at(0)->setMin(0);
+    potentiometerSeries->attachedAxes().at(0)->setMax(chartTimeRange);
+    potentiometerSeries->attachedAxes().at(0)->setMin(0);
 }
 
 void Adapter::slotTest()    {
@@ -173,7 +179,7 @@ QVector<QPointF> Adapter::getChartData(const QVector<QPointF> &allPoints)  {
         return allPoints;
 
     QVector<QPointF>::const_reverse_iterator it = allPoints.rend();
-    while (it != allPoints.rbegin())   {
+    while (it != allPoints.rbegin() && (*it).x() > rangeStart)   {
         points.push_front(*it);
         it--;
     }
@@ -184,18 +190,18 @@ QVector<QPointF> Adapter::getChartData(const QVector<QPointF> &allPoints)  {
 void Adapter::updateCharts(const int &msec, const float &encVal, const float &potVal) {
     if (!chartStartTime)
         chartStartTime = msec;
-    float deltaTime = (msec - chartStartTime) / 1000.0f;
+    float deltaTime = (msec - chartStartTime) / 500.0f;
     if (deltaTime > chartTimeRange + chartAxisStart)
         chartAxisStart += chartTimeInc;
 
     encoderChartArray.append(QPointF(deltaTime, encVal));
     potentiometerChartArray.append(QPointF(deltaTime, potVal));
 
-    QVector<QPointF> encoderChartPoints = getChartData(encoderChartArray);
-    QVector<QPointF> potentiometerChartPoints = getChartData(potentiometerChartArray);
+    //QVector<QPointF> encoderChartPoints = getChartData(encoderChartArray);
+    //QVector<QPointF> potentiometerChartPoints = getChartData(potentiometerChartArray);
 
     if (encoderSeries)  {
-        encoderSeries->replace(encoderChartPoints);
+        encoderSeries->replace(encoderChartArray);
         if (deltaTime > chartTimeRange) {
             encoderSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
             encoderSeries->attachedAxes().first()->setMin(chartAxisStart);
@@ -207,7 +213,7 @@ void Adapter::updateCharts(const int &msec, const float &encVal, const float &po
         }
     }
     if (potentiometerSeries)    {
-        potentiometerSeries->replace(potentiometerChartPoints);
+        potentiometerSeries->replace(potentiometerChartArray);
         if (deltaTime > chartTimeRange) {
             potentiometerSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
             potentiometerSeries->attachedAxes().first()->setMin(chartAxisStart);
@@ -267,6 +273,15 @@ void Adapter::slotSettings(SetPackage const& set)   {
                           set.forward_p, set.forward_i, set.forward_d, set.forward_int,
                           set.backward_p, set.backward_i, set.backward_d, set.backward_int);
     log("Settings uploaded.");
+}
+
+void Adapter::slotMap(MapPackage const& map)    {
+    QList<int> cellsList;
+    for (auto const& line : map.cells())
+        for (auto const& cell : line)
+            cellsList.push_back(cell);
+
+    emit signalUIMap(map.getWidth(), map.getHeight(), cellsList);
 }
 
 void Adapter::slotBrokenPackage()   {
