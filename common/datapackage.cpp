@@ -1,4 +1,5 @@
 #include "datapackage.h"
+#include <cassert>
 
 const char AuthPackage::authRequest[10] = {'k', 'o', 'n', 'n', 'i', 'c', 'h', 'i', 'w', 'a'};
 
