@@ -35,18 +35,6 @@ void SVServer::log(AnswerPackage const& answer)    {
     log(message);
 }
 
-void SVServer::log(DataPackage const& data)    {
-    QString message = "Sending data package: ";
-    message.append("State type: ");
-    message.append(QString::number(data.stateType));
-    message.append("; Data: ");
-    message.append("encoder: " + QString::number(data.m_encoderValue));
-    message.append("; potentiometer: " + QString::number(data.m_steeringAngle));
-    message.append("; compBattery: " + QString::number(data.m_compBatteryPerc));
-    message.append("; motorBattery: " + QString::number(data.m_motorBatteryPerc));
-    log(message);
-}
-
 void SVServer::log(MapPackage const& map)  {
     log("Map:");
     for (auto const& line : map.cells())    {
@@ -129,15 +117,6 @@ void SVServer::sendAll(AnswerPackage const &answer) {
     sendAll(answer.toBytes());
 }
 
-void SVServer::sendAll(DataPackage const &data) {
-    //log(data);
-    sendAll(data.toBytes());
-}
-
-void SVServer::sendAll(MapPackage const& map)  {
-    sendAll(map.toBytes());
-}
-
 void SVServer::sendTo(QTcpSocket* socket, QString const& data)   {
     char *bytes = new char[(size_t) data.size() + 2];
     bytes[0] = (char)data.size();
@@ -160,10 +139,6 @@ void SVServer::sendTo(QTcpSocket *socket, QByteArray const &data)   {
 
 void SVServer::sendTo(QTcpSocket *socket, AnswerPackage const &answer)  {
     sendTo(socket, answer.toBytes());
-}
-
-void SVServer::sendTo(QTcpSocket *socket, DataPackage const& data) {
-    sendTo(socket, data.toBytes());
 }
 
 void SVServer::sendTo(QTcpSocket *socket, AuthAnswerPackage const& answer) {
@@ -298,11 +273,11 @@ void SVServer::slotUITestAnswer()   {
 }
 
 void SVServer::slotUITestData(qint32 encoderValue, qint32 potentiometerValue) {
-    DataPackage data( DataPackage::State::WAIT );
+    HighFreqDataPackage data;
     data.m_steeringAngle = potentiometerValue;
     data.m_encoderValue = encoderValue;
 
-    slotSendData(data);
+    sendAll(data.toBytes());
 }
 
 void SVServer::slotTaskDone(quint8 answerType)   {
@@ -310,8 +285,12 @@ void SVServer::slotTaskDone(quint8 answerType)   {
     currentTaskCOI = 0;
 }
 
-void SVServer::slotSendData(DataPackage const& data)   {
-    sendAll(data);
+void SVServer::slotSendHighFreqData(HighFreqDataPackage const& data)   {
+    sendAll(data.toBytes());
+}
+
+void SVServer::slotSendLowFreqData(LowFreqDataPackage const& data)   {
+    sendAll(data.toBytes());
 }
 
 void SVServer::slotSendSettings(SetPackage const& set)   {
@@ -319,5 +298,5 @@ void SVServer::slotSendSettings(SetPackage const& set)   {
 }
 
 void SVServer::slotSendMap(MapPackage const& map)  {
-    sendAll(map);
+    sendAll(map.toBytes());
 }

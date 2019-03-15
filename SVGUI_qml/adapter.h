@@ -40,7 +40,6 @@ private:
 public:
     explicit Adapter(QObject *parent = nullptr);
     void log(QString const& message);
-    void data(DataPackage const& data);
 
 signals:
     void signalCommand(TaskPackage const& task);
@@ -57,7 +56,8 @@ signals:
     void signalUIDisconnected();
     void signalUIConnectionError();
     void signalUIStatus(QString const& str);
-    void signalUIUpdateData(float const& encValue, float const& potValue, float const& speedValue, quint32 const& firstBatteryValue, quint32 const& secondBatteryValue);
+    void signalUIUpdateHighFreqData(float const& encValue, float const& potValue, float const& speedValue);
+    void signalUIUpdateLowFreqData(quint32 const& firstBatteryValue, quint32 const& secondBatteryValue, float const& temp);
     void signalUISettings(float steering_p, float steering_i, float steering_d, float steering_zero,
                           float forward_p, float forward_i, float forward_d, float forward_int,
                           float backward_p, float backward_i, float backward_d, float backward_int);
@@ -83,7 +83,8 @@ public slots:
     void slotConnected(qint8 const& state);
     void slotDisconnected();
     void slotConnectionError(QString message);
-    void slotData(DataPackage const& data);
+    void slotData(LowFreqDataPackage const& data);
+    void slotData(HighFreqDataPackage const& data);
     void slotDone(qint8 const& COI, qint8 const& answerCode);
     void slotSettings(SetPackage const& set);
     void slotMap(MapPackage const& map);

@@ -236,19 +236,26 @@ float Adapter::getSpeed(float currentTime, float currentEncoder) const {
     return speed;
 }
 
-void Adapter::slotData(DataPackage const& data) {
-    qDebug() << "Adapter: incoming data package";
+void Adapter::slotData(HighFreqDataPackage const& data) {
+    qDebug() << "Adapter: incoming high freq data package";
 
-    qint8 state = data.stateType;
-    QString stateString = getStatusStr(state);
     float speed = getSpeed(data.timeStamp, data.m_encoderValue);
 
-    emit signalUIStatus(stateString);
-    emit signalUIUpdateData(data.m_encoderValue, data.m_steeringAngle, speed, data.m_motorBatteryPerc, data.m_compBatteryPerc);
+    emit signalUIUpdateHighFreqData(data.m_encoderValue, data.m_steeringAngle, speed);
 
     QTime time = QTime::fromMSecsSinceStartOfDay(static_cast<int>(data.timeStamp));
     if (time.isValid())
         updateCharts(static_cast<int>(data.timeStamp), data.m_encoderValue, data.m_steeringAngle);
+}
+
+void Adapter::slotData(LowFreqDataPackage const& data) {
+    qDebug() << "Adapter: incoming low freq data package";
+
+    qint8 state = data.stateType;
+    QString stateString = getStatusStr(state);
+
+    emit signalUIStatus(stateString);
+    emit signalUIUpdateLowFreqData(data.m_motorBatteryPerc, data.m_compBatteryPerc, data.m_temp);
 }
 
 void Adapter::slotDone(qint8 const& COI, qint8 const& answerCode) {

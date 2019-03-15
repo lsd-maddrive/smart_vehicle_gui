@@ -115,8 +115,11 @@ void SVClient::slotReadyRead()  {
             qDebug() << "Task #" << QString::number(bytes[1]) << " has been done.";
             qDebug() << "Answer code: " << QString::number(bytes[2]);
             emit signalUIDone(bytes[1], bytes[2]);
-        }   else if (bytes.at(0) == DataPackage::packageType) {
-            DataPackage data(bytes);
+        }   else if (bytes.at(0) == LowFreqDataPackage::packageType) {
+            LowFreqDataPackage data(bytes);
+            emit signalUIData(data);
+        }   else if (bytes.at(0) == HighFreqDataPackage::packageType)  {
+            HighFreqDataPackage data(bytes);
             emit signalUIData(data);
         }   else if (bytes.at(0) == SetPackage::packageType) {
             qDebug() << "Uploading settings...";

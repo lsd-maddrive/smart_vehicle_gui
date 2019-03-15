@@ -83,66 +83,24 @@ struct AnswerPackage : public Package
     size_t size() const;
 };
 
-struct DataPackage : public Package
-{
-    static const qint8 packageType = 6;
-    qint8 stateType;
-    quint32 timeStamp;
-
-    enum State {
-        FAULT = 0,
-        RUN = 1,
-        STOP = 2,
-        WAIT = 3
-    };
-
-    enum DataType {
-        ENCODER = 1,
-        STEERING = 2,
-        MOTOR_BATTERY = 3,
-        COMP_BATTERY = 4
-    };
-
-    explicit DataPackage();
-    explicit DataPackage(State state);
-    explicit DataPackage(QByteArray &bytes);
-    QByteArray toBytes() const;
-    size_t size() const;
-
-public:
-    bool setState(State state);
-    float  m_encoderValue;
-    float   m_steeringAngle;
-    quint32 m_motorBatteryPerc;
-    quint32 m_compBatteryPerc;
-};
-
-/* Declaration for external slot */
-Q_DECLARE_METATYPE(DataPackage);
-
 struct SetRequestPackage : public Package   {
-    static const qint8 packageType = 7;
+    static const qint8 packageType = 6;
     explicit SetRequestPackage();
     QByteArray toBytes() const;
     size_t size() const;
 };
 
 struct MapPackage : public Package  {
-    static const qint8 packageType = 8;
+    static const qint8 packageType = 7;
 
     enum Cells {
         EMPTY = 0,
-        WALL = 1,
-        CAR_UP = 2,
-        CAR_DOWN = 3,
-        CAR_LEFT = 4,
-        CAR_RIGHT = 5
+        WALL = 1
     };
 
     explicit MapPackage();
     explicit MapPackage(QVector<QVector<qint8>> const& cells);
-    explicit MapPackage(QByteArray bytes);
-    ~MapPackage();
+    explicit MapPackage(QByteArray &bytes);
 
     QByteArray toBytes() const;
     size_t size() const;
@@ -158,8 +116,55 @@ private:
     void clear();
 };
 
+struct LowFreqDataPackage : Package {
+    static const qint8 packageType = 8;
+    qint8 stateType;
+    quint32 timeStamp;
+    quint32 m_motorBatteryPerc;
+    quint32 m_compBatteryPerc;
+    float m_temp;
 
+    enum State {
+        FAULT = 0,
+        RUN = 1,
+        STOP = 2,
+        WAIT = 3
+    };
 
+    enum DataType {
+        MOTOR_BATTERY = 1,
+        COMP_BATTERY = 2,
+        TEMPERATURE = 3
+    };
+
+    explicit LowFreqDataPackage();
+    explicit LowFreqDataPackage(State state);
+    explicit LowFreqDataPackage(QByteArray &bytes);
+    QByteArray toBytes() const;
+    size_t size() const;
+
+};
+
+struct HighFreqDataPackage : Package   {
+    static const qint8 packageType = 9;
+    quint32 timeStamp;
+    float m_encoderValue;
+    float m_steeringAngle;
+    float x;
+    float y;
+
+    enum DataType {
+        ENCODER = 1,
+        STEERING = 2,
+        X = 3,
+        Y = 4
+    };
+
+    explicit HighFreqDataPackage();
+    explicit HighFreqDataPackage(QByteArray &bytes);
+    QByteArray toBytes() const;
+    size_t size() const;
+};
 
 /*
  *  packageType:

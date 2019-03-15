@@ -68,7 +68,7 @@ size_t TaskPackage::size() const    {
 SetPackage::SetPackage(QByteArray& bytes)   {
     QDataStream stream(&bytes, QIODevice::ReadOnly);
 
-    stream.skipRawData(sizeof( DataPackage::packageType ));
+    stream.skipRawData(sizeof( SetPackage::packageType ));
     stream >> steering_p;
     stream >> steering_i;
     stream >> steering_d;
@@ -125,72 +125,6 @@ size_t AnswerPackage::size() const  {
     return static_cast<size_t>(toBytes().size());
 }
 
-DataPackage::DataPackage() :
-    m_encoderValue( 0 ), m_steeringAngle( 0.0f ),
-    m_motorBatteryPerc( 0 ), m_compBatteryPerc( 0 )
-{
-    timeStamp = static_cast<quint32>(QTime::currentTime().msecsSinceStartOfDay());
-    stateType = State::WAIT;
-}
-
-DataPackage::DataPackage(DataPackage::State state) :
-    m_encoderValue( 0 ), m_steeringAngle( 0.0f ),
-    m_motorBatteryPerc( 0 ), m_compBatteryPerc( 0 )
-{
-    timeStamp = static_cast<quint32>(QTime::currentTime().msecsSinceStartOfDay());
-    stateType = state;
-}
-
-DataPackage::DataPackage(QByteArray &bytes)
-{
-    QDataStream stream(&bytes, QIODevice::ReadOnly);
-
-    stream.skipRawData(sizeof( DataPackage::packageType ));
-
-    stream >> stateType;
-    stream >> timeStamp;
-
-    stream.skipRawData(sizeof(DataType));
-    stream >> m_encoderValue;
-    stream.skipRawData(sizeof(DataType));
-    stream >> m_steeringAngle;
-    stream.skipRawData(sizeof(DataType));
-    stream >> m_motorBatteryPerc;
-    stream.skipRawData(sizeof(DataType));
-    stream >> m_compBatteryPerc;
-}
-
-QByteArray DataPackage::toBytes() const {
-
-    QByteArray bytes;
-    QDataStream stream(&bytes, QIODevice::WriteOnly);
-
-    stream << packageType;
-    stream << stateType;
-    stream << timeStamp;
-
-    stream << ENCODER;
-    stream << m_encoderValue;
-    stream << STEERING;
-    stream << m_steeringAngle;
-    stream << MOTOR_BATTERY;
-    stream << m_motorBatteryPerc;
-    stream << COMP_BATTERY;
-    stream << m_compBatteryPerc;
-
-    return bytes;
-}
-
-size_t DataPackage::size() const    {
-    return static_cast<size_t>(toBytes().size());
-}
-
-bool DataPackage::setState(DataPackage::State state)
-{
-    stateType = state;
-    return true;
-}
-
 SetRequestPackage::SetRequestPackage()  {}
 
 QByteArray SetRequestPackage::toBytes() const   {
@@ -221,7 +155,7 @@ MapPackage::MapPackage(QVector<QVector<qint8>> const& cells)    {
     }
 }
 
-MapPackage::MapPackage(QByteArray bytes)    {
+MapPackage::MapPackage(QByteArray &bytes)    {
     QDataStream stream(&bytes, QIODevice::ReadOnly);
 
     stream.skipRawData(sizeof(packageType));
@@ -229,10 +163,6 @@ MapPackage::MapPackage(QByteArray bytes)    {
     stream >> mapHeight;
 
     stream >> _cells;
-}
-
-MapPackage::~MapPackage()   {
-    clear();
 }
 
 void MapPackage::clear()    {
@@ -272,4 +202,89 @@ QByteArray MapPackage::toBytes() const  {
     stream << _cells;
 
     return bytes;
+}
+
+LowFreqDataPackage::LowFreqDataPackage() {
+    timeStamp = static_cast<quint32>(QTime::currentTime().msecsSinceStartOfDay());
+}
+
+LowFreqDataPackage::LowFreqDataPackage(State state) {
+    stateType = state;
+    timeStamp = static_cast<quint32>(QTime::currentTime().msecsSinceStartOfDay());
+}
+
+LowFreqDataPackage::LowFreqDataPackage(QByteArray& bytes) {
+    QDataStream stream(&bytes, QIODevice::ReadOnly);
+
+    stream.skipRawData(sizeof(packageType));
+    stream >> stateType;
+    stream >> timeStamp;
+    stream.skipRawData(sizeof(DataType));
+    stream >> m_motorBatteryPerc;
+    stream.skipRawData(sizeof(DataType));
+    stream >> m_compBatteryPerc;
+    stream.skipRawData(sizeof(DataType));
+    stream >> m_temp;
+}
+
+QByteArray LowFreqDataPackage::toBytes() const  {
+    QByteArray bytes;
+    QDataStream stream(&bytes, QIODevice::WriteOnly);
+
+    stream << packageType;
+    stream << stateType;
+    stream << timeStamp;
+    stream << DataType::MOTOR_BATTERY;
+    stream << m_motorBatteryPerc;
+    stream << DataType::COMP_BATTERY;
+    stream << m_compBatteryPerc;
+    stream << DataType::TEMPERATURE;
+    stream << m_temp;
+
+    return bytes;
+}
+
+size_t LowFreqDataPackage::size() const {
+    return static_cast<size_t>(toBytes().size());
+}
+
+HighFreqDataPackage::HighFreqDataPackage() {
+    timeStamp = static_cast<quint32>(QTime::currentTime().msecsSinceStartOfDay());
+}
+
+HighFreqDataPackage::HighFreqDataPackage(QByteArray& bytes) {
+    QDataStream stream(&bytes, QIODevice::ReadOnly);
+
+    stream.skipRawData(sizeof(packageType));
+    stream >> timeStamp;
+    stream.skipRawData(sizeof(DataType));
+    stream >> m_encoderValue;
+    stream.skipRawData(sizeof(DataType));
+    stream >> m_steeringAngle;
+    stream.skipRawData(sizeof(DataType));
+    stream >> x;
+    stream.skipRawData(sizeof(DataType));
+    stream >> y;
+}
+
+QByteArray HighFreqDataPackage::toBytes() const  {
+    QByteArray bytes;
+    QDataStream stream(&bytes, QIODevice::WriteOnly);
+
+    stream << packageType;
+    stream << timeStamp;
+    stream << DataType::ENCODER;
+    stream << m_encoderValue;
+    stream << DataType::STEERING;
+    stream << m_steeringAngle;
+    stream << DataType::X;
+    stream << x;
+    stream << DataType::Y;
+    stream << y;
+
+    return bytes;
+}
+
+size_t HighFreqDataPackage::size() const {
+    return static_cast<size_t>(toBytes().size());
 }

@@ -22,21 +22,35 @@ int main(int argc, char *argv[])
                     {1, 0, 1, 0, 0, 0, 0, 1},
                     {1, 0, 1, 1, 1, 1, 1, 1}});
 
-    QTimer *timer = new QTimer();
-    QObject::connect(timer, &QTimer::timeout, [&server, &map] {
-        DataPackage data;
+    QObject::connect(&server, &SVServer::signalNewConnection, [&server, &map] {
+        server.slotSendMap(map);
+    });
+
+    QTimer *timerHighFreq = new QTimer();
+    QObject::connect(timerHighFreq, &QTimer::timeout, [&server] {
+        HighFreqDataPackage data;
         t += 0.01f;
         float v = sin(t) * 15;
 
         data.m_encoderValue = v;
         data.m_steeringAngle = v;
+
+        server.slotSendHighFreqData(data);
+
+    });
+    timerHighFreq->start(50); // <- delay between sending
+
+    QTimer *timerLowFreq = new QTimer();
+    QObject::connect(timerLowFreq, &QTimer::timeout, [&server] {
+        LowFreqDataPackage data;
+
         data.m_compBatteryPerc = qrand() % 100;
         data.m_motorBatteryPerc = qrand() % 100;
+        data.m_temp = qrand() % 100;
 
-        server.slotSendData(data);
-        server.slotSendMap(map);
+        server.slotSendLowFreqData(data);
     });
-    timer->start(50); // <- delay between sending
+    timerLowFreq->start(1000); // <- delay between sending
 
     return a.exec();
 }

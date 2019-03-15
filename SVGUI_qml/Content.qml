@@ -16,13 +16,15 @@ Item {
     }
     function potentiometerSet(potValue) {
         values_list_model.setProperty(1, "value", potValue);
-    }
+    }    
     function speedSet(speedValue)   {
         values_list_model.setProperty(2, "value", speedValue);
     }
-
+    function tempSet(temp)  {
+        values_list_model.setProperty(3, "value", temp);
+    }
     function batterySet(number, batValue)   {
-        values_list_model.setProperty(2 + number, "value", batValue);
+        values_list_model.setProperty(3 + number, "value", batValue);
     }
 
     Rectangle   {
@@ -184,6 +186,11 @@ Item {
                                     name: "Speed"
                                     value: 0
                                     measure: "mps"
+                                }
+                                ListElement {
+                                    name: "Temperature"
+                                    value: 0
+                                    measure: "°С"
                                 }
                                 ListElement {
                                     name: "Motor battery"

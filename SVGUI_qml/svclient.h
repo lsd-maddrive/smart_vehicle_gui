@@ -48,7 +48,8 @@ signals:
     void signalUIConnected(qint8 const& state);
     void signalUIDisconnected();
     void signalUIError(QString message);
-    void signalUIData(DataPackage const& data);
+    void signalUIData(LowFreqDataPackage const& data);
+    void signalUIData(HighFreqDataPackage const& data);
     void signalUIDone(qint8 const& COI, qint8 const& answerCode);
     void signalUISettings(SetPackage const& set);
     void signalUIMap(MapPackage const& map);

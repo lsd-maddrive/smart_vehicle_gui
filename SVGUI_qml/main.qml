@@ -59,12 +59,15 @@ ApplicationWindow {
                                  forward_p, forward_i, forward_d, forward_int,
                                  backward_p, backward_i, backward_d, backward_int);
         }
-        onSignalUIUpdateData:   {
+        onSignalUIUpdateHighFreqData:   {
             content_item.encoderSet(encValue);
             content_item.potentiometerSet(potValue);
             content_item.speedSet(speedValue);
+        }
+        onSignalUIUpdateLowFreqData:   {
             content_item.batterySet(1, firstBatteryValue);
             content_item.batterySet(2, secondBatteryValue);
+            content_item.tempSet(temp);
         }
         onSignalUIMap:  {
             map_item.setMap(w, h, cellList);
