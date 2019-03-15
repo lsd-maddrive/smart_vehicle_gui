@@ -32,42 +32,43 @@ QString Adapter::getStatusStr(const qint8 &state)  {
 
 void Adapter::clearCharts() {
 
-    if (encoderSeries)
-        encoderSeries->clear();
-    if (potentiometerSeries)
-        potentiometerSeries->clear();
+    if (speedSeries)
+        speedSeries->clear();
+    if (steeringSeries)
+        steeringSeries->clear();
 
-    encoderChartArray.clear();
-    potentiometerChartArray.clear();
+    speedChartArray.clear();
+    steeringChartArray.clear();
 
     chartAxisStart = 0;
     chartStartTime = 0;
-    chartEncAmpl = chartStartAmp;
-    chartPotAmpl = chartStartAmp;
+    chartSpeedAmpl = chartStartSpeedAmp;
+    chartSteeringAmpl = chartStartSteeringAmp;
 
-    encoderSeries->attachedAxes().at(1)->setMax(chartEncAmpl);
-    encoderSeries->attachedAxes().at(1)->setMin(-chartEncAmpl);
-    potentiometerSeries->attachedAxes().at(1)->setMax(chartEncAmpl);
-    potentiometerSeries->attachedAxes().at(1)->setMin(-chartEncAmpl);
+    speedSeries->attachedAxes().at(1)->setMax(chartSpeedAmpl);
+    speedSeries->attachedAxes().at(1)->setMin(-chartSpeedAmpl);
+    steeringSeries->attachedAxes().at(1)->setMax(chartSpeedAmpl);
+    steeringSeries->attachedAxes().at(1)->setMin(-chartSpeedAmpl);
 
-    encoderSeries->attachedAxes().at(0)->setMax(chartTimeRange);
-    encoderSeries->attachedAxes().at(0)->setMin(0);
-    potentiometerSeries->attachedAxes().at(0)->setMax(chartTimeRange);
-    potentiometerSeries->attachedAxes().at(0)->setMin(0);
+    speedSeries->attachedAxes().at(0)->setMax(chartTimeRange);
+    speedSeries->attachedAxes().at(0)->setMin(0);
+    steeringSeries->attachedAxes().at(0)->setMax(chartTimeRange);
+    steeringSeries->attachedAxes().at(0)->setMin(0);
 }
 
-void Adapter::slotTest()    {
-    qDebug() << "Test slot was called.";
-}
 
 void Adapter::log(const QString &message)   {
     emit signalUILog(message);
 }
 
-void Adapter::slotUISetSerieses(QObject *encoderSeries, QObject *potentiometerSeries)   {
-    this->encoderSeries = qobject_cast<QtCharts::QLineSeries*>(encoderSeries);
-    this->potentiometerSeries = qobject_cast<QtCharts::QLineSeries*>(potentiometerSeries);
-    qDebug() << "Chart serieses initialized";
+void Adapter::slotUISetSerieses(QObject *speedSeries, QObject *steeringSeries)   {
+    if (speedSeries && steeringSeries)  {
+        this->speedSeries = qobject_cast<QtCharts::QLineSeries*>(speedSeries);
+        this->steeringSeries = qobject_cast<QtCharts::QLineSeries*>(steeringSeries);
+        qDebug() << "Chart serieses initialized";
+    }   else {
+        qDebug() << "Chart initializing error. Nullptr detected";
+    }
 }
 
 void Adapter::slotUISearch()    {
@@ -172,67 +173,50 @@ void Adapter::slotConnectionError(QString message) {
     log("Connection error: " + message);
 }
 
-QVector<QPointF> Adapter::getChartData(const QVector<QPointF> &allPoints)  {
-    QVector<QPointF> points;
-    float rangeStart = allPoints.last().x() - chartTimeRange;
-    if (rangeStart < 0)
-        return allPoints;
-
-    QVector<QPointF>::const_reverse_iterator it = allPoints.rend();
-    while (it != allPoints.rbegin() && (*it).x() > rangeStart)   {
-        points.push_front(*it);
-        it--;
-    }
-
-    return points;
-}
-
-void Adapter::updateCharts(const int &msec, const float &encVal, const float &potVal) {
+void Adapter::updateCharts(const quint32 &msec, const float &encoder, const float &speed, const float &steering) {
     if (!chartStartTime)
         chartStartTime = msec;
-    float deltaTime = (msec - chartStartTime) / 500.0f;
+    float deltaTime = (msec - chartStartTime) / 1000.0f;
     if (deltaTime > chartTimeRange + chartAxisStart)
         chartAxisStart += chartTimeInc;
 
-    encoderChartArray.append(QPointF(deltaTime, encVal));
-    potentiometerChartArray.append(QPointF(deltaTime, potVal));
+    encoderArray.append(QPointF(deltaTime, encoder));
+    speedChartArray.append(QPointF(deltaTime, speed));
+    steeringChartArray.append(QPointF(deltaTime, steering));
 
-    //QVector<QPointF> encoderChartPoints = getChartData(encoderChartArray);
-    //QVector<QPointF> potentiometerChartPoints = getChartData(potentiometerChartArray);
-
-    if (encoderSeries)  {
-        encoderSeries->replace(encoderChartArray);
+    if (speedSeries)  {
+        speedSeries->replace(speedChartArray);
         if (deltaTime > chartTimeRange) {
-            encoderSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
-            encoderSeries->attachedAxes().first()->setMin(chartAxisStart);
+            speedSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
+            speedSeries->attachedAxes().first()->setMin(chartAxisStart);
         }
-        if (abs(encVal)>= chartEncAmpl) {
-            chartEncAmpl = static_cast<int>(abs(encVal)) + 2;
-            encoderSeries->attachedAxes().at(1)->setMax(chartEncAmpl);
-            encoderSeries->attachedAxes().at(1)->setMin(-chartEncAmpl);
+        if (abs(speed)>= chartSpeedAmpl) {
+            chartSpeedAmpl = static_cast<int>(abs(speed)) + 2;
+            speedSeries->attachedAxes().at(1)->setMax(chartSpeedAmpl);
+            speedSeries->attachedAxes().at(1)->setMin(-chartSpeedAmpl);
         }
     }
-    if (potentiometerSeries)    {
-        potentiometerSeries->replace(potentiometerChartArray);
+    if (steeringSeries)    {
+        steeringSeries->replace(steeringChartArray);
         if (deltaTime > chartTimeRange) {
-            potentiometerSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
-            potentiometerSeries->attachedAxes().first()->setMin(chartAxisStart);
+            steeringSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
+            steeringSeries->attachedAxes().first()->setMin(chartAxisStart);
         }
-        if (abs(potVal) >= chartPotAmpl) {
-            chartPotAmpl = static_cast<int>(abs(potVal)) + 2;
-            potentiometerSeries->attachedAxes().at(1)->setMax(chartPotAmpl);
-            potentiometerSeries->attachedAxes().at(1)->setMin(-chartPotAmpl);
+        if (abs(steering) >= chartSteeringAmpl) {
+            chartSteeringAmpl = static_cast<int>(abs(steering)) + 2;
+            steeringSeries->attachedAxes().at(1)->setMax(chartSteeringAmpl);
+            steeringSeries->attachedAxes().at(1)->setMin(-chartSteeringAmpl);
         }
     }
 }
 
-float Adapter::getSpeed(float currentTime, float currentEncoder) const {
-    if (encoderChartArray.empty() || currentTime - chartStartTime < 1000)   {
+float Adapter::getSpeed(quint32 msec, float currentEncoder) const {
+    if (encoderArray.empty())   {
         return 0;
     }
-    currentTime = (currentTime - chartStartTime) / 1000.0f;
-    QPointF lastPoint = encoderChartArray.last();
-    float speed = (currentEncoder - lastPoint.y()) / (currentTime - lastPoint.x());
+    float deltaTime = (msec - chartStartTime) / 1000.0f;
+    QPointF encoderPrev = encoderArray.last();
+    float speed = (currentEncoder - encoderPrev.y()) / (deltaTime - encoderPrev.x());
     return speed;
 }
 
@@ -245,7 +229,7 @@ void Adapter::slotData(HighFreqDataPackage const& data) {
 
     QTime time = QTime::fromMSecsSinceStartOfDay(static_cast<int>(data.timeStamp));
     if (time.isValid())
-        updateCharts(static_cast<int>(data.timeStamp), data.m_encoderValue, data.m_steeringAngle);
+        updateCharts(data.timeStamp, data.m_encoderValue, speed, data.m_steeringAngle);
 }
 
 void Adapter::slotData(LowFreqDataPackage const& data) {

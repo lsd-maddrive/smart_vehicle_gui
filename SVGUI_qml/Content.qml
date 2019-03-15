@@ -4,8 +4,8 @@ import QtQuick.Layouts 1.1
 import QtCharts 2.2
 
 Item {
-    property var encoderSeries: charts_encoder_series
-    property var potentiometerSeries: charts_potentiometer_series
+    property var speedSeries: charts_speed_series
+    property var steeringSeries: charts_steering_series
 
     function log(message)   {
         log_textArea.append(message);
@@ -173,14 +173,14 @@ Item {
                             model:  ListModel   {
                                 id: values_list_model
                                 ListElement {
-                                    name: "Encoder"
+                                    name: "Odometry"
                                     value: 0
-                                    measure: "smthng"
+                                    measure: "m"
                                 }
                                 ListElement {
                                     name: "Steering wheel"
                                     value: 0
-                                    measure: "angle"
+                                    measure: "°"
                                 }
                                 ListElement {
                                     name: "Speed"
@@ -259,46 +259,46 @@ Item {
                         }
 
                         ChartView   {
-                            id: charts_encoder
+                            id: charts_speed
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             antialiasing: true
                             backgroundRoundness: 10
                             theme: ChartView.ChartThemeQt
                             LineSeries {
-                                id: charts_encoder_series
-                                name: "Encoder"
+                                id: charts_speed_series
+                                name: "Vehicle speed"
                                 useOpenGL: true
                                 axisX: ValueAxis    {
-                                     id: charts_encoder_time_axis
+                                     id: charts_speed_time_axis
                                      max: 60
                                      min: 0
                                 }
                                 axisY: ValueAxis    {
-                                    id: charts_encoder_axis
+                                    id: charts_speed_axis
                                     min: -10
                                     max: 10
                                 }
                             }
                         }
                         ChartView   {
-                            id: charts_potentiometer
+                            id: charts_steering
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             antialiasing: true
                             backgroundRoundness: 10
                             theme: ChartView.ChartThemeQt
                             LineSeries {
-                                id: charts_potentiometer_series
-                                name: "Potentiometer"
+                                id: charts_steering_series
+                                name: "Steering wheel rotating angle"
                                 useOpenGL: true
                                 axisX: ValueAxis    {
-                                    id: charts_potentiometer_time_axis
+                                    id: charts_steering_time_axis
                                     max: 60
                                     min: 0
                                 }
                                 axisY: ValueAxis    {
-                                    id: charts_potentiometer_axis
+                                    id: charts_steering_axis
                                     min: -10
                                     max: 10
                                 }

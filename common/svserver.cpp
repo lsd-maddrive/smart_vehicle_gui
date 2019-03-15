@@ -170,8 +170,6 @@ void SVServer::slotNewConnection()  {
     connect(newConnection, SIGNAL(disconnected()), this, SLOT(slotClientDisconnected()));
     connect(newConnection, SIGNAL(readyRead()),this, SLOT(slotReadyRead()));
     connect(newConnection, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));
-
-    emit signalNewConnection(newConnection->socketDescriptor());
 }
 
 void SVServer::slotAcceptError(QAbstractSocket::SocketError error)    {
@@ -206,6 +204,7 @@ void SVServer::slotReadyRead()  {
             if (message.endsWith(validAuthPackage.authRequest)) {
                 log("Valid GUI device connected.");
                 sendTo(client, AuthAnswerPackage(1, 2, 3));
+                emit signalNewConnection(client->socketDescriptor());
             }
         }   else
         if (bytes.at(0) == TaskPackage::packageType)    {

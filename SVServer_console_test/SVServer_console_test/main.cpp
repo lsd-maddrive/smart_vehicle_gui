@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
     qsrand(midnight.secsTo(QTime::currentTime()));
 
     static float t = 0;
+    static float x = 0;
 
     MapPackage map({{1, 1, 1, 1, 1, 1, 1, 1},
                     {1, 0, 0, 0, 0, 0, 0, 1},
@@ -31,8 +32,10 @@ int main(int argc, char *argv[])
         HighFreqDataPackage data;
         t += 0.01f;
         float v = sin(t) * 15;
+        //x += 0.1f + (qrand() % 100 - 50) / 100;
+        x += 0.1f;
 
-        data.m_encoderValue = v;
+        data.m_encoderValue = x;
         data.m_steeringAngle = v;
 
         server.slotSendHighFreqData(data);

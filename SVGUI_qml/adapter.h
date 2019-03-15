@@ -22,20 +22,21 @@ private:
 
     static const int chartTimeRange = 60;
     static const int chartTimeInc = 10;
-    static const int chartStartAmp = 10;
-    int chartEncAmpl = chartStartAmp;
-    int chartPotAmpl = chartStartAmp;
+    static const int chartStartSpeedAmp = 5;
+    static const int chartStartSteeringAmp = 10;
+    int chartSpeedAmpl = chartStartSpeedAmp;
+    int chartSteeringAmpl = chartStartSteeringAmp;
     int chartAxisStart = 0;
-    int chartStartTime = 0; //msec
-    QVector<QPointF> encoderChartArray;
-    QVector<QPointF> potentiometerChartArray;
-    QVector<QPointF> getChartData(QVector<QPointF> const& list);
+    quint32 chartStartTime = 0; //msec
+    QVector<QPointF> encoderArray;
+    QVector<QPointF> speedChartArray;
+    QVector<QPointF> steeringChartArray;
 
-    QtCharts::QLineSeries *encoderSeries;
-    QtCharts::QLineSeries* potentiometerSeries;
-    void updateCharts(int const& msec, float const& encVal, float const& potVal);
+    QtCharts::QLineSeries *speedSeries;
+    QtCharts::QLineSeries *steeringSeries;
+    void updateCharts(quint32 const& msec, float const& encoder, float const& speed, float const& steering);
     void clearCharts();
-    float getSpeed(float currentTime, float currentEncoder) const;
+    float getSpeed(quint32 currentTime, float currentEncoder) const;
 
 public:
     explicit Adapter(QObject *parent = nullptr);
@@ -65,7 +66,6 @@ signals:
     void signalUIMap(int w, int h, QList<int> const& cellList);
 
 public slots:
-    void slotTest();
     void slotUISetSerieses(QObject *encoderSeries, QObject *potentiometerSeries);
     void slotUISearch();
     void slotUIConnect(QString address, QString port = "5556");

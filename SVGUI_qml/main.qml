@@ -124,7 +124,7 @@ ApplicationWindow {
         anchors.horizontalCenter: parent.horizontalCenter
     }
     Component.onCompleted: {
-        adapter.slotUISetSerieses(content_item.encoderSeries, content_item.potentiometerSeries);
+        adapter.slotUISetSerieses(content_item.speedSeries, content_item.steeringSeries);
     }
 }
 

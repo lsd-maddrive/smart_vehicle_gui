@@ -1,5 +1,4 @@
 #include "datapackage.h"
-#include <cassert>
 
 const char AuthPackage::authRequest[10] = {'k', 'o', 'n', 'n', 'i', 'c', 'h', 'i', 'w', 'a'};
 
@@ -140,19 +139,16 @@ size_t SetRequestPackage::size() const   {
 
 MapPackage::MapPackage()    {}
 
+
+/*
+ * cells for this constructor must contain full rectangle matrix
+ */
 MapPackage::MapPackage(QVector<QVector<qint8>> const& cells)    {
     _cells = cells;
 
     mapHeight = static_cast<qint8>(cells.size());
     if (mapHeight)  {
         mapWidth = static_cast<qint8>(cells.first().size());
-
-        /*
-         * map must be full rectangle
-         */
-        for (auto const& line : cells) {
-            assert (static_cast<qint8>(line.size()) == mapWidth);
-        }
     }
 }
 
