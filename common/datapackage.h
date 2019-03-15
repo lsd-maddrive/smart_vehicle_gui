@@ -207,4 +207,7 @@ struct HighFreqDataPackage : Package   {
  *
  */
 
+Q_DECLARE_METATYPE(HighFreqDataPackage);
+Q_DECLARE_METATYPE(LowFreqDataPackage);
+
 #endif // DATAPACKAGE_H
