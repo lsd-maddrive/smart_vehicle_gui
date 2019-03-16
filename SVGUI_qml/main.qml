@@ -107,6 +107,11 @@ ApplicationWindow {
             id: content_item
         }
 
+        ControlPanel    {
+            id: control_item
+            isConnected: connection_state == "CONNECTED"
+        }
+
         CellMap {
             id: map_item
         }

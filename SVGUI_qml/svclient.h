@@ -43,6 +43,7 @@ public slots:
     void slotUICommand(TaskPackage const& task);
     void slotUISettingsLoad(SetPackage const& set);
     void slotUISettingsUpload();
+    void slotUIControl(ControlPackage const& data);
 signals:
     void signalUIAddresses(QList<QString> const& addresses);
     void signalUIConnected(qint8 const& state);

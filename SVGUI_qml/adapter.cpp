@@ -147,6 +147,13 @@ void Adapter::slotUIClearCharts()   {
     clearCharts();
 }
 
+void Adapter::slotUIControl(float const& xAxis, float const& yAxis) {
+    ControlPackage data;
+    data.xAxis = xAxis;
+    data.yAxis = yAxis;
+    emit signalControl(data);
+}
+
 void Adapter::slotAddresses(QList<QString> const& addresses)    {
     emit signalUIAddresses(addresses);
 }

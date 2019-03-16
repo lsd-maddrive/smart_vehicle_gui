@@ -50,6 +50,7 @@ signals:
     void signalDisconnect();
     void signalSettingsLoad(SetPackage const& set);
     void signalSettingsUpload();
+    void signalControl(ControlPackage const& data);
 
     void signalUILog(QString const& message);
     void signalUIAddresses(QList<QString> const& addresses);
@@ -79,6 +80,7 @@ public slots:
     void slotUICommandWheels(float const& degrees);
     void slotUICommandFlick();
     void slotUIClearCharts();
+    void slotUIControl(float const& xAxis, float const& yAxis);
 
     void slotAddresses(QList<QString> const& addresses);
     void slotConnected(qint8 const& state);

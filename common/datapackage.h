@@ -168,6 +168,22 @@ struct HighFreqDataPackage : Package   {
     size_t size() const;
 };
 
+struct ControlPackage : Package {
+    static const qint8 packageType = 10;
+    float xAxis;
+    float yAxis;
+
+    enum DataType   {
+        XAXIS = 1,
+        YAXIS = 2
+    };
+
+    explicit ControlPackage();
+    explicit ControlPackage(QByteArray &bytes);
+    QByteArray toBytes() const;
+    size_t size() const;
+};
+
 /*
  *  packageType:
  *      0 - Empty
@@ -211,5 +227,6 @@ struct HighFreqDataPackage : Package   {
 
 Q_DECLARE_METATYPE(HighFreqDataPackage);
 Q_DECLARE_METATYPE(LowFreqDataPackage);
+Q_DECLARE_METATYPE(ControlPackage);
 
 #endif // DATAPACKAGE_H

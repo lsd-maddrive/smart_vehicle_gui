@@ -206,8 +206,7 @@ void SVServer::slotReadyRead()  {
                 sendTo(client, AuthAnswerPackage(1, 2, 3));
                 emit signalNewConnection(client->socketDescriptor());
             }
-        }   else
-        if (bytes.at(0) == TaskPackage::packageType)    {
+        }   else if (bytes.at(0) == TaskPackage::packageType)    {
             TaskPackage task(bytes);
 
             log("Task package:");
@@ -236,19 +235,20 @@ void SVServer::slotReadyRead()  {
             }   else {
                 log("Vehicle is busy.");
             }
-        }   else
-        if (bytes.at(0) == SetPackage::packageType)  {
+        }   else if (bytes.at(0) == SetPackage::packageType)  {
             SetPackage set(bytes);
             emit signalSetSteering(set.steering_p, set.steering_i, set.steering_d, set.steering_servoZero);
             emit signalSetForward(set.forward_p, set.forward_i, set.forward_d, set.forward_int);
             emit signalSetBackward(set.backward_p, set.backward_i, set.backward_d, set.backward_int);
             log("Incoming new settings");
-        }   else
-        if (bytes.at(0) == SetRequestPackage::packageType)   {
+        }   else if (bytes.at(0) == SetRequestPackage::packageType)   {
             emit signalUploadSettings();
             log("Incoming settings request");
-        }
-        else {
+        } else if (bytes.at(0) == ControlPackage::packageType)  {
+            ControlPackage control(bytes);
+            qDebug() << "Control: " << control.xAxis << " : " << control.yAxis;
+            emit signalControl(control);
+        } else {
             log("Corrupted or illegal package.");
         }
     }

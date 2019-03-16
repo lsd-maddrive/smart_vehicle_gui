@@ -290,3 +290,34 @@ size_t HighFreqDataPackage::size() const {
     return static_cast<size_t>(toBytes().size());
 }
 
+ControlPackage::ControlPackage()    {
+
+}
+
+ControlPackage::ControlPackage(QByteArray &bytes)   {
+    QDataStream stream(&bytes, QIODevice::ReadOnly);
+
+    stream.skipRawData(sizeof(packageType));
+
+    stream.skipRawData(sizeof(DataType));
+    stream >> xAxis;
+    stream.skipRawData(sizeof(DataType));
+    stream >> yAxis;
+}
+
+QByteArray ControlPackage::toBytes() const  {
+    QByteArray bytes;
+    QDataStream stream(&bytes, QIODevice::WriteOnly);
+
+    stream << packageType;
+    stream << DataType::XAXIS;
+    stream << xAxis;
+    stream << DataType::YAXIS;
+    stream << yAxis;
+
+    return bytes;
+}
+
+size_t ControlPackage::size()   const   {
+    return toBytes().size();
+}

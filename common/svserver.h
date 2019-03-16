@@ -90,6 +90,7 @@ signals:
     void signalUploadSettings();
     void signalNewConnection(qintptr descriptor);
     void signalDisconnected(qintptr descriptor);
+    void signalControl(ControlPackage const& control);
 };
 
 #endif // SVSERVER_H

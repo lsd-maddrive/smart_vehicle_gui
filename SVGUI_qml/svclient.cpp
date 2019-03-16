@@ -185,3 +185,7 @@ void SVClient::slotUISettingsUpload()   {
     SetRequestPackage request;
     sendData(request.toBytes());
 }
+
+void SVClient::slotUIControl(ControlPackage const& data)    {
+    sendData(data.toBytes());
+}

@@ -4,12 +4,12 @@
         <file>corner.png</file>
         <file>error.png</file>
         <file>About.qml</file>
-        <file>Commands.qml</file>
         <file>Settings.qml</file>
         <file>Content.qml</file>
         <file>Connection.qml</file>
         <file>CellMap.qml</file>
         <file>vehicle.png</file>
         <file>no_map.png</file>
+        <file>ControlPanel.qml</file>
     </qresource>
 </RCC>
