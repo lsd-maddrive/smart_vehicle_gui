@@ -48,6 +48,13 @@ Item {
             anchors.topMargin: 5
         }
 
+        Image   {
+            id: no_map_img
+            anchors.fill: parent
+            source: "no_map.png"
+            visible: !isVisible
+        }
+
         Image {
             id: vehicle_img
             x: 0; y: 0

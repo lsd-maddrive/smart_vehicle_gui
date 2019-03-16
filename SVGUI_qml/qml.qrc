@@ -10,5 +10,6 @@
         <file>Connection.qml</file>
         <file>CellMap.qml</file>
         <file>vehicle.png</file>
+        <file>no_map.png</file>
     </qresource>
 </RCC>
