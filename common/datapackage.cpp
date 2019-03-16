@@ -289,3 +289,4 @@ QByteArray HighFreqDataPackage::toBytes() const  {
 size_t HighFreqDataPackage::size() const {
     return static_cast<size_t>(toBytes().size());
 }
+
