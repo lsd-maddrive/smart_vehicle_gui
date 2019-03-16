@@ -226,6 +226,7 @@ void Adapter::slotData(HighFreqDataPackage const& data) {
     float speed = getSpeed(data.timeStamp, data.m_encoderValue);
 
     emit signalUIUpdateHighFreqData(data.m_encoderValue, data.m_steeringAngle, speed);
+    emit signalUIUpdatePosition(data.x, data.y, data.angle);
 
     QTime time = QTime::fromMSecsSinceStartOfDay(static_cast<int>(data.timeStamp));
     if (time.isValid())

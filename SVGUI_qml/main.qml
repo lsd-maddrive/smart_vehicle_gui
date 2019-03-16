@@ -72,6 +72,9 @@ ApplicationWindow {
         onSignalUIMap:  {
             map_item.setMap(w, h, cellList);
         }
+        onSignalUIUpdatePosition: {
+            map_item.setPos(x, y, angle);
+        }
     }
 
     footer: Rectangle {

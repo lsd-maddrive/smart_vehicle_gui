@@ -5,11 +5,22 @@ Item {
     property int map_width: 0
     property int map_height: 0
     property var cellList: undefined
+    property bool isVisible: false
+    property int header_height: 50
+    property double cell_width: container.width / map_width
+    property double cell_height: (container.height - header_height) / map_height
 
     function setMap(w, h, newCellList)   {
         map_height = h;
         map_width = w;
         cellList = newCellList;
+        isVisible = true;
+        vehicle_img.visible = true;
+    }
+    function setPos(x, y, angle) {
+        vehicle_img.x = x * cell_width - vehicle_img.width / 2;
+        vehicle_img.y = y * cell_height - vehicle_img.height / 2 + header_height;
+        vehicle_img.rotation = angle;
     }
 
     Rectangle   {
@@ -37,8 +48,18 @@ Item {
             anchors.topMargin: 5
         }
 
+        Image {
+            id: vehicle_img
+            x: 0; y: 0
+            visible: false
+            width: cell_width / 3
+            height: cell_height / 2
+            source: "vehicle.png"
+            z: 10
+        }
+
         Column  {
-            x: 0; y: 50
+            x: 0; y: header_height
             Repeater    {
                 id: column_repeater
                 model: map_height
@@ -49,8 +70,8 @@ Item {
                         property int column_index: index
                         model: map_width
                         delegate: Rectangle   {
-                             width: container.width / map_width
-                             height: (container.height - 50) / map_height
+                             width: cell_width
+                             height: cell_height
                              color: (cellList[row_repeater.column_index * map_width + index] !== 1) ? "white" : "lightgray"
                              border.width: 1
                              border.color: "gray"

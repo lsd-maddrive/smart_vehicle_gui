@@ -152,12 +152,14 @@ struct HighFreqDataPackage : Package   {
     float m_steeringAngle;
     float x;
     float y;
+    float angle;
 
     enum DataType {
         ENCODER = 1,
         STEERING = 2,
         X = 3,
-        Y = 4
+        Y = 4,
+        ANGLE = 5
     };
 
     explicit HighFreqDataPackage();

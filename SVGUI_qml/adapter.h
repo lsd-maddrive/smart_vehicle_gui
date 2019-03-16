@@ -57,6 +57,7 @@ signals:
     void signalUIDisconnected();
     void signalUIConnectionError();
     void signalUIStatus(QString const& str);
+    void signalUIUpdatePosition(float const& x, float const& y, float const& angle);
     void signalUIUpdateHighFreqData(float const& encValue, float const& potValue, float const& speedValue);
     void signalUIUpdateLowFreqData(quint32 const& firstBatteryValue, quint32 const& secondBatteryValue, float const& temp);
     void signalUISettings(float steering_p, float steering_i, float steering_d, float steering_zero,

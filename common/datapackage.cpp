@@ -262,6 +262,8 @@ HighFreqDataPackage::HighFreqDataPackage(QByteArray& bytes) {
     stream >> x;
     stream.skipRawData(sizeof(DataType));
     stream >> y;
+    stream.skipRawData(sizeof(DataType));
+    stream >> angle;
 }
 
 QByteArray HighFreqDataPackage::toBytes() const  {
@@ -278,6 +280,8 @@ QByteArray HighFreqDataPackage::toBytes() const  {
     stream << x;
     stream << DataType::Y;
     stream << y;
+    stream << DataType::ANGLE;
+    stream << angle;
 
     return bytes;
 }

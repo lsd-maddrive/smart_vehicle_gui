@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
 
     static float t = 0;
     static float x = 0;
+    static float angle = 0;
 
     MapPackage map({{1, 1, 1, 1, 1, 1, 1, 1},
                     {1, 0, 0, 0, 0, 0, 0, 1},
@@ -34,9 +35,13 @@ int main(int argc, char *argv[])
         float v = sin(t) * 15;
         //x += 0.1f + (qrand() % 100 - 50) / 100;
         x += 0.1f;
+        angle += 1;
 
         data.m_encoderValue = x;
         data.m_steeringAngle = v;
+        data.x = cos(t) + 3;
+        data.y = sin(t) + 3;
+        data.angle = angle;
 
         server.slotSendHighFreqData(data);
 
@@ -47,6 +52,7 @@ int main(int argc, char *argv[])
     QObject::connect(timerLowFreq, &QTimer::timeout, [&server] {
         LowFreqDataPackage data;
 
+        data.stateType = LowFreqDataPackage::State::WAIT;
         data.m_compBatteryPerc = qrand() % 100;
         data.m_motorBatteryPerc = qrand() % 100;
         data.m_temp = qrand() % 100;

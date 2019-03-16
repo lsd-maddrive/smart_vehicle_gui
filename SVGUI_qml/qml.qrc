@@ -9,5 +9,6 @@
         <file>Content.qml</file>
         <file>Connection.qml</file>
         <file>CellMap.qml</file>
+        <file>vehicle.png</file>
     </qresource>
 </RCC>
