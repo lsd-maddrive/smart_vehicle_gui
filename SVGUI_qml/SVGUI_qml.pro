@@ -17,7 +17,8 @@ SOURCES += \
         main.cpp \
         ../common/datapackage.cpp \
         svclient.cpp \
-        adapter.cpp
+        adapter.cpp \
+    ../common/svserver.cpp
 
 RESOURCES += qml.qrc
 
@@ -37,6 +38,7 @@ INCLUDEPATH += ../common/
 HEADERS += \
         ../common/datapackage.h \
         svclient.h \
-        adapter.h
+        adapter.h \
+    ../common/svserver.h
 
 DISTFILES +=
