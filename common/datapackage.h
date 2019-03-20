@@ -17,7 +17,7 @@ struct Package
 struct AuthPackage : public Package
 {
     static const qint8 packageType = 1;
-    static const char authRequest[10];
+    static const char authRequest[];
 
     explicit AuthPackage();
     QByteArray toBytes() const;
@@ -228,5 +228,6 @@ struct ControlPackage : Package {
 Q_DECLARE_METATYPE(HighFreqDataPackage);
 Q_DECLARE_METATYPE(LowFreqDataPackage);
 Q_DECLARE_METATYPE(ControlPackage);
+Q_DECLARE_METATYPE(MapPackage);
 
 #endif // DATAPACKAGE_H

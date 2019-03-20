@@ -1,6 +1,9 @@
 #include "datapackage.h"
 
-const char AuthPackage::authRequest[10] = {'k', 'o', 'n', 'n', 'i', 'c', 'h', 'i', 'w', 'a'};
+/* Check this! You use many functions for strings, but put array of chars without terminator ymbol \0 */
+/* Better use casual string or change to QString with fixed size */
+//const char AuthPackage::authRequest[10] = {'k', 'o', 'n', 'n', 'i', 'c', 'h', 'i', 'w', 'a'};
+const char AuthPackage::authRequest[] = "konnichiwa";
 
 AuthPackage::AuthPackage() {}
 
@@ -201,11 +204,15 @@ QByteArray MapPackage::toBytes() const  {
     return bytes;
 }
 
-LowFreqDataPackage::LowFreqDataPackage() {
-    timeStamp = static_cast<quint32>(QTime::currentTime().msecsSinceStartOfDay());
+LowFreqDataPackage::LowFreqDataPackage() :
+    LowFreqDataPackage( State::WAIT ) /* Delegated to LowFreqDataPackage(State state) */
+{
+
 }
 
-LowFreqDataPackage::LowFreqDataPackage(State state) {
+LowFreqDataPackage::LowFreqDataPackage(State state) :
+    m_motorBatteryPerc( 0 ), m_compBatteryPerc( 0 ), m_temp( 0 )
+{
     stateType = state;
     timeStamp = static_cast<quint32>(QTime::currentTime().msecsSinceStartOfDay());
 }
@@ -245,7 +252,9 @@ size_t LowFreqDataPackage::size() const {
     return static_cast<size_t>(toBytes().size());
 }
 
-HighFreqDataPackage::HighFreqDataPackage() {
+HighFreqDataPackage::HighFreqDataPackage() :
+    m_encoderValue( 0 ), m_steeringAngle( 0 ), x( 0 ), y( 0 ), angle( 0 )
+{
     timeStamp = static_cast<quint32>(QTime::currentTime().msecsSinceStartOfDay());
 }
 

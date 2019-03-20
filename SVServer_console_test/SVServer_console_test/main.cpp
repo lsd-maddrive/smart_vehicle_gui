@@ -3,6 +3,8 @@
 #include <QTime>
 #include <QTimer>
 
+#include <cmath>
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
