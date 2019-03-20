@@ -3,6 +3,8 @@ import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
 
 Item {
+    property int control_sending_freq: settings_ui_control_sending_freq.value
+
     function showAddresses(addresses)   {
         connection_addresses_model.clear();
         for (var index in addresses)    {
@@ -19,10 +21,10 @@ Item {
                  forward_p, forward_i, forward_d, forward_int,
                  backward_p, backward_i, backward_d, backward_int)  {
 
-        settings_vehicle_steering_p.value = steering_p;
-        settings_vehicle_steering_i.value = steering_i;
-        settings_vehicle_steering_d.value = steering_d;
-        settings_vehicle_steering_zero_slider.value = steering_zero;
+        settings_vehicle_common_p.text = steering_p;
+        settings_vehicle_common_i.text = steering_i;
+        settings_vehicle_common_d.text = steering_d;
+        settings_vehicle_common_zero.value = steering_zero;
 
         settings_vehicle_forward_p.value = forward_p;
         settings_vehicle_forward_i.value = forward_i;
@@ -45,7 +47,7 @@ Item {
             anchors.margins: 20
 
             Rectangle   {
-                id: commands_container
+                id: settings_ui_container
                 Layout.columnSpan: 20
                 Layout.rowSpan: 20
                 Layout.fillHeight: true
@@ -56,100 +58,41 @@ Item {
                 color: "#f4f4f4"
 
                 Image   {
-                    id: commands_corner
-                    x: 0
-                    y: 0
+                    id: settings_ui_corner
+                    x: 0; y: 0
                     width: 30
                     height: 30
                     source: "corner.png"
                 }
                 Label   {
-                    id: commands_label
+                    id: settings_ui_label
+                    text: qsTr("Smart vehicle settings")
                     anchors.top: parent.top
                     anchors.left: parent.left
                     anchors.margins: 10
                     anchors.leftMargin: 30
-                    text: qsTr("Commands")
                     font.pointSize: 14
                     font.bold: true
-                }                
-                Column  {
-                    anchors.top: commands_label.bottom
-                    anchors.left: parent.left
-                    anchors.margins: 20
+                }
+
+                ColumnLayout    {
+                    y: 50
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     Row {
-                        bottomPadding: 20
-                        Label  {
-                            id: commands_forward_text
-                            text: qsTr("1. Move smart car forward for " + commands_forward_slider.value.toPrecision(3) + " centimeters.")
+                        Layout.margins: 20
+                        spacing: 20
+                        Label   {
+                            text: qsTr("Sending frequency")
+                            font.bold: true
                             font.pointSize: 12
                         }
-                    }
-
-                    Row {
-                        id: commands_forward
-                        bottomPadding: 20
-                        Slider  {
-                            id: commands_forward_slider
-                            from: 10
-                            to: 100
-                            value: 50
-                        }
-                        Button  {
-                            id: commands_forwawrd_button
-                            text: qsTr("Move")
-                            enabled: (statusBar_label.text === "WAIT" || statusBar_label === "STOP")
-                            onClicked: {
-                                adapter.slotUICommandForward(commands_forward_slider.value);
-                            }
-                        }
-                    }
-
-                    Row {
-                        bottomPadding: 20
-                        Label  {
-                            id: commands_wheels_text
-                            text: qsTr("2. Rotate smart vehicle's wheels for " + commands_wheels_slider.value.toPrecision(3) + " degrees.")
-                            font.pointSize: 12
-                        }
-                    }
-                    Row {
-                        id: commands_wheels
-                        anchors.margins: 20
-                        Slider  {
-                            id: commands_wheels_slider
-                            from: -50
-                            to: 50
-                            value: 0
-                        }
-                        Button  {
-                            id: commands_wheels_button
-                            text: qsTr("Rotate")
-                            enabled: (statusBar_label.text === "WAIT" || statusBar_label === "STOP")
-                            onClicked: {
-                                adapter.slotUICommandWheels(commands_wheels_slider.value);
-                            }
-                        }
-                    }
-
-                    Row {
-                        bottomPadding: 20
-                        Label  {
-                            id: commands_ligths_text
-                            text: qsTr("3. Flick smart vehicle's ligths 3 times.")
-                            font.pointSize: 12
-                        }
-                    }
-                    Row {
-                        id: commands_lights
-                        anchors.margins: 20
-                        Button  {
-                            id: commands_lights_button
-                            text: qsTr("Flick")
-                            enabled: (statusBar_label.text === "WAIT" || statusBar_label === "STOP")
-                            onClicked: {
-                                adapter.slotUICommandFlick();
-                            }
+                        SpinBox {
+                            id: settings_ui_control_sending_freq
+                            value: 100
+                            from: 10; to: 1000
+                            stepSize: 10
+                            editable: true
                         }
                     }
                 }
@@ -169,8 +112,7 @@ Item {
                     color: "#f4f4f4"
                     Image   {
                         id: settings_vehicle_corner
-                        x: 0
-                        y: 0
+                        x: 0; y: 0
                         width: 30
                         height: 30
                         source: "corner.png"
@@ -197,7 +139,7 @@ Item {
                         }
 
                         TabButton {
-                            text: qsTr("Steering")
+                            text: qsTr("Common")
                             width: 100; height: 30
                             contentItem: Text {
                                 text: parent.text
@@ -249,245 +191,151 @@ Item {
                         currentIndex: settings_vehicle_tabBar.currentIndex
 
                         Item {
-                            id: settings_vehicle_steering
-                            Column    {
-                                anchors.fill: parent
-                                padding: 10
+                            id: settings_vehicle_common
+                            anchors.margins: 20
 
-                                Row {
-                                    padding: 10
-                                    spacing: 5
-                                    Dial    {
-                                        id: settings_vehicle_steering_p
-                                        width: 100; height: 100
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-                                        Label   {
-                                            text: qsTr("P: ") + settings_vehicle_steering_p.value.toPrecision(3)
-                                            font.pointSize: 12
-                                            x: 25; y: 40
-                                        }
-                                    }
-                                    Dial    {
-                                        id: settings_vehicle_steering_i
-                                        width: 100; height: 100
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-                                        Label   {
-                                            text: qsTr("I: ") + settings_vehicle_steering_i.value.toPrecision(3)
-                                            font.pointSize: 12
-                                            x: 25; y: 40
-                                        }
-                                    }
-                                    Dial    {
-                                        id: settings_vehicle_steering_d
-                                        width: 100; height: 100
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-                                        Label   {
-                                            text: qsTr("D: ") + settings_vehicle_steering_d.value.toPrecision(3)
-                                            font.pointSize: 12
-                                            x: 25; y: 40
-                                        }
-                                    }
+                            Grid  {
+                                padding: 20
+                                columns: 2
+                                columnSpacing: 10
+                                rowSpacing: 10
+                                Label   {
+                                    text: "P"
+                                    font.pointSize: 12
                                 }
-                                Row {
-                                    padding: 10
-                                    Slider  {
-                                        id: settings_vehicle_steering_zero_slider
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-
-                                        background: Rectangle {
-                                                x: parent.leftPadding
-                                                y: parent.topPadding + parent.availableHeight / 2 - height / 2
-                                                implicitWidth: 200
-                                                implicitHeight: 4
-                                                width: parent.availableWidth
-                                                height: implicitHeight
-                                                radius: 2
-                                                color: "#bdbebf"
-
-                                                Rectangle {
-                                                    width: settings_vehicle_steering_zero_slider.visualPosition * parent.width
-                                                    height: parent.height
-                                                    color: "#4fc622"
-                                                    radius: 2
-                                                }
-                                            }
-                                    }
-                                    Label   {
-                                        id: settings_vehicle_steering_zero_label
-                                        font.pointSize: 12
-                                        text: qsTr("Servo zero state: \n") + settings_vehicle_steering_zero_slider.value.toPrecision(3)
-                                    }
-
+                                TextField   {
+                                    id: settings_vehicle_common_p
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "P coefficient..."
+                                }
+                                Label   {
+                                    text: "I"
+                                    font.pointSize: 12
+                                }
+                                TextField   {
+                                    id: settings_vehicle_common_i
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "I coefficient..."
+                                }
+                                Label   {
+                                    text: "D"
+                                    font.pointSize: 12
+                                }
+                                TextField   {
+                                    id: settings_vehicle_common_d
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "D coefficient..."
+                                }
+                                Label   {
+                                    text: "Zero"
+                                    font.pointSize: 12
+                                }
+                                TextField   {
+                                    id: settings_vehicle_common_zero
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "Servo zero state..."
                                 }
                             }
                         }
                         Item {
                             id: settings_vehicle_forward
-                            Column    {
-                                anchors.fill: parent
-                                padding: 10
-
-                                Row {
-                                    padding: 10
-                                    spacing: 5
-                                    Dial    {
-                                        id: settings_vehicle_forward_p
-                                        width: 100; height: 100
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-                                        Label   {
-                                            text: qsTr("P: ") + settings_vehicle_forward_p.value.toPrecision(3)
-                                            font.pointSize: 12
-                                            x: 25; y: 40
-                                        }
-                                    }
-                                    Dial    {
-                                        id: settings_vehicle_forward_i
-                                        width: 100; height: 100
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-                                        Label   {
-                                            text: qsTr("I: ") + settings_vehicle_forward_i.value.toPrecision(3)
-                                            font.pointSize: 12
-                                            x: 25; y: 40
-                                        }
-                                    }
-                                    Dial    {
-                                        id: settings_vehicle_forward_d
-                                        width: 100; height: 100
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-                                        Label   {
-                                            text: qsTr("D: ") + settings_vehicle_forward_d.value.toPrecision(3)
-                                            font.pointSize: 12
-                                            x: 25; y: 40
-                                        }
-                                    }
+                            Grid  {
+                                padding: 20
+                                columns: 2
+                                columnSpacing: 10
+                                rowSpacing: 10
+                                Label   {
+                                    text: "P"
+                                    font.pointSize: 12
                                 }
-                                Row {
-                                    padding: 10
-                                    Slider  {
-                                        id: settings_vehicle_forward_int_slider
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-
-                                        background: Rectangle {
-                                                x: parent.leftPadding
-                                                y: parent.topPadding + parent.availableHeight / 2 - height / 2
-                                                implicitWidth: 200
-                                                implicitHeight: 4
-                                                width: parent.availableWidth
-                                                height: implicitHeight
-                                                radius: 2
-                                                color: "#bdbebf"
-
-                                                Rectangle {
-                                                    width: settings_vehicle_forward_int_slider.visualPosition * parent.width
-                                                    height: parent.height
-                                                    color: "#4fc622"
-                                                    radius: 2
-                                                }
-                                            }
-                                    }
-                                    Label   {
-                                        id: settings_vehicle_forward_int_label
-                                        font.pointSize: 12
-                                        text: qsTr("Integrator limit: \n") + settings_vehicle_forward_int_slider.value.toPrecision(3)
-                                    }
-
+                                TextField   {
+                                    id: settings_vehicle_forward_p
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "P coefficient..."
+                                }
+                                Label   {
+                                    text: "I"
+                                    font.pointSize: 12
+                                }
+                                TextField   {
+                                    id: settings_vehicle_forward_i
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "I coefficient..."
+                                }
+                                Label   {
+                                    text: "D"
+                                    font.pointSize: 12
+                                }
+                                TextField   {
+                                    id: settings_vehicle_forward_d
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "D coefficient..."
+                                }
+                                Label   {
+                                    text: "Int. limit"
+                                    font.pointSize: 12
+                                }
+                                TextField   {
+                                    id: settings_vehicle_forward_intLimit
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "Intergator limit..."
                                 }
                             }
                         }
                         Item {
                             id: settings_vehicle_backward
-                            Column    {
-                                anchors.fill: parent
-                                padding: 10
-
-                                Row {
-                                    padding: 10
-                                    spacing: 5
-                                    Dial    {
-                                        id: settings_vehicle_backward_p
-                                        width: 100; height: 100
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-                                        Label   {
-                                            text: qsTr("P: ") + settings_vehicle_backward_p.value.toPrecision(3)
-                                            font.pointSize: 12
-                                            x: 25; y: 40
-                                        }
-                                    }
-                                    Dial    {
-                                        id: settings_vehicle_backward_i
-                                        width: 100; height: 100
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-                                        Label   {
-                                            text: qsTr("I: ") + settings_vehicle_backward_i.value.toPrecision(3)
-                                            font.pointSize: 12
-                                            x: 25; y: 40
-                                        }
-                                    }
-                                    Dial    {
-                                        id: settings_vehicle_backward_d
-                                        width: 100; height: 100
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-                                        Label   {
-                                            text: qsTr("D: ") + settings_vehicle_backward_d.value.toPrecision(3)
-                                            font.pointSize: 12
-                                            x: 25; y: 40
-                                        }
-                                    }
+                            Grid  {
+                                padding: 20
+                                columns: 2
+                                columnSpacing: 10
+                                rowSpacing: 10
+                                Label   {
+                                    text: "P"
+                                    font.pointSize: 12
                                 }
-                                Row {
-                                    padding: 10
-                                    Slider  {
-                                        id: settings_vehicle_backward_int_slider
-                                        from: 0.1; to: 10
-                                        value: 1
-                                        stepSize: 0.01
-
-                                        background: Rectangle {
-                                                x: parent.leftPadding
-                                                y: parent.topPadding + parent.availableHeight / 2 - height / 2
-                                                implicitWidth: 200
-                                                implicitHeight: 4
-                                                width: parent.availableWidth
-                                                height: implicitHeight
-                                                radius: 2
-                                                color: "#bdbebf"
-
-                                                Rectangle {
-                                                    width: settings_vehicle_backward_int_slider.visualPosition * parent.width
-                                                    height: parent.height
-                                                    color: "#4fc622"
-                                                    radius: 2
-                                                }
-                                            }
-                                    }
-                                    Label   {
-                                        id: settings_vehicle_backward_int_label
-                                        font.pointSize: 12
-                                        text: qsTr("Integrator limit: \n") + settings_vehicle_backward_int_slider.value.toPrecision(3)
-                                    }
-
+                                TextField   {
+                                    id: settings_vehicle_backward_p
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "P coefficient..."
+                                }
+                                Label   {
+                                    text: "I"
+                                    font.pointSize: 12
+                                }
+                                TextField   {
+                                    id: settings_vehicle_backward_i
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "I coefficient..."
+                                }
+                                Label   {
+                                    text: "D"
+                                    font.pointSize: 12
+                                }
+                                TextField   {
+                                    id: settings_vehicle_backward_d
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "D coefficient..."
+                                }
+                                Label   {
+                                    text: "Int. limit"
+                                    font.pointSize: 12
+                                }
+                                TextField   {
+                                    id: settings_vehicle_backward_intLimit
+                                    validator: DoubleValidator{ bottom: 0; top: 100 }
+                                    text: "1.0"
+                                    placeholderText: "Intergator limit..."
                                 }
                             }
                         }
@@ -502,14 +350,13 @@ Item {
                             id: settings_vehicle_load
                             text: qsTr("Load")
                             onClicked:  {
-                                adapter.slotUISettingsLoad(settings_vehicle_steering_p.value, settings_vehicle_steering_i.value,
-                                                           settings_vehicle_steering_d.value, settings_vehicle_steering_zero_slider.value,
+                                adapter.slotUISettingsLoad(settings_vehicle_common_p.value, settings_vehicle_common_i.value,
+                                                           settings_vehicle_common_d.value, settings_vehicle_common_zero.value,
                                                            settings_vehicle_forward_p.value, settings_vehicle_forward_i.value,
                                                            settings_vehicle_forward_d.value, settings_vehicle_forward_int_slider.value,
                                                            settings_vehicle_backward_p.value, settings_vehicle_backward_i.value,
                                                            settings_vehicle_backward_d.value, settings_vehicle_backward_int_slider.value);
                             }
-
                         }
                         Button  {
                             id: settings_vehicle_upload

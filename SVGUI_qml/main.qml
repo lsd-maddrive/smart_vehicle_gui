@@ -110,6 +110,7 @@ ApplicationWindow {
         ControlPanel    {
             id: control_item
             isConnected: connection_state == "CONNECTED"
+            control_sending_freq: settings_item.control_sending_freq
         }
 
         CellMap {

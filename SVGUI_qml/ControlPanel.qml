@@ -4,6 +4,8 @@ import QtQuick.Layouts 1.11
 
 Item {
     property bool isConnected: false
+    property int control_sending_freq: 10
+
     Rectangle   {
         id: container
         anchors.fill: parent
@@ -20,7 +22,7 @@ Item {
         Label {
             id: log_label
             x: 30; y: -5
-            text: qsTr("Map viewer")
+            text: qsTr("Control panel")
             font.pointSize: 14
             font.bold: true
             anchors.left: parent.left
@@ -166,7 +168,7 @@ Item {
             id: send_timer
             repeat: true
             running: control_switch.position && isConnected
-            interval: 100
+            interval: 1000 / control_sending_freq
             onTriggered: {
                 adapter.slotUIControl(steering_control.value, engine_control.value);
             }
