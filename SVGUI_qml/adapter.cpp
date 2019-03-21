@@ -31,29 +31,12 @@ QString Adapter::getStatusStr(const qint8 &state)  {
 }
 
 void Adapter::clearCharts() {
+    speedSeries.clear();
+    steeringSeries.clear();
+    tempSeries.clear();
 
-    if (speedSeries)
-        speedSeries->clear();
-    if (steeringSeries)
-        steeringSeries->clear();
-
-    speedChartArray.clear();
-    steeringChartArray.clear();
-
-    chartAxisStart = 0;
     chartStartTime = 0;
-    chartSpeedAmpl = chartStartSpeedAmp;
-    chartSteeringAmpl = chartStartSteeringAmp;
-
-    speedSeries->attachedAxes().at(1)->setMax(chartSpeedAmpl);
-    speedSeries->attachedAxes().at(1)->setMin(-chartSpeedAmpl);
-    steeringSeries->attachedAxes().at(1)->setMax(chartSpeedAmpl);
-    steeringSeries->attachedAxes().at(1)->setMin(-chartSpeedAmpl);
-
-    speedSeries->attachedAxes().at(0)->setMax(chartTimeRange);
-    speedSeries->attachedAxes().at(0)->setMin(0);
-    steeringSeries->attachedAxes().at(0)->setMax(chartTimeRange);
-    steeringSeries->attachedAxes().at(0)->setMin(0);
+    encoderLast = QPointF();
 }
 
 
@@ -61,14 +44,22 @@ void Adapter::log(const QString &message)   {
     emit signalUILog(message);
 }
 
-void Adapter::slotUISetSerieses(QObject *speedSeries, QObject *steeringSeries)   {
-    if (speedSeries && steeringSeries)  {
+void Adapter::slotUISetSerieses(QObject *speedSeries, QObject *steeringSeries, QObject *tempSeries)   {
+    if (speedSeries)  {
         this->speedSeries = qobject_cast<QtCharts::QLineSeries*>(speedSeries);
+        qDebug() << "Speed series has been initialized.";
+    }   else
+        qDebug() << "Speed series init error.";
+    if (steeringSeries) {
         this->steeringSeries = qobject_cast<QtCharts::QLineSeries*>(steeringSeries);
-        qDebug() << "Chart serieses initialized";
-    }   else {
-        qDebug() << "Chart initializing error. Nullptr detected";
-    }
+        qDebug() << "Steering serieses has been initialized.";
+    }   else
+        qDebug() << "Steering series init error.";
+    if (tempSeries) {
+        this->tempSeries = qobject_cast<QtCharts::QLineSeries*>(tempSeries);
+        qDebug() << "Temperature serieses has been initialized.";
+    }   else
+        qDebug() << "Temperature series init error.";
 }
 
 void Adapter::slotUISearch()    {
@@ -180,64 +171,30 @@ void Adapter::slotConnectionError(QString message) {
     log("Connection error: " + message);
 }
 
-void Adapter::updateCharts(const quint32 &msec, const float &encoder, const float &speed, const float &steering) {
-    if (!chartStartTime)
-        chartStartTime = msec;
-    float deltaTime = (msec - chartStartTime) / 1000.0f;
-    if (deltaTime > chartTimeRange + chartAxisStart)
-        chartAxisStart += chartTimeInc;
-
-    encoderArray.append(QPointF(deltaTime, encoder));
-    speedChartArray.append(QPointF(deltaTime, speed));
-    steeringChartArray.append(QPointF(deltaTime, steering));
-
-    if (speedSeries)  {
-        speedSeries->replace(speedChartArray);
-        if (deltaTime > chartTimeRange) {
-            speedSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
-            speedSeries->attachedAxes().first()->setMin(chartAxisStart);
-        }
-        if (abs(speed)>= chartSpeedAmpl) {
-            chartSpeedAmpl = static_cast<int>(abs(speed)) + 2;
-            speedSeries->attachedAxes().at(1)->setMax(chartSpeedAmpl);
-            speedSeries->attachedAxes().at(1)->setMin(-chartSpeedAmpl);
-        }
-    }
-    if (steeringSeries)    {
-        steeringSeries->replace(steeringChartArray);
-        if (deltaTime > chartTimeRange) {
-            steeringSeries->attachedAxes().first()->setMax(chartAxisStart + chartTimeRange);
-            steeringSeries->attachedAxes().first()->setMin(chartAxisStart);
-        }
-        if (abs(steering) >= chartSteeringAmpl) {
-            chartSteeringAmpl = static_cast<int>(abs(steering)) + 2;
-            steeringSeries->attachedAxes().at(1)->setMax(chartSteeringAmpl);
-            steeringSeries->attachedAxes().at(1)->setMin(-chartSteeringAmpl);
-        }
-    }
-}
-
-float Adapter::getSpeed(quint32 msec, float currentEncoder) const {
-    if (encoderArray.empty())   {
+float Adapter::getSpeed(float currentTime, float currentEncoder) {
+    if (encoderLast.isNull())   {
+        encoderLast = QPointF(currentTime, currentEncoder);
         return 0;
     }
-    float deltaTime = (msec - chartStartTime) / 1000.0f;
-    QPointF encoderPrev = encoderArray.last();
-    float speed = (currentEncoder - encoderPrev.y()) / (deltaTime - encoderPrev.x());
+    float speed = (currentEncoder - encoderLast.y()) / (currentTime - encoderLast.x());
+    encoderLast = QPointF(currentTime, currentEncoder);
     return speed;
 }
 
 void Adapter::slotData(HighFreqDataPackage const& data) {
     qDebug() << "Adapter: incoming high freq data package";
 
-    float speed = getSpeed(data.timeStamp, data.m_encoderValue);
+    if (!chartStartTime)
+        chartStartTime = data.timeStamp;
+    float deltaTime = (data.timeStamp - chartStartTime) / 1000.0f;
+
+    float speed = getSpeed(deltaTime, data.m_encoderValue);
 
     emit signalUIUpdateHighFreqData(data.m_encoderValue, data.m_steeringAngle, speed);
     emit signalUIUpdatePosition(data.x, data.y, data.angle);
 
-    QTime time = QTime::fromMSecsSinceStartOfDay(static_cast<int>(data.timeStamp));
-    if (time.isValid())
-        updateCharts(data.timeStamp, data.m_encoderValue, speed, data.m_steeringAngle);
+    speedSeries.addPoint(QPointF(deltaTime, speed));
+    steeringSeries.addPoint(QPointF(deltaTime, data.m_steeringAngle));
 }
 
 void Adapter::slotData(LowFreqDataPackage const& data) {
@@ -248,6 +205,12 @@ void Adapter::slotData(LowFreqDataPackage const& data) {
 
     emit signalUIStatus(stateString);
     emit signalUIUpdateLowFreqData(data.m_motorBatteryPerc, data.m_compBatteryPerc, data.m_temp);
+
+    if (!chartStartTime)
+        chartStartTime = data.timeStamp;
+    float deltaTime = (data.timeStamp - chartStartTime) / 1000.0f;
+
+    tempSeries.addPoint(QPointF(deltaTime, data.m_temp));
 }
 
 void Adapter::slotDone(qint8 const& COI, qint8 const& answerCode) {

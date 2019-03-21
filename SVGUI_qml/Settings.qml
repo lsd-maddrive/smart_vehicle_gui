@@ -29,12 +29,12 @@ Item {
         settings_vehicle_forward_p.value = forward_p;
         settings_vehicle_forward_i.value = forward_i;
         settings_vehicle_forward_d.value = forward_d;
-        settings_vehicle_forward_int_slider.value = forward_int;
+        settings_vehicle_forward_intLimit.value = forward_int;
 
         settings_vehicle_backward_p.value = backward_p;
         settings_vehicle_backward_i.value = backward_i;
         settings_vehicle_backward_d.value = backward_d;
-        settings_vehicle_backward_int_slider.value = backward_int;
+        settings_vehicle_backward_intLimit.value = backward_int;
     }
 
     Rectangle   {

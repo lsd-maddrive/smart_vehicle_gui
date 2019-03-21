@@ -110,7 +110,7 @@ Item {
                     anchors.fill: parent
                     anchors.topMargin: 10
                     anchors.leftMargin: 10
-                    text: connection_addresses_model.get(connection_addresses_listView.currentIndex).address;
+                    text: connection_addresses_model.get(connection_addresses_listView.currentIndex).address
                     font.pointSize: 12
                 }
             }

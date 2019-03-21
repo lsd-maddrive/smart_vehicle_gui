@@ -133,7 +133,7 @@ ApplicationWindow {
         anchors.horizontalCenter: parent.horizontalCenter
     }
     Component.onCompleted: {
-        adapter.slotUISetSerieses(content_item.speedSeries, content_item.steeringSeries);
+        adapter.slotUISetSerieses(content_item.speedSeries, content_item.steeringSeries, content_item.tempSeries);
     }
 }
 

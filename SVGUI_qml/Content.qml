@@ -6,6 +6,7 @@ import QtCharts 2.2
 Item {
     property var speedSeries: charts_speed_series
     property var steeringSeries: charts_steering_series
+    property var tempSeries: charts_temp_series
 
     function log(message)   {
         log_textArea.append(message);
@@ -104,20 +105,10 @@ Item {
                             ScrollBar.vertical.policy: ScrollBar.AlwaysOn
                             TextArea {
                                 id: log_textArea
-                                x: 0
-                                y: 0
-                                width: 0
-                                height: 0
+                                width: 0; height: 0
                                 text: qsTr("Application is ready.")
-                                leftPadding: 10
                                 padding: 10
-                                rightPadding: 10
-                                bottomPadding: 10
                                 topPadding: 40
-                                anchors.rightMargin: 0
-                                anchors.leftMargin: 0
-                                anchors.bottomMargin: 0
-                                anchors.topMargin: 0
                                 clip: false
                                 visible: true
                                 anchors.fill: parent
@@ -232,75 +223,109 @@ Item {
                         source: "corner.png"
                     }
 
-                    ColumnLayout    {
-                        anchors.fill: parent
-                        RowLayout {
-                            Layout.alignment: Layout.TopLeft
-                            Layout.leftMargin: 40
-                            Layout.topMargin: 5
-                            Layout.rightMargin: 5
-                            Label {
-                                id: charts_label
-                                text: qsTr("Charts viewer")
-                                font.bold: true
-                                font.pointSize: 14
-                                Layout.fillWidth: true
-                            }
-                            Button  {
-                                id: charts_clear_button
-                                height: 30
-                                text: qsTr("Clear charts")
-                                font.pointSize: 12
-                                Layout.fillWidth: true
-                                onClicked: {
-                                    adapter.slotUIClearCharts();
-                                }
+                    RowLayout {
+                        anchors.leftMargin: 40
+                        anchors.topMargin: 10
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        Label {
+                            id: charts_label
+                            text: qsTr("Charts viewer")
+                            font.bold: true
+                            font.pointSize: 14
+                            Layout.fillWidth: true
+                        }
+                        Button  {
+                            id: charts_clear_button
+                            height: 30
+                            text: qsTr("Clear charts")
+                            font.pointSize: 12
+                            Layout.fillWidth: true
+                            onClicked: {
+                                adapter.slotUIClearCharts();
                             }
                         }
+                    }
 
-                        ChartView   {
-                            id: charts_speed
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            antialiasing: true
-                            backgroundRoundness: 10
-                            theme: ChartView.ChartThemeQt
-                            LineSeries {
-                                id: charts_speed_series
-                                name: "Vehicle speed"
-                                useOpenGL: true
-                                axisX: ValueAxis    {
-                                     id: charts_speed_time_axis
-                                     max: 60
-                                     min: 0
-                                }
-                                axisY: ValueAxis    {
-                                    id: charts_speed_axis
-                                    min: -10
-                                    max: 10
+                    ScrollView   {
+                        x: 0; y: charts_clear_button.height + 20
+                        width: parent.width
+                        height: parent.height - (charts_clear_button.height + 20)
+                        contentWidth: charts_speed.width
+                        contentHeight: charts_container.height * 1.5
+                        clip: true
+                        ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+
+                        ColumnLayout    {
+                            width: charts_container.width
+                            height: charts_container.height * 1.5
+                            ChartView   {
+                                id: charts_speed
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                antialiasing: true
+                                backgroundRoundness: 10
+                                theme: ChartView.ChartThemeQt
+                                LineSeries {
+                                    id: charts_speed_series
+                                    name: "Vehicle speed"
+                                    useOpenGL: true
+                                    axisX: ValueAxis    {
+                                        id: charts_speed_time_axis
+                                        max: 60
+                                        min: 0
+                                    }
+                                    axisY: ValueAxis    {
+                                        id: charts_speed_axis
+                                        min: -10
+                                        max: 10
+                                    }
                                 }
                             }
-                        }
-                        ChartView   {
-                            id: charts_steering
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            antialiasing: true
-                            backgroundRoundness: 10
-                            theme: ChartView.ChartThemeQt
-                            LineSeries {
-                                id: charts_steering_series
-                                name: "Steering wheel rotating angle"
-                                useOpenGL: true
-                                axisX: ValueAxis    {
-                                    id: charts_steering_time_axis
-                                    max: 60
-                                    min: 0
+                            ChartView   {
+                                id: charts_steering
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                antialiasing: true
+                                backgroundRoundness: 10
+                                theme: ChartView.ChartThemeQt
+                                LineSeries {
+                                    id: charts_steering_series
+                                    name: "Steering wheel rotating angle"
+                                    useOpenGL: true
+                                    axisX: ValueAxis    {
+                                        id: charts_steering_time_axis
+                                        max: 60
+                                        min: 0
+                                    }
+                                    axisY: ValueAxis    {
+                                        id: charts_steering_axis
+                                        min: -10
+                                        max: 10
+                                    }
                                 }
-                                axisY: ValueAxis    {
-                                    id: charts_steering_axis
-                                    min: -10
-                                    max: 10
+                            }
+                            ChartView   {
+                                id: charts_temp
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                antialiasing: true
+                                backgroundRoundness: 10
+                                theme: ChartView.ChartThemeQt
+                                LineSeries {
+                                    id: charts_temp_series
+                                    name: "Temperature °C"
+                                    useOpenGL: true
+                                    axisX: ValueAxis    {
+                                        id: charts_temp_time_axis
+                                        max: 60
+                                        min: 0
+                                    }
+                                    axisY: ValueAxis    {
+                                        id: charts_temp_axis
+                                        min: -10
+                                        max: 10
+                                    }
                                 }
                             }
                         }
