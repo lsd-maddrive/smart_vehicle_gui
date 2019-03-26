@@ -1,7 +1,9 @@
 #include "adapter.h"
 
 Adapter::Adapter(QObject *parent) : QObject(parent) {
-
+    tempSeriesFilter.setFilter(Filter::KALMAN);
+    tempSeriesFilter.setAutoScale(false);
+    tempSeries.setAutoScale(false);
 }
 
 QString Adapter::getStatusStr(const qint8 &state)  {
@@ -39,27 +41,32 @@ void Adapter::clearCharts() {
     encoderLast = QPointF();
 }
 
-
 void Adapter::log(const QString &message)   {
     emit signalUILog(message);
 }
 
-void Adapter::slotUISetSerieses(QObject *speedSeries, QObject *steeringSeries, QObject *tempSeries)   {
+void Adapter::slotUISetSerieses(QObject *speedSeries, QObject *steeringSeries,
+                                QObject *tempSeries, QObject* tempSeriesFilter)   {
     if (speedSeries)  {
-        this->speedSeries = qobject_cast<QtCharts::QLineSeries*>(speedSeries);
+        this->speedSeries.setSeriesObj(qobject_cast<QtCharts::QLineSeries*>(speedSeries));
         qDebug() << "Speed series has been initialized.";
     }   else
         qDebug() << "Speed series init error.";
     if (steeringSeries) {
-        this->steeringSeries = qobject_cast<QtCharts::QLineSeries*>(steeringSeries);
+        this->steeringSeries.setSeriesObj(qobject_cast<QtCharts::QLineSeries*>(steeringSeries));
         qDebug() << "Steering serieses has been initialized.";
     }   else
         qDebug() << "Steering series init error.";
     if (tempSeries) {
-        this->tempSeries = qobject_cast<QtCharts::QLineSeries*>(tempSeries);
+        this->tempSeries.setSeriesObj(qobject_cast<QtCharts::QLineSeries*>(tempSeries));
         qDebug() << "Temperature serieses has been initialized.";
     }   else
         qDebug() << "Temperature series init error.";
+    if (tempSeriesFilter) {
+        this->tempSeriesFilter.setSeriesObj(qobject_cast<QtCharts::QLineSeries*>(tempSeriesFilter));
+        qDebug() << "Temperature filtered serieses has been initialized.";
+    }   else
+        qDebug() << "Temperature filtered series init error.";
 }
 
 void Adapter::slotUISearch()    {
@@ -210,7 +217,9 @@ void Adapter::slotData(LowFreqDataPackage const& data) {
         chartStartTime = data.timeStamp;
     float deltaTime = (data.timeStamp - chartStartTime) / 1000.0f;
 
-    tempSeries.addPoint(QPointF(deltaTime, data.m_temp));
+    QPointF point(deltaTime, data.m_temp);
+    tempSeries.addPoint(point);
+    tempSeriesFilter.addPoint(point);
 }
 
 void Adapter::slotDone(qint8 const& COI, qint8 const& answerCode) {

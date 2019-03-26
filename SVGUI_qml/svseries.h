@@ -5,6 +5,7 @@
 #include <QPointF>
 #include <QLineSeries>
 #include <QtMath>
+#include "filter.h"
 
 class SVSeries
 {
@@ -13,15 +14,19 @@ private:
     static const int chartTimeInc = 10;
     static const int chartStartAmp = 10;
     static const int chartAmpInc = 2;
+    bool autoScale = true;
 
     QtCharts::QLineSeries *series;
     QVector<QPointF> points;
     int chartAmp = chartStartAmp;
     int chartAxisStart = 0;
     quint32 chartStartTime = 0; //msec
+
+    Filter* filter = nullptr;
 public:
     SVSeries();
-    SVSeries(QObject *series);
+    SVSeries(QObject *series, Filter::FilterType type = Filter::NONE);
+    ~SVSeries();
 
     void setSeriesObj(QObject *series);
     QtCharts::QLineSeries* getSeriesPtr();
@@ -30,6 +35,10 @@ public:
     QPointF last() const;
     void clear();
     int size() const;
+    void setAutoScale(bool autoScale);
+
+    void setFilter(Filter::FilterType type);
+    Filter::FilterType filterType() const;
 };
 
 #endif // SVSERIES_H

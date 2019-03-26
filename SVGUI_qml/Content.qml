@@ -7,6 +7,7 @@ Item {
     property var speedSeries: charts_speed_series
     property var steeringSeries: charts_steering_series
     property var tempSeries: charts_temp_series
+    property var tempSeriesFilter: charts_temp_series_filter
 
     function log(message)   {
         log_textArea.append(message);
@@ -271,12 +272,10 @@ Item {
                                     name: "Vehicle speed"
                                     useOpenGL: true
                                     axisX: ValueAxis    {
-                                        id: charts_speed_time_axis
                                         max: 60
                                         min: 0
                                     }
                                     axisY: ValueAxis    {
-                                        id: charts_speed_axis
                                         min: -10
                                         max: 10
                                     }
@@ -294,12 +293,10 @@ Item {
                                     name: "Steering wheel rotating angle"
                                     useOpenGL: true
                                     axisX: ValueAxis    {
-                                        id: charts_steering_time_axis
                                         max: 60
                                         min: 0
                                     }
                                     axisY: ValueAxis    {
-                                        id: charts_steering_axis
                                         min: -10
                                         max: 10
                                     }
@@ -316,16 +313,20 @@ Item {
                                     id: charts_temp_series
                                     name: "Temperature °C"
                                     useOpenGL: true
+                                    style: Qt.DotLine
                                     axisX: ValueAxis    {
-                                        id: charts_temp_time_axis
                                         max: 60
                                         min: 0
                                     }
                                     axisY: ValueAxis    {
-                                        id: charts_temp_axis
-                                        min: -10
-                                        max: 10
+                                        min: 0
+                                        max: 100
                                     }
+                                }
+                                LineSeries  {
+                                    id: charts_temp_series_filter
+                                    name: "Filtered temperature °C"
+                                    useOpenGL: true
                                 }
                             }
                         }

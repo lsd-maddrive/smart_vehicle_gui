@@ -22,6 +22,7 @@ private:
     SVSeries speedSeries;
     SVSeries steeringSeries;
     SVSeries tempSeries;
+    SVSeries tempSeriesFilter;
 
     void clearCharts();
     float getSpeed(float currentTime, float currentEncoder);
@@ -56,7 +57,7 @@ signals:
     void signalUIMap(int w, int h, QList<int> const& cellList);
 
 public slots:
-    void slotUISetSerieses(QObject *encoderSeries, QObject *potentiometerSeries, QObject *tempSeries);
+    void slotUISetSerieses(QObject *encoderSeries, QObject *potentiometerSeries, QObject *tempSeries, QObject *tempSeriesFilter);
     void slotUISearch();
     void slotUIConnect(QString address, QString port = "5556");
     void slotUIDisconnect();
