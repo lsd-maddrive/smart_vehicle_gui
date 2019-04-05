@@ -38,6 +38,7 @@ public:
     void setAutoScale(bool autoScale);
 
     void setFilter(Filter::FilterType type);
+    bool setFilterK(float k);
     Filter::FilterType filterType() const;
 };
 

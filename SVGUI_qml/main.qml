@@ -134,7 +134,8 @@ ApplicationWindow {
     }
     Component.onCompleted: {
         console.log("Ready.");
-        adapter.slotUISetSerieses(content_item.speedSeries, content_item.steeringSeries, content_item.tempSeries, content_item.tempSeriesFilter);
+        adapter.slotUISetSerieses(content_item.speedSeries, content_item.speedSeriesFilter, content_item.steeringSeries,
+                                  content_item.tempSeries, content_item.tempSeriesFilter);
     }
 }
 

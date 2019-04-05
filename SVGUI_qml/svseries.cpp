@@ -109,6 +109,21 @@ void SVSeries::setFilter(Filter::FilterType type)   {
     }
 }
 
+bool SVSeries::setFilterK(float k)    {
+    if (filter) {
+        switch (filter->getType())  {
+        case Filter::NONE:  {
+            return false;
+        }
+        case Filter::KALMAN: {
+            dynamic_cast<FilterKalman*>(filter)->setK(k);
+            break;
+        }
+    }
+    }
+    return false;
+}
+
 Filter::FilterType SVSeries::filterType() const {
     return filter->getType();
 }

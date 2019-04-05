@@ -8,6 +8,7 @@ Item {
     property var steeringSeries: charts_steering_series
     property var tempSeries: charts_temp_series
     property var tempSeriesFilter: charts_temp_series_filter
+    property var speedSeriesFilter: charts_speed_series_filtered
 
     function log(message)   {
         log_textArea.append(message);
@@ -217,41 +218,79 @@ Item {
 
                     Image   {
                         id: charts_corner
-                        x: 0
-                        y: 0
-                        width: 30
-                        height: 30
+                        x: 0; y: 0
+                        width: 30; height: 30
                         source: "corner.png"
                     }
 
-                    RowLayout {
-                        anchors.leftMargin: 40
-                        anchors.topMargin: 10
-                        anchors.top: parent.top
+                    Label {
+                        id: charts_label
+                        x: 40; y: 5
+                        text: qsTr("Charts viewer")
+                        font.bold: true
+                        font.pointSize: 14
+                    }
+
+                    ColumnLayout    {
+                        id: charts_control_panel
+                        width: parent.width
                         anchors.left: parent.left
-                        Label {
-                            id: charts_label
-                            text: qsTr("Charts viewer")
-                            font.bold: true
-                            font.pointSize: 14
-                            Layout.fillWidth: true
-                        }
+                        anchors.top: charts_label.bottom
+                        anchors.topMargin: 10
+
                         Button  {
                             id: charts_clear_button
                             height: 30
                             text: qsTr("Clear charts")
                             font.pointSize: 12
+                            Layout.alignment: Qt.AlignHCenter
                             Layout.fillWidth: true
+                            Layout.leftMargin: 10; Layout.rightMargin: 10
                             onClicked: {
                                 adapter.slotUIClearCharts();
                             }
                         }
+
+                        RowLayout {
+                            Layout.margins: 10
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
+
+                            Switch  {
+                                id: charts_filter_button
+                                Layout.alignment: Qt.AlignLeft
+                                height: 30
+                                text: qsTr("Filter")
+                                font.pointSize: 12
+                                Layout.fillWidth: true
+                            }
+
+                            Slider {
+                                id: charts_filter_slider
+                                visible: charts_filter_button.position
+                                Layout.alignment: Qt.AlignLeft
+                                width: parent.width / 2
+                                from: 0; to: 1;
+                                value: 0.5
+                                onValueChanged: {
+                                    adapter.slotUISetFilterK(value);
+                                }
+                                Label   {
+                                    font.pointSize: 10
+                                    color: "#4fc622"
+                                    font.bold: true
+                                    text: "K: " + parent.value.toFixed(3)
+                                    z: 0
+                                }
+                            }
+
+                        }
                     }
 
                     ScrollView   {
-                        x: 0; y: charts_clear_button.height + 20
+                        y: charts_control_panel.height + charts_label.height + 10
                         width: parent.width
-                        height: parent.height - (charts_clear_button.height + 20)
+                        height: parent.height - charts_control_panel.height - charts_label.height - 10
                         contentWidth: charts_speed.width
                         contentHeight: charts_container.height * 1.5
                         clip: true
@@ -260,6 +299,8 @@ Item {
                         ColumnLayout    {
                             width: charts_container.width
                             height: charts_container.height * 1.5
+
+
                             ChartView   {
                                 id: charts_speed
                                 Layout.fillWidth: true
@@ -271,6 +312,7 @@ Item {
                                     id: charts_speed_series
                                     name: "Vehicle speed"
                                     useOpenGL: true
+                                    color: charts_filter_button.position ? "#4c4fc622" : "#4fc622"
                                     axisX: ValueAxis    {
                                         max: 60
                                         min: 0
@@ -279,6 +321,12 @@ Item {
                                         min: -10
                                         max: 10
                                     }
+                                }
+                                LineSeries  {
+                                    id: charts_speed_series_filtered
+                                    name: "Vehicle speed (filter)"
+                                    useOpenGL: true
+                                    visible: charts_filter_button.position
                                 }
                             }
                             ChartView   {
@@ -313,7 +361,7 @@ Item {
                                     id: charts_temp_series
                                     name: "Temperature °C"
                                     useOpenGL: true
-                                    style: Qt.DotLine
+                                    color: charts_filter_button.position ? "#4c4fc622" : "#4fc622"
                                     axisX: ValueAxis    {
                                         max: 60
                                         min: 0
@@ -327,10 +375,12 @@ Item {
                                     id: charts_temp_series_filter
                                     name: "Filtered temperature °C"
                                     useOpenGL: true
+                                    visible: charts_filter_button.position
                                 }
                             }
                         }
                     }
+
                 }
             }
         }

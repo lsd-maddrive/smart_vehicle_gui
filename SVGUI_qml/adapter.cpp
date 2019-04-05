@@ -1,6 +1,7 @@
 #include "adapter.h"
 
 Adapter::Adapter(QObject *parent) : QObject(parent) {
+    speedSeriesFilter.setFilter(Filter::KALMAN);
     tempSeriesFilter.setFilter(Filter::KALMAN);
     tempSeriesFilter.setAutoScale(false);
     tempSeries.setAutoScale(false);
@@ -34,8 +35,10 @@ QString Adapter::getStatusStr(const qint8 &state)  {
 
 void Adapter::clearCharts() {
     speedSeries.clear();
+    speedSeriesFilter.clear();
     steeringSeries.clear();
     tempSeries.clear();
+    tempSeriesFilter.clear();
 
     chartStartTime = 0;
     encoderLast = QPointF();
@@ -45,13 +48,18 @@ void Adapter::log(const QString &message)   {
     emit signalUILog(message);
 }
 
-void Adapter::slotUISetSerieses(QObject *speedSeries, QObject *steeringSeries,
+void Adapter::slotUISetSerieses(QObject *speedSeries, QObject* speedSeriesFilter, QObject *steeringSeries,
                                 QObject *tempSeries, QObject* tempSeriesFilter)   {
     if (speedSeries)  {
         this->speedSeries.setSeriesObj(qobject_cast<QtCharts::QLineSeries*>(speedSeries));
         qDebug() << "Speed series has been initialized.";
     }   else
         qDebug() << "Speed series init error.";
+    if (speedSeriesFilter)  {
+        this->speedSeriesFilter.setSeriesObj(qobject_cast<QtCharts::QLineSeries*>(speedSeriesFilter));
+        qDebug() << "Speed series (filter) has been initialized.";
+    }   else
+        qDebug() << "Speed series (filter) init error.";
     if (steeringSeries) {
         this->steeringSeries.setSeriesObj(qobject_cast<QtCharts::QLineSeries*>(steeringSeries));
         qDebug() << "Steering serieses has been initialized.";
@@ -152,6 +160,11 @@ void Adapter::slotUIControl(float const& xAxis, float const& yAxis) {
     emit signalControl(data);
 }
 
+void Adapter::slotUISetFilterK(float k) {
+    speedSeriesFilter.setFilterK(k);
+    tempSeriesFilter.setFilterK(k);
+}
+
 void Adapter::slotAddresses(QList<QString> const& addresses)    {
     emit signalUIAddresses(addresses);
 }
@@ -201,6 +214,7 @@ void Adapter::slotData(HighFreqDataPackage const& data) {
     emit signalUIUpdatePosition(data.x, data.y, data.angle);
 
     speedSeries.addPoint(QPointF(deltaTime, speed));
+    speedSeriesFilter.addPoint(QPointF(deltaTime, speed));
     steeringSeries.addPoint(QPointF(deltaTime, data.m_steeringAngle));
 }
 

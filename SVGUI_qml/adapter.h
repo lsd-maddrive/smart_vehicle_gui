@@ -20,6 +20,7 @@ private:
     int chartStartTime = 0;
     QPointF encoderLast;
     SVSeries speedSeries;
+    SVSeries speedSeriesFilter;
     SVSeries steeringSeries;
     SVSeries tempSeries;
     SVSeries tempSeriesFilter;
@@ -57,7 +58,8 @@ signals:
     void signalUIMap(int w, int h, QList<int> const& cellList);
 
 public slots:
-    void slotUISetSerieses(QObject *encoderSeries, QObject *potentiometerSeries, QObject *tempSeries, QObject *tempSeriesFilter);
+    void slotUISetSerieses(QObject *speedSeries, QObject* speedSeiresFilter,
+                           QObject *potentiometerSeries, QObject *tempSeries, QObject *tempSeriesFilter);
     void slotUISearch();
     void slotUIConnect(QString address, QString port = "5556");
     void slotUIDisconnect();
@@ -70,6 +72,7 @@ public slots:
     void slotUICommandFlick();
     void slotUIClearCharts();
     void slotUIControl(float const& xAxis, float const& yAxis);
+    void slotUISetFilterK(float k);
 
     void slotAddresses(QList<QString> const& addresses);
     void slotConnected(qint8 const& state);
