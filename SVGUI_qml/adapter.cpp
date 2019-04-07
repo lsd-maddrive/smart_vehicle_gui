@@ -1,8 +1,8 @@
 #include "adapter.h"
 
 Adapter::Adapter(QObject *parent) : QObject(parent) {
-    speedSeriesFilter.setFilter(Filter::KALMAN);
-    tempSeriesFilter.setFilter(Filter::KALMAN);
+    speedSeriesFilter.setFilter(Filter::GAF);
+    tempSeriesFilter.setFilter(Filter::GAF);
     tempSeriesFilter.setAutoScale(false);
     tempSeries.setAutoScale(false);
 }
@@ -158,6 +158,29 @@ void Adapter::slotUIControl(float const& xAxis, float const& yAxis) {
     data.xAxis = xAxis;
     data.yAxis = yAxis;
     emit signalControl(data);
+}
+
+void Adapter::slotUISetFilter(int filterType)   {
+    Filter::FilterType _filterType;
+    switch (filterType) {
+    case 0: {
+        _filterType = Filter::NONE;
+        break;
+    }
+    case 1: {
+        _filterType = Filter::KALMAN;
+        break;
+    }
+    case 2: {
+        _filterType = Filter::GAF;
+        break;
+    }
+    default:    {
+        _filterType = Filter::NONE;
+    }
+    }
+    speedSeriesFilter.setFilter(_filterType);
+    tempSeriesFilter.setFilter(_filterType);
 }
 
 void Adapter::slotUISetFilterK(float k) {

@@ -72,6 +72,7 @@ public slots:
     void slotUICommandFlick();
     void slotUIClearCharts();
     void slotUIControl(float const& xAxis, float const& yAxis);
+    void slotUISetFilter(int filterType);
     void slotUISetFilterK(float k);
 
     void slotAddresses(QList<QString> const& addresses);

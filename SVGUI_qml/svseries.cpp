@@ -13,7 +13,11 @@ SVSeries::SVSeries(QObject *series, Filter::FilterType type) {
         break;
     }
     case Filter::KALMAN:    {
-        filter = new FilterKalman(0.3f);
+        filter = new FilterKalman();
+        break;
+    }
+    case Filter::GAF:   {
+        filter = new FilterGA();
         break;
     }
     }
@@ -96,14 +100,20 @@ void SVSeries::setAutoScale(bool autoScale) {
 }
 
 void SVSeries::setFilter(Filter::FilterType type)   {
-    if (filter)
+    if (filter) {
         delete filter;
+        filter = nullptr;
+    }
     switch (type)   {
     case Filter::NONE:   {
         break;
     }
     case Filter::KALMAN:    {
         filter = new FilterKalman();
+        break;
+    }
+    case Filter::GAF:   {
+        filter = new FilterGA();
         break;
     }
     }
@@ -117,7 +127,10 @@ bool SVSeries::setFilterK(float k)    {
         }
         case Filter::KALMAN: {
             dynamic_cast<FilterKalman*>(filter)->setK(k);
-            break;
+            return true;
+        }
+        case Filter::GAF:   {
+            return false;
         }
     }
     }

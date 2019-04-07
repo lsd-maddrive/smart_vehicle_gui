@@ -256,18 +256,27 @@ Item {
                             Layout.fillHeight: true
                             Layout.fillWidth: true
 
-                            Switch  {
+                            /*Switch  {
                                 id: charts_filter_button
                                 Layout.alignment: Qt.AlignLeft
                                 height: 30
                                 text: qsTr("Filter")
                                 font.pointSize: 12
                                 Layout.fillWidth: true
+                            }*/
+
+                            ComboBox    {
+                                id: charts_filter_comboBox
+                                model: ["None", "Kalman", "Gliding Average"]
+                                displayText: currentText
+                                onActivated: {
+                                    adapter.slotUISetFilter(currentIndex);
+                                }
                             }
 
                             Slider {
                                 id: charts_filter_slider
-                                visible: charts_filter_button.position
+                                visible: charts_filter_comboBox.currentIndex == 1
                                 Layout.alignment: Qt.AlignLeft
                                 width: parent.width / 2
                                 from: 0; to: 1;
@@ -312,7 +321,7 @@ Item {
                                     id: charts_speed_series
                                     name: "Vehicle speed"
                                     useOpenGL: true
-                                    color: charts_filter_button.position ? "#4c4fc622" : "#4fc622"
+                                    color: charts_filter_comboBox.currentIndex !== 0 ? "#4c4fc622" : "#4fc622"
                                     axisX: ValueAxis    {
                                         max: 60
                                         min: 0
@@ -326,7 +335,7 @@ Item {
                                     id: charts_speed_series_filtered
                                     name: "Vehicle speed (filter)"
                                     useOpenGL: true
-                                    visible: charts_filter_button.position
+                                    visible: charts_filter_comboBox.currentIndex !== 0
                                 }
                             }
                             ChartView   {
@@ -361,7 +370,7 @@ Item {
                                     id: charts_temp_series
                                     name: "Temperature °C"
                                     useOpenGL: true
-                                    color: charts_filter_button.position ? "#4c4fc622" : "#4fc622"
+                                    color: charts_filter_comboBox.currentIndex !== 0 ? "#4c4fc622" : "#4fc622"
                                     axisX: ValueAxis    {
                                         max: 60
                                         min: 0
@@ -375,7 +384,7 @@ Item {
                                     id: charts_temp_series_filter
                                     name: "Filtered temperature °C"
                                     useOpenGL: true
-                                    visible: charts_filter_button.position
+                                    visible: charts_filter_comboBox.currentIndex !== 0
                                 }
                             }
                         }
