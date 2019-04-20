@@ -122,33 +122,6 @@ void Adapter::slotUISettingsUpload()    {
     emit signalSettingsUpload();
 }
 
-void Adapter::slotUICommandForward(float const& distantion) {
-    TaskPackage task(COI, 1, {distantion});
-    log("Command move forward for distantion: " + QString::number(distantion) + ", COI: " + QString::number(COI));
-    COI++;
-    if (COI >= 127)
-        COI = 1;
-    emit signalCommand(task);
-}
-
-void Adapter::slotUICommandWheels(float const& angle) {
-    TaskPackage task(COI, 2, {angle});
-    log("Command rotate wheels for angle: " + QString::number(angle) + ", COI: " + QString::number(COI));
-    COI++;
-    if (COI >= 127)
-        COI = 1;
-    emit signalCommand(task);
-}
-
-void Adapter::slotUICommandFlick() {
-    TaskPackage task(COI, 3);
-    log("Command flick, COI: " + QString::number(COI));
-    COI++;
-    if (COI >= 127)
-        COI = 1;
-    emit signalCommand(task);
-}
-
 void Adapter::slotUIClearCharts()   {
     clearCharts();
 }
@@ -259,18 +232,14 @@ void Adapter::slotData(LowFreqDataPackage const& data) {
     tempSeriesFilter.addPoint(point);
 }
 
-void Adapter::slotDone(qint8 const& COI, qint8 const& answerCode) {
+void Adapter::slotDone(qint8 const& answerCode) {
     switch (answerCode) {
     case 0: {
-        log("Task interrupted. Error. COI: " + QString::number(COI));
+        log("Error. Can't apply current settings.");
         break;
     }
     case 1: {
-        log("Starting task...");
-        break;
-    }
-    case 2: {
-        log("Task done. COI: " + QString::number(COI));
+        log("Setting complete.");
         break;
     }
     }

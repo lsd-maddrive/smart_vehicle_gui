@@ -11,7 +11,6 @@
 void initConnections(SVClient *client, Adapter *adapter)  {
     QObject::connect(adapter, SIGNAL(signalConnect(QString const&, quint16 const&)), client, SLOT(slotUIConnect(QString const&, quint16 const&)));
     QObject::connect(adapter, SIGNAL(signalDisconnect()), client, SLOT(slotUIDisconnect()));
-    QObject::connect(adapter, SIGNAL(signalCommand(TaskPackage const&)), client, SLOT(slotUICommand(TaskPackage const&)));
     QObject::connect(adapter, SIGNAL(signalSearch()), client, SLOT(slotUISearch()));
     QObject::connect(adapter, SIGNAL(signalSettingsLoad(SetPackage const&)), client, SLOT(slotUISettingsLoad(SetPackage const&)));
     QObject::connect(adapter, SIGNAL(signalSettingsUpload()), client, SLOT(slotUISettingsUpload()));
@@ -23,7 +22,7 @@ void initConnections(SVClient *client, Adapter *adapter)  {
     QObject::connect(client, SIGNAL(signalUIError(QString)), adapter, SLOT(slotConnectionError(QString)));
     QObject::connect(client, SIGNAL(signalUIData(LowFreqDataPackage const&)), adapter, SLOT(slotData(LowFreqDataPackage const&)));
     QObject::connect(client, SIGNAL(signalUIData(HighFreqDataPackage const&)), adapter, SLOT(slotData(HighFreqDataPackage const&)));
-    QObject::connect(client, SIGNAL(signalUIDone(qint8 const&, qint8 const&)), adapter, SLOT(slotDone(qint8 const&, qint8 const&)));
+    QObject::connect(client, SIGNAL(signalUIDone(qint8 const&)), adapter, SLOT(slotDone(qint8 const&)));
     QObject::connect(client, SIGNAL(signalUISettings(SetPackage const&)), adapter, SLOT(slotSettings(SetPackage const&)));
     QObject::connect(client, SIGNAL(signalUIMap(MapPackage const&)), adapter, SLOT(slotMap(MapPackage const&)));
     QObject::connect(client, SIGNAL(signalUIBrokenPackage()), adapter, SLOT(slotBrokenPackage()));
@@ -48,7 +47,6 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty())
         return -1;
 
-    QObject *root = engine.rootObjects().first();
     qDebug() << "Done. User interface is ready.";
 
     qDebug() << "Done. Aplication has been initialized and ready to work.";

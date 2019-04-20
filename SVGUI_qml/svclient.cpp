@@ -3,6 +3,7 @@
 SVClient::SVClient()
 {
     qDebug() << "Network client initializing...";
+
     socket = new QTcpSocket();
     connect(socket, SIGNAL(connected()), this, SLOT(slotConnected()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
@@ -112,9 +113,8 @@ void SVClient::slotReadyRead()  {
             gotAuthPackage = true;
             emit signalUIConnected(bytes[3]);
         }   else if (bytes.at(0) == AnswerPackage::packageType)   {
-            qDebug() << "Task #" << QString::number(bytes[1]) << " has been done.";
-            qDebug() << "Answer code: " << QString::number(bytes[2]);
-            emit signalUIDone(bytes[1], bytes[2]);
+            AnswerPackage answer(bytes);
+            emit signalUIDone(answer.answerType);
         }   else if (bytes.at(0) == LowFreqDataPackage::packageType) {
             LowFreqDataPackage data(bytes);
             emit signalUIData(data);
@@ -141,26 +141,21 @@ void SVClient::slotReadyRead()  {
 
 void SVClient::slotUISearch()   {
     qDebug() << "Searching...";
-        QList<QString> addressList;
-        /*
-        foreach (const QHostAddress &a, QNetworkInterface::allAddresses()) {
-            if (a.isGlobal() || a.isLoopback())
-                addressList.push_back(a.toString());
-        }*/
-        foreach(const QNetworkInterface &interface, QNetworkInterface::allInterfaces()) {
-            if (interface.type() == QNetworkInterface::Loopback || interface.type() == QNetworkInterface::Ethernet) {
-                foreach (const QNetworkAddressEntry &addressEntry, interface.addressEntries())   {
-                    QHostAddress address = addressEntry.ip();
-                    if (address.isGlobal()) {
-                        addressList.push_back(interface.addressEntries().first().ip().toString());
-                        break;
-                    }
+    QList<QString> addressList;
+    foreach(const QNetworkInterface &interface, QNetworkInterface::allInterfaces()) {
+        if (interface.type() == QNetworkInterface::Loopback || interface.type() == QNetworkInterface::Ethernet) {
+            foreach (const QNetworkAddressEntry &addressEntry, interface.addressEntries())   {
+                QHostAddress address = addressEntry.ip();
+                if (address.isGlobal()) {
+                    addressList.push_back(interface.addressEntries().first().ip().toString());
+                    break;
                 }
             }
         }
-        addressList.push_back("127.0.0.1");
+    }
+    addressList.push_back("127.0.0.1");
 
-        emit signalUIAddresses(addressList);
+    emit signalUIAddresses(addressList);
 }
 
 void SVClient::slotUIConnect(QString const& address, quint16 const& port) {
@@ -171,10 +166,6 @@ void SVClient::slotUIConnect(QString const& address, quint16 const& port) {
 
 void SVClient::slotUIDisconnect()   {
     disconnectFromHost();
-}
-
-void SVClient::slotUICommand(TaskPackage const& task)   {
-    sendData(task.toBytes());
 }
 
 void SVClient::slotUISettingsLoad(SetPackage const& set)    {

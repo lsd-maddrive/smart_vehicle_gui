@@ -11,7 +11,7 @@ struct Package
 {
     virtual QByteArray toBytes() const = 0;
     virtual size_t size() const = 0;
-    virtual ~Package() {}
+    virtual ~Package() = default;
 };
 
 struct AuthPackage : public Package
@@ -32,20 +32,6 @@ struct AuthAnswerPackage : public Package
     qint8 stateType;
 
     explicit AuthAnswerPackage(qint8 deviceType = 0, qint8 deviceID = 0, qint8 stateType = 0);
-    QByteArray toBytes() const;
-    size_t size() const;
-};
-
-struct TaskPackage : public Package
-{
-    static const qint8 packageType = 3;
-    qint8 COI;
-    qint8 taskType;
-    qint8 paramBlockSize;
-    QVector<float> params;
-
-    explicit TaskPackage(QByteArray &bytes);
-    explicit TaskPackage(qint8 COI = 0, qint8 taskType = 0, QVector<float> params = QVector<float>());
     QByteArray toBytes() const;
     size_t size() const;
 };
@@ -75,10 +61,10 @@ struct SetPackage : public Package
 struct AnswerPackage : public Package
 {
     static const qint8 packageType = 5;
-    qint8 COI;
     qint8 answerType;
 
-    explicit AnswerPackage(qint8 COI = 0, qint8 answerType = 0);
+    explicit AnswerPackage(qint8 answerType = 1);
+    explicit AnswerPackage(QByteArray& bytes);
     QByteArray toBytes() const;
     size_t size() const;
 };
@@ -200,16 +186,9 @@ struct ControlPackage : Package {
  *      2 - STOP
  *      3 - WAIT
  *
- *  TaskType:
- *      0 - checkConnection
- *      1 - goForward
- *      2 - rotateWheels
- *      3 - getSettings
- *
  *  AnswerType:
  *      0 - Error
- *      1 - StartingTask
- *      2 - FinishTask
+ *      1 - Setting complete
  *
  *  SetType:
  *      0 - p

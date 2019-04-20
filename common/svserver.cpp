@@ -1,6 +1,8 @@
 #include "svserver.h"
 
-Server::Server(QObject* parent)    {}
+Server::Server(QObject* parent)    {
+    this->setParent(parent);
+}
 
 SVServer::SVServer()   {
     log("Server initializing...");
@@ -27,8 +29,6 @@ void SVServer::log(QString const& message) {
 
 void SVServer::log(AnswerPackage const& answer)    {
     QString message = "Sending answer package: ";
-    message.append("COI: ");
-    message.append(QString::number(answer.COI));
     message.append("; Answer type: ");
     message.append(QString::number(answer.answerType));
 
@@ -64,7 +64,7 @@ bool SVServer::start(QHostAddress const& address, quint16 port)   {
             this->address = currentAddress;
             log("Server is listening. Address: " + currentAddress.toString() + ", port " + QString::number(port));
         }   else    {
-            log("Error! Cannot start server.");
+            log("Error! Cannot start server on address " + address.toString() + " and port " + QString::number(port));
         }
         emit signalUIChangeState(ready);
         return ready;
@@ -118,14 +118,13 @@ void SVServer::sendAll(AnswerPackage const &answer) {
 }
 
 void SVServer::sendTo(QTcpSocket* socket, QString const& data)   {
-    char *bytes = new char[(size_t) data.size() + 2];
-    bytes[0] = (char)data.size();
+    char *bytes = new char[static_cast<size_t>(data.size() + 2)];
+    bytes[0] = static_cast<char>(data.size());
     for (int i = 0; i < data.size(); i++)    {
-        bytes[i + 1] = (char) data.data()[i].toLatin1();
+        bytes[i + 1] = static_cast<char>(data.data()[i].toLatin1());
     }
     bytes[data.size() + 1] = '\0';
     socket->write(bytes);
-    //log(bytes);
 
     delete[] bytes;
 }
@@ -169,7 +168,7 @@ void SVServer::slotNewConnection()  {
 
     connect(newConnection, SIGNAL(disconnected()), this, SLOT(slotClientDisconnected()));
     connect(newConnection, SIGNAL(readyRead()),this, SLOT(slotReadyRead()));
-    connect(newConnection, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));
+    connect(newConnection, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotAcceptError(QAbstractSocket::SocketError)));    
 }
 
 void SVServer::slotAcceptError(QAbstractSocket::SocketError error)    {
@@ -199,41 +198,10 @@ void SVServer::slotReadyRead()  {
         log("Data[" + QString::number(blockSize) + "]: " + message);
 
         if (bytes.at(0) == AuthPackage::packageType)    {
-            log("First byte: " + QString::number(bytes[0]));
-
             if (message.endsWith(validAuthPackage.authRequest)) {
                 log("Valid GUI device connected.");
                 sendTo(client, AuthAnswerPackage(1, 2, 3));
                 emit signalNewConnection(client->socketDescriptor());
-            }
-        }   else if (bytes.at(0) == TaskPackage::packageType)    {
-            TaskPackage task(bytes);
-
-            log("Task package:");
-            log("COI: " + QString::number(task.COI) + "; TaskType: " + QString::number(task.taskType) + "; Parameters:");
-            for (float const& param : task.params)
-                log(QString::number(param));
-            if (!currentTaskCOI)    {
-                currentTaskCOI = task.COI;
-                switch (task.taskType)  {
-                case 1: {
-                    emit signalTaskForward(task.params.first());
-                    log("Starting task FORWARD...");
-                    break;
-                }
-                case 2: {
-                    emit signalTaskWheels(task.params.first());
-                    log("Starting task WHEELS");
-                    break;
-                }
-                case 3: {
-                    emit signalTaskFlick();
-                    log("Starting task FLICK");
-                    break;
-                }
-                }
-            }   else {
-                log("Vehicle is busy.");
             }
         }   else if (bytes.at(0) == SetPackage::packageType)  {
             SetPackage set(bytes);
@@ -266,11 +234,6 @@ void SVServer::slotUISendAll(QString message) {
     sendAll(message);
 }
 
-void SVServer::slotUITestAnswer()   {
-    sendAll(AnswerPackage(5, 2));
-    currentTaskCOI = 0;
-}
-
 void SVServer::slotUITestData(qint32 encoderValue, qint32 potentiometerValue) {
     HighFreqDataPackage data;
     data.m_steeringAngle = potentiometerValue;
@@ -279,9 +242,8 @@ void SVServer::slotUITestData(qint32 encoderValue, qint32 potentiometerValue) {
     sendAll(data.toBytes());
 }
 
-void SVServer::slotTaskDone(quint8 answerType)   {
-    sendAll(AnswerPackage(currentTaskCOI, answerType));
-    currentTaskCOI = 0;
+void SVServer::slotTaskDone(qint8 answerType)   {
+    sendAll(AnswerPackage(answerType));
 }
 
 void SVServer::slotSendHighFreqData(HighFreqDataPackage const& data)   {

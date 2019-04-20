@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QPointF>
 #include <QLineSeries>
-#include <QtMath>
 #include "filter.h"
 
 class SVSeries

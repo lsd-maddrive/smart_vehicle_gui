@@ -34,40 +34,6 @@ size_t AuthAnswerPackage::size() const  {
     return static_cast<size_t>(toBytes().size());
 }
 
-TaskPackage::TaskPackage(QByteArray &bytes) {
-    QDataStream stream(&bytes, QIODevice::ReadOnly);
-
-    stream.skipRawData(sizeof (TaskPackage::packageType));
-    stream >> COI;
-    stream >> taskType;
-    stream >> paramBlockSize;
-    for (int i = 0; i < paramBlockSize; i++)    {
-        float param;
-        stream >> param;
-        params.push_back(param);
-    }
-}
-
-TaskPackage::TaskPackage(qint8 COI, qint8 taskType, QVector<float> params) :
-    COI(COI), taskType(taskType), paramBlockSize(static_cast<qint8>(params.size())), params(params)    {}
-
-QByteArray TaskPackage::toBytes() const   {
-    QByteArray bytes;
-    QDataStream stream(&bytes, QIODevice::WriteOnly);
-
-    stream << COI;
-    stream << taskType;
-    stream << paramBlockSize;
-    for (float const& param : params)
-        stream << param;
-
-    return bytes;
-}
-
-size_t TaskPackage::size() const    {
-    return static_cast<size_t>(toBytes().size());
-}
-
 SetPackage::SetPackage(QByteArray& bytes)   {
     QDataStream stream(&bytes, QIODevice::ReadOnly);
 
@@ -113,13 +79,18 @@ size_t SetPackage::size() const {
     return static_cast<size_t>(toBytes().size());
 }
 
-AnswerPackage::AnswerPackage(qint8 COI, qint8 answerType) :
-    COI(COI), answerType(answerType) {}
+AnswerPackage::AnswerPackage(qint8 answerType) : answerType(answerType) {}
+
+AnswerPackage::AnswerPackage(QByteArray &bytes) {
+    QDataStream stream(&bytes, QIODevice::ReadOnly);
+
+    stream.skipRawData(sizeof( AnswerPackage::packageType ));
+    stream >> answerType;
+}
 
 QByteArray AnswerPackage::toBytes() const {
     QByteArray bytes;
-    bytes.append(packageType);
-    bytes.append(COI);
+    bytes.append(packageType);    
     bytes.append(answerType);
     return bytes;
 }

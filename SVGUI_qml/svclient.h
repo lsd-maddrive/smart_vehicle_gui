@@ -9,7 +9,6 @@
 #include <QTimer>
 #include <QNetworkInterface>
 #include "datapackage.h"
-#include "adapter.h"
 
 class SVClient : public QObject
 {
@@ -40,7 +39,6 @@ public slots:
     void slotUISearch();
     void slotUIConnect(QString const& address, quint16 const& port);
     void slotUIDisconnect();
-    void slotUICommand(TaskPackage const& task);
     void slotUISettingsLoad(SetPackage const& set);
     void slotUISettingsUpload();
     void slotUIControl(ControlPackage const& data);
@@ -51,7 +49,7 @@ signals:
     void signalUIError(QString message);
     void signalUIData(LowFreqDataPackage const& data);
     void signalUIData(HighFreqDataPackage const& data);
-    void signalUIDone(qint8 const& COI, qint8 const& answerCode);
+    void signalUIDone(qint8 const& answerCode);
     void signalUISettings(SetPackage const& set);
     void signalUIMap(MapPackage const& map);
     void signalUIBrokenPackage();

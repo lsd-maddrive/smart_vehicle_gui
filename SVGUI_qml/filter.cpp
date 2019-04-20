@@ -1,7 +1,5 @@
 #include "filter.h"
 
-Filter::Filter()    {}
-
 Filter::~Filter()   {}
 
 FilterKalman::FilterKalman(float K) : K(K) {}
@@ -23,26 +21,6 @@ double FilterKalman::calculate(double prev, double current)    {
 }
 
 FilterKalman::~FilterKalman() {}
-
-FilterLP::FilterLP(float K) : K(K)  {}
-
-void FilterLP::setK(float K)    {
-    this->K = K;
-}
-
-float FilterLP::getK() const    {
-    return K;
-}
-
-Filter::FilterType FilterLP::getType() const    {
-    return type;
-}
-
-double FilterLP::calculate(double prev, double current) {
-    return current;
-}
-
-FilterLP::~FilterLP()   {}
 
 FilterGA::FilterGA(int N) : N(N)  {}
 

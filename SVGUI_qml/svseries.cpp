@@ -1,5 +1,4 @@
 #include "svseries.h"
-#include <QDebug>
 
 SVSeries::SVSeries()
 {
@@ -24,8 +23,7 @@ SVSeries::SVSeries(QObject *series, Filter::FilterType type) {
 }
 
 SVSeries::~SVSeries()   {
-    if (filter)
-        delete filter;
+    delete filter;
 }
 
 void SVSeries::setSeriesObj(QObject *series)    {
@@ -100,10 +98,8 @@ void SVSeries::setAutoScale(bool autoScale) {
 }
 
 void SVSeries::setFilter(Filter::FilterType type)   {
-    if (filter) {
-        delete filter;
-        filter = nullptr;
-    }
+    delete filter;
+
     switch (type)   {
     case Filter::NONE:   {
         break;

@@ -5,13 +5,12 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QHostAddress>
-#include <QVector>
 #include <QDataStream>
 #include <QNetworkInterface>
 #include <QDebug>
 #include <QThread>
 #include <QTime>
-#include <QQueue>
+#include <QTimer>
 #include "datapackage.h"
 
 class Server : public QTcpServer    {
@@ -32,8 +31,7 @@ private:
      * все активные подключения хранятся в Map контейнере
      * в качестве ключа используется socket->socketDescriptor()
      */
-    AuthPackage validAuthPackage;
-    qint8 currentTaskCOI = 0;
+    AuthPackage validAuthPackage;    
 
     void sendTo(QTcpSocket* socket, QString const& data);
     void sendTo(QTcpSocket* socket, QByteArray const& data);
@@ -68,10 +66,9 @@ public slots:
     void slotUIStart(QString adress, quint16 port);
     void slotUIStop();
     void slotUISendAll(QString message);
-    void slotUITestAnswer();
     void slotUITestData(qint32, qint32);
 
-    void slotTaskDone(quint8 answerType);
+    void slotTaskDone(qint8 answerType);
     void slotSendHighFreqData(HighFreqDataPackage const& data);
     void slotSendLowFreqData(LowFreqDataPackage const& data);
     void slotSendSettings(SetPackage const& set);

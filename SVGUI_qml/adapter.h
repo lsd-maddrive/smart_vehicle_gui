@@ -5,8 +5,6 @@
 #include <QDebug>
 #include <QList>
 #include <QPointF>
-#include <QLineSeries>
-#include <QtMath>
 #include "datapackage.h"
 #include "svseries.h"
 
@@ -14,8 +12,7 @@ class Adapter : public QObject
 {
     Q_OBJECT
 private:
-    static QString getStatusStr(qint8 const& status);
-    qint8 COI = 1;
+    QString getStatusStr(qint8 const& status);
 
     int chartStartTime = 0;
     QPointF encoderLast;
@@ -33,8 +30,6 @@ public:
     void log(QString const& message);
 
 signals:
-    void signalCommand(TaskPackage const& task);
-
     void signalSearch();
     void signalConnect(QString const& address, quint16 const& port);
     void signalDisconnect();
@@ -54,7 +49,6 @@ signals:
     void signalUISettings(float steering_p, float steering_i, float steering_d, float steering_zero,
                           float forward_p, float forward_i, float forward_d, float forward_int,
                           float backward_p, float backward_i, float backward_d, float backward_int);
-    void signalUISetSerieses();
     void signalUIMap(int w, int h, QList<int> const& cellList);
 
 public slots:
@@ -67,9 +61,6 @@ public slots:
                             float forward_p, float forward_i, float forward_d, float forward_int,
                             float backward_p, float backward_i, float backward_d, float backward_int);
     void slotUISettingsUpload();
-    void slotUICommandForward(float const& distantion);
-    void slotUICommandWheels(float const& degrees);
-    void slotUICommandFlick();
     void slotUIClearCharts();
     void slotUIControl(float const& xAxis, float const& yAxis);
     void slotUISetFilter(int filterType);
@@ -81,7 +72,7 @@ public slots:
     void slotConnectionError(QString message);
     void slotData(LowFreqDataPackage const& data);
     void slotData(HighFreqDataPackage const& data);
-    void slotDone(qint8 const& COI, qint8 const& answerCode);
+    void slotDone(qint8 const& answerCode);
     void slotSettings(SetPackage const& set);
     void slotMap(MapPackage const& map);
     void slotBrokenPackage();
