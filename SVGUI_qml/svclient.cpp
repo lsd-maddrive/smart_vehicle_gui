@@ -5,6 +5,7 @@ SVClient::SVClient()
     qDebug() << "Network client initializing...";
 
     socket = new QTcpSocket();
+    //socket signal/slot connetions init
     connect(socket, SIGNAL(connected()), this, SLOT(slotConnected()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(slotReadyRead()));
@@ -75,6 +76,7 @@ bool SVClient::isConnected() const    {
 void SVClient::slotConnected()  {
     qDebug() << "Connected";
     connected = true;
+    //sending special package and wait for correct response
     sendAuthPackage();
     QTimer::singleShot(3000, [this] {
         if (!gotAuthPackage)
@@ -85,6 +87,7 @@ void SVClient::slotConnected()  {
 void SVClient::slotDisconnected()   {
     qDebug() << "Disconnected";
     connected = false;
+    gotAuthPackage = false;
     emit signalUIDisconnected();
 }
 
@@ -96,15 +99,15 @@ void SVClient::slotReadyRead()  {
     qDebug() << "----------------------------------------------------------------------";
     qDebug() << "Incomming data...";
     if (socket->bytesAvailable())   {
-
+        //read first byte = size of the incoming package
         char blockSize = 0;
         socket->read(&blockSize, 1);
 
         QByteArray bytes = socket->read(blockSize);
 
-        qDebug() << "Data(" << (int)blockSize << "): " << QString(bytes);
+        qDebug() << "Data(" << static_cast<int>(blockSize) << "): " << QString(bytes);
 
-        if (bytes.at(0) == AuthAnswerPackage::packageType)    {
+        if (bytes.at(0) == AuthAnswerPackage::packageType)    {     //authorization correct response
             qDebug() << "Valid answer code.";
             qDebug() << "Device type: " << QString::number(bytes[1]);
             qDebug() << "Device id: " << QString::number(bytes[2]);
@@ -112,23 +115,23 @@ void SVClient::slotReadyRead()  {
 
             gotAuthPackage = true;
             emit signalUIConnected(bytes[3]);
-        }   else if (bytes.at(0) == AnswerPackage::packageType)   {
+        }   else if (bytes.at(0) == AnswerPackage::packageType)   { //result of settings applying
             AnswerPackage answer(bytes);
             emit signalUIDone(answer.answerType);
-        }   else if (bytes.at(0) == LowFreqDataPackage::packageType) {
+        }   else if (bytes.at(0) == LowFreqDataPackage::packageType) {  //data: location, temperature, batteries...
             LowFreqDataPackage data(bytes);
             emit signalUIData(data);
-        }   else if (bytes.at(0) == HighFreqDataPackage::packageType)  {
+        }   else if (bytes.at(0) == HighFreqDataPackage::packageType)  {    //data: encoder, angles
             HighFreqDataPackage data(bytes);
             emit signalUIData(data);
-        }   else if (bytes.at(0) == SetPackage::packageType) {
+        }   else if (bytes.at(0) == SetPackage::packageType) {  //uploading Smart Vehicle settings
             qDebug() << "Uploading settings...";
             SetPackage set(bytes);
             emit signalUISettings(set);
-        }   else if (bytes.at(0) == MapPackage::packageType) {
+        }   else if (bytes.at(0) == MapPackage::packageType) {  //map data
             MapPackage map(bytes);
             emit signalUIMap(map);
-        }   else {
+        }   else {                      //undefined package
             brokenPackages++;
             emit signalUIBrokenPackage();
         }
@@ -139,6 +142,8 @@ void SVClient::slotReadyRead()  {
 
 }
 
+//search for available networks and sends a list of them to UI
+//always puts localhost
 void SVClient::slotUISearch()   {
     qDebug() << "Searching...";
     QList<QString> addressList;

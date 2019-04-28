@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     SVServer server;
-    bool result = server.start(QHostAddress("127.0.0.1"), 5556);
+    bool result = server.start(QHostAddress("0.0.0.0"), 5556);
 
     MapPackage map({{1, 1, 1, 1, 1, 1, 1, 1},
                     {1, 0, 0, 0, 0, 0, 0, 1},

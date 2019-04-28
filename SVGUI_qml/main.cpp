@@ -1,13 +1,11 @@
-#include <QGuiApplication>
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QDebug>
-#include <QQuickView>
-#include <QQuickItem>
 #include <QQmlContext>
 #include "svclient.h"
 #include "adapter.h"
 
+//Init signals/slots connecions between network client and adapter objects
 void initConnections(SVClient *client, Adapter *adapter)  {
     QObject::connect(adapter, SIGNAL(signalConnect(QString const&, quint16 const&)), client, SLOT(slotUIConnect(QString const&, quint16 const&)));
     QObject::connect(adapter, SIGNAL(signalDisconnect()), client, SLOT(slotUIDisconnect()));

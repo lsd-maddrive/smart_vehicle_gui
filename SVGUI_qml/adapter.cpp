@@ -7,6 +7,7 @@ Adapter::Adapter(QObject *parent) : QObject(parent) {
     tempSeries.setAutoScale(false);
 }
 
+//converts state code into state string
 QString Adapter::getStatusStr(const qint8 &state)  {
     QString stateString;
     switch (state)    {
@@ -44,10 +45,13 @@ void Adapter::clearCharts() {
     encoderLast = QPointF();
 }
 
+
+//show message in UI logger
 void Adapter::log(const QString &message)   {
     emit signalUILog(message);
 }
 
+//gets a QLineSeries* from QML context
 void Adapter::slotUISetSerieses(QObject *speedSeries, QObject* speedSeriesFilter, QObject *steeringSeries,
                                 QObject *tempSeries, QObject* tempSeriesFilter)   {
     if (speedSeries)  {
@@ -77,6 +81,7 @@ void Adapter::slotUISetSerieses(QObject *speedSeries, QObject* speedSeriesFilter
         qDebug() << "Temperature filtered series init error.";
 }
 
+//search for devices in current network
 void Adapter::slotUISearch()    {
     emit signalSearch();
 }
@@ -92,6 +97,7 @@ void Adapter::slotUIDisconnect()    {
     emit signalDisconnect();
 }
 
+//getting settings from UI and converting them into SetPackage
 void Adapter::slotUISettingsLoad(float steering_p, float steering_i, float steering_d, float steering_zero,
                                  float forward_p, float forward_i, float forward_d, float forward_int,
                                  float backward_p, float backward_i, float backward_d, float backward_int)  {
@@ -113,10 +119,10 @@ void Adapter::slotUISettingsLoad(float steering_p, float steering_i, float steer
     set.backward_d = backward_d;
     set.backward_int = backward_int;
 
-
     emit signalSettingsLoad(set);
 }
 
+//requesting for Smart Vehicle settings
 void Adapter::slotUISettingsUpload()    {
     log("Uploading settings...");
     emit signalSettingsUpload();
@@ -126,6 +132,7 @@ void Adapter::slotUIClearCharts()   {
     clearCharts();
 }
 
+//getting control data from UI and converting it into ControlPackage
 void Adapter::slotUIControl(float const& xAxis, float const& yAxis) {
     ControlPackage data;
     data.xAxis = xAxis;
@@ -133,6 +140,7 @@ void Adapter::slotUIControl(float const& xAxis, float const& yAxis) {
     emit signalControl(data);
 }
 
+//sets filter type and create new Filter instead of last choosen filter for every series
 void Adapter::slotUISetFilter(int filterType)   {
     Filter::FilterType _filterType;
     switch (filterType) {
@@ -156,11 +164,13 @@ void Adapter::slotUISetFilter(int filterType)   {
     tempSeriesFilter.setFilter(_filterType);
 }
 
+//sets K koef (only for Kalman)
 void Adapter::slotUISetFilterK(float k) {
     speedSeriesFilter.setFilterK(k);
     tempSeriesFilter.setFilterK(k);
 }
 
+//gets a list of available network addresses
 void Adapter::slotAddresses(QList<QString> const& addresses)    {
     emit signalUIAddresses(addresses);
 }
@@ -187,6 +197,7 @@ void Adapter::slotConnectionError(QString message) {
     log("Connection error: " + message);
 }
 
+//calculate speed by delta time and delta value
 float Adapter::getSpeed(float currentTime, float currentEncoder) {
     if (encoderLast.isNull())   {
         encoderLast = QPointF(currentTime, currentEncoder);
@@ -197,6 +208,7 @@ float Adapter::getSpeed(float currentTime, float currentEncoder) {
     return speed;
 }
 
+//gets new HighFreqDataPackage and extract all data from it to show in UI
 void Adapter::slotData(HighFreqDataPackage const& data) {
     qDebug() << "Adapter: incoming high freq data package";
 
@@ -214,6 +226,7 @@ void Adapter::slotData(HighFreqDataPackage const& data) {
     steeringSeries.addPoint(QPointF(deltaTime, data.m_steeringAngle));
 }
 
+//gets new LowFreqDataPackage and extract all data from it to show in UI
 void Adapter::slotData(LowFreqDataPackage const& data) {
     qDebug() << "Adapter: incoming low freq data package";
 
@@ -232,6 +245,7 @@ void Adapter::slotData(LowFreqDataPackage const& data) {
     tempSeriesFilter.addPoint(point);
 }
 
+//gets result of settings applying
 void Adapter::slotDone(qint8 const& answerCode) {
     switch (answerCode) {
     case 0: {
@@ -245,6 +259,7 @@ void Adapter::slotDone(qint8 const& answerCode) {
     }
 }
 
+//gets settings from Smart Vehicle to transfer them into UI
 void Adapter::slotSettings(SetPackage const& set)   {
     emit signalUISettings(set.steering_p, set.steering_i, set.steering_d, set.steering_servoZero,
                           set.forward_p, set.forward_i, set.forward_d, set.forward_int,
@@ -252,6 +267,7 @@ void Adapter::slotSettings(SetPackage const& set)   {
     log("Settings uploaded.");
 }
 
+//gets MapPackage to create a cell map in UI
 void Adapter::slotMap(MapPackage const& map)    {
     QList<int> cellsList;
     for (auto const& line : map.cells())

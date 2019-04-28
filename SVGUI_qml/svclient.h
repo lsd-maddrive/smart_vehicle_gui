@@ -16,7 +16,7 @@ class SVClient : public QObject
 private:
     QTcpSocket* socket;
     bool connected = false;
-    bool gotAuthPackage = false;
+    bool gotAuthPackage = false; //true for authorized connections
     unsigned brokenPackages = 0;
 public:
     SVClient();
@@ -31,11 +31,13 @@ public:
     bool isConnected() const;
 
 private slots:
+    //socket slots
     void slotConnected();
     void slotDisconnected();
     void slotError(QAbstractSocket::SocketError socketError);
     void slotReadyRead();
 public slots:
+    //slots adapter -> network client
     void slotUISearch();
     void slotUIConnect(QString const& address, quint16 const& port);
     void slotUIDisconnect();
@@ -43,6 +45,7 @@ public slots:
     void slotUISettingsUpload();
     void slotUIControl(ControlPackage const& data);
 signals:
+    //signals network client -> adapter
     void signalUIAddresses(QList<QString> const& addresses);
     void signalUIConnected(qint8 const& state);
     void signalUIDisconnected();

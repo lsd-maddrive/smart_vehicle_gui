@@ -14,6 +14,7 @@ class Adapter : public QObject
 private:
     QString getStatusStr(qint8 const& status);
 
+    //serieses
     int chartStartTime = 0;
     QPointF encoderLast;
     SVSeries speedSeries;
@@ -30,6 +31,7 @@ public:
     void log(QString const& message);
 
 signals:
+    //signals adapter -> network client
     void signalSearch();
     void signalConnect(QString const& address, quint16 const& port);
     void signalDisconnect();
@@ -37,6 +39,7 @@ signals:
     void signalSettingsUpload();
     void signalControl(ControlPackage const& data);
 
+    //signals adapter -> UI
     void signalUILog(QString const& message);
     void signalUIAddresses(QList<QString> const& addresses);
     void signalUIConnected();
@@ -52,6 +55,7 @@ signals:
     void signalUIMap(int w, int h, QList<int> const& cellList);
 
 public slots:
+    //slots UI -> adapter
     void slotUISetSerieses(QObject *speedSeries, QObject* speedSeiresFilter,
                            QObject *potentiometerSeries, QObject *tempSeries, QObject *tempSeriesFilter);
     void slotUISearch();
@@ -66,6 +70,7 @@ public slots:
     void slotUISetFilter(int filterType);
     void slotUISetFilterK(float k);
 
+    //slots network client -> adapter
     void slotAddresses(QList<QString> const& addresses);
     void slotConnected(qint8 const& state);
     void slotDisconnected();
