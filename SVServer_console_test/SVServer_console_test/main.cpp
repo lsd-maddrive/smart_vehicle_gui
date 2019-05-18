@@ -42,8 +42,8 @@ int main(int argc, char *argv[])
 
             data.m_encoderValue = x;
             data.m_steeringAngle = v;
-            data.x = cos(t) + 3;
-            data.y = sin(t) + 3;
+            data.x = 1.5;
+            data.y = 2.5;
             data.angle = angle;
 
             server.slotSendHighFreqData(data);
